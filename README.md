@@ -47,11 +47,12 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
     
     - Mapeamento de pastas
     - Mapeamento de impressoras
+    - Selecionar impressora padrão
     - Criar atalhos na área de trabalho
     - Atualizar data e hora
     - Reiniciar máquina
     - Atualizar IP
-    - Selecionar impressora padrão
+    
 
 - Script Manual
 
