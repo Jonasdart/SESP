@@ -10,6 +10,7 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
 
 - Os problemas
     
+    - SPDATA lendo devido operações no servidor
     - SPDATA não abre por falta de mapeamento da pasta
     - SPDATA e internet não funcionam por data e hora desconfiguradas
     - Máquina lenta e/ou sistema travando/sem funcionar
@@ -24,6 +25,7 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
 
 - As soluções
     
+    - Aguardar o término do procedimento, porém os colaboradores ficam desinformados quanto a isso e acabam ligando várias vezes para o setor. O SESP irá fazer uma verificação e caso esteja acontecendo algo na rede do SPDATA assim que ele for aberto. Caso esteja, aparecerá um aviso na tela da pessoa.
     - Fazer o mapeamento da pasta SPDATA
     - Atualizar data e hora com base no horário de brasília
     - Reiniciar a máquina
@@ -45,6 +47,7 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
 
     // São scripts que serão seguidos pela máquina, ou seja, que não precisarão de grande esforço do usuário final. São eles:
     
+    - Verificação status manutenção SPDATA
     - Mapeamento de pastas
     - Mapeamento de impressoras
     - Selecionar impressora padrão
@@ -67,7 +70,7 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
     - Fazer o mapeamento de impressoras manualmente
 
 - SCRIPTS DE INICIO AUTOMATICO
-
+    - Verificação status manutenção SPDATA
     - Data e hora
     - Configuração IP
     - Configuração Proxy 

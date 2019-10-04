@@ -1,25 +1,30 @@
 from model import backend
-from socket import *
 
 class controller():
 
     def __init__(self):
         self.backend = backend()
-        self.servidor = socket(AF_INET, SOCK_STREAM)
 
-    def conecta_servidor(self):
-        try:
-            self.servidor.connect(('192.168.0.22', '8080'))
-        except:
-            return False
-        else:
-            return True
+    def inicio(self):
+        pass
 
     def atualizar_horario(self):
 
         data_e_hora_atuais = self.backend.buscar_horario_atual()
-        print(data_e_hora_atuais)
+        data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
+        self.backend.atualizar_horario(data_e_hora_atuais)
+
+    def verificar_spdata(self):
+        status = self.backend.verificar_spdata()
+        status = status.decode("utf-8")
+
+        if "False" in status:
+            return True
+        else:
+            print(f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}")
 
 if __name__ == "__main__":
     main = controller()
+    main.verificar_spdata()
     main.atualizar_horario()
+    #main.inicio()

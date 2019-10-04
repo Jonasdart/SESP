@@ -1,10 +1,12 @@
 from servidor_model import backend
 from socket import *
+from time import sleep
 
 class controller():
     def __init__(self):
         self.backend = backend()
-        self.endereco = 'localhost'
+        #self.endereco = '192.168.0.22'
+        self.endereco = "localhost"
         self.porta = 50007
 
     def iniciar_servidor(self):
@@ -17,18 +19,18 @@ class controller():
 
     def espera_requisicao(self):
         while True:
-            endereco, conexao = self.servidor.accept()
+            self.id_conexao, conexao = self.servidor.accept()
 
             print(f"Nova Conexão de {conexao}")
 
             while True:
-                requisicao = endereco.recv(1024)
+                requisicao = self.id_conexao.recv(1024)
                 if not requisicao: 
                     break
 
-                endereco.send(self.trata_requisicao(requisicao))
+                self.id_conexao.send(self.trata_requisicao(requisicao))
 
-            endereco.close()
+            self.id_conexao.close()
 
     def trata_requisicao(self, requisicao):
         requisicao = requisicao.decode("utf-8")
@@ -39,7 +41,7 @@ class controller():
         if requisicao == '01':
             return self.data_e_hora_atuais()
         elif requisicao == '02':
-            pass
+            return self.verificar_spdata()
         elif requisicao == '03':
             pass
         elif requisicao == '04':
@@ -53,6 +55,18 @@ class controller():
 
         return bytes(data_e_hora, 'utf-8')
 
+    def verificar_spdata(self):
+        return bytes(self.backend.status_spdata(), "utf-8")
+
 if __name__ == "__main__":
     main = controller()
-    main.iniciar_servidor()
+    try:
+        main.iniciar_servidor()
+    except:
+        print("Reiniciando Servidor...")
+        sleep(1)
+        try:
+            main.id_conexao.close()
+        except:
+            raise
+        main.iniciar_servidor()

@@ -1,0 +1,2 @@
+manutencao = False
+horario_previsto = 21 horas
