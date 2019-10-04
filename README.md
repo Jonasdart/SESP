@@ -10,7 +10,7 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
 
 - Os problemas
     
-    - SPDATA lendo devido operações no servidor
+    - SPDATA lento devido operações no servidor
     - SPDATA não abre por falta de mapeamento da pasta
     - SPDATA e internet não funcionam por data e hora desconfiguradas
     - Máquina lenta e/ou sistema travando/sem funcionar
