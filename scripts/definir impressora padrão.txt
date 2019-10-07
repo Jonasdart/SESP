@@ -1,0 +1,5 @@
+https://social.technet.microsoft.com/Forums/pt-BR/14cdcace-a18b-4848-b193-b2786588bde3/impressora-padro?forum=scriptadminpt
+
+http://www.guj.com.br/t/mudar-impressora-resolvido/115690
+
+RUNDLL32 PRINTUI.DLL,PrintUIEntry /y /n "NOME_IMPRESSORA"

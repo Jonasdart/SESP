@@ -29,9 +29,12 @@ class controller():
                     break
 
                 self.id_conexao.send(self.trata_requisicao(requisicao))
-
-            self.id_conexao.close()
-
+            try:
+                self.id_conexao.close()
+            except:
+                pass
+            else:
+                print("Conexão fechada")
     def trata_requisicao(self, requisicao):
         requisicao = requisicao.decode("utf-8")
 
@@ -43,9 +46,13 @@ class controller():
         elif requisicao == '02':
             return self.verificar_spdata()
         elif requisicao == '03':
+            #RETORNAR O IP DA MAQUINA DE ACORDO COM A ETIQUETA
             pass
         elif requisicao == '04':
+            #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
             pass
+        elif requisicao == "05":
+            #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
 
     def data_e_hora_atuais(self):
         hora = self.backend.busca_hora_atual()
@@ -69,4 +76,6 @@ if __name__ == "__main__":
             main.id_conexao.close()
         except:
             raise
+        else:
+            print("Conexão fechada")
         main.iniciar_servidor()

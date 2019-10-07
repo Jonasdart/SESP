@@ -5,7 +5,7 @@ import os
 class backend():
 
     def __init__(self):
-        pass
+        self.cabecalho = self.gera_cabecalho()
 
     def conecta_servidor(self):
         self.servidor = socket(AF_INET, SOCK_STREAM)
@@ -18,6 +18,12 @@ class backend():
             self.conecta_servidor()
         else:
             return True
+
+    def gera_cabecalho(self):
+        info_cabecalho = open("cabecalho.txt", "r")
+        cabecalho = info_cabecalho.readlines()
+
+        return cabecalho
 
     def verificar_spdata(self):
         if self.conecta_servidor():
@@ -36,8 +42,11 @@ class backend():
     def mapear_spdata(self):
         pass
 
-    def mapear_impressora(self, impressora):
-        pass
+    def mapear_impressora(self, ip, impressora):
+        if self.conecta_servidor():
+            try:
+                self.servidor.send(b'04')
+
 
     def buscar_impressora_padrao(self, maquina):
         pass
