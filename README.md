@@ -25,7 +25,7 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
 
 - As soluções
     
-    - Aguardar o término do procedimento, porém os colaboradores ficam desinformados quanto a isso e acabam ligando várias vezes para o setor. O SESP irá fazer uma verificação e caso esteja acontecendo algo na rede do SPDATA assim que ele for aberto. Caso esteja, aparecerá um aviso na tela da pessoa.
+    - Aguardar o término do procedimento, porém os colaboradores ficam desinformados quanto a isso e acabam ligando várias vezes para o setor. O SESP irá verificar se está acontecendo algo na rede do SPDATA assim que ele for aberto. Caso esteja, aparecerá um aviso na tela da pessoa.
     - Fazer o mapeamento da pasta SPDATA
     - Atualizar data e hora com base no horário de brasília
     - Reiniciar a máquina
