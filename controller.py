@@ -28,3 +28,6 @@ if __name__ == "__main__":
     main.verificar_spdata()
     main.atualizar_horario()
     #main.inicio()
+
+    984052829 walter unimed - dois medicos unimed irao atuar aqui. 
+    suspender a reserva do notebook de gracielle hoje e amanha

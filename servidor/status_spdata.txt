@@ -1,2 +1,2 @@
 manutencao = False
-horario_previsto = 21 horas
+horario_previsto = Retorno ao meio dia

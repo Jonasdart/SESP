@@ -1,0 +1,8 @@
+Iremos usar o banco de dados do GLPI -
+
+INSERT INTO `glpi_ipaddresses` VALUES ('1','0','1','NetworkName','4','192.168.0.150','0','0','65535','3232235670','0','0','234','Computer');
+
+5 e 12
+tabela é a glpi_addresses
+5 é o ip
+12 é a etiqueta da máquina

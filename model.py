@@ -10,7 +10,7 @@ class backend():
     def conecta_servidor(self):
         self.servidor = socket(AF_INET, SOCK_STREAM)
         try:
-            #self.servidor.connect(('192.168.0.22', 50007))
+            #self.servidor.connect(('192.168.1.0', 50007))
             self.servidor.connect(('localhost', 50007))
         except:
             print("\n\nTentando novamente em um segundo e meio")
@@ -21,7 +21,8 @@ class backend():
 
     def gera_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
-        cabecalho = info_cabecalho.readlines()
+        cabecalho = info_cabecalho.read()
+        print(cabecalho)
 
         return cabecalho
 
@@ -46,8 +47,8 @@ class backend():
         if self.conecta_servidor():
             try:
                 self.servidor.send(b'04')
-
-
+            except:
+                pass
     def buscar_impressora_padrao(self, maquina):
         pass
 

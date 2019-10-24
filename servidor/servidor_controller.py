@@ -52,6 +52,7 @@ class controller():
             #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
             pass
         elif requisicao == "05":
+            pass
             #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
 
     def data_e_hora_atuais(self):
