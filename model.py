@@ -3,25 +3,52 @@ from time import sleep
 import os
 
 class backend():
-
     def __init__(self):
-        self.cabecalho = self.gera_cabecalho()
+        self.cabecalho = self.busca_cabecalho()
 
-    def conecta_servidor(self):
+    def conecta_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
         self.servidor = socket(AF_INET, SOCK_STREAM)
-        try:
-            #self.servidor.connect(('192.168.1.0', 50007))
-            self.servidor.connect(('localhost', 50007))
-        except:
-            print("\n\nTentando novamente em um segundo e meio")
-            sleep(1.5)
-            self.conecta_servidor()
+        if not ip_temp:
+            try:
+                #self.servidor.connect(('192.168.1.0', 50007))
+                self.servidor.connect(('localhost', 50007))
+            except:
+                if cont is not 0:
+                    print("\n\nTentando novamente em um segundo e meio")
+                    sleep(1.5)
+                    self.conecta_servidor(cont = cont-1)
+                elif not verificou_com_ip_secundario:
+                    self.atualizar_ip(self.cabecalho_ip_secundario)
+                    self.conecta_servidor(ip_temp = True)
+                else:
+                    return False
+            else:
+                return True
         else:
-            return True
+            try:
+                #self.servidor.connect(('192.168.1.0', 50007))
+                self.servidor.connect(('localhost', 50007))
+            except:
+                if cont is not 0:
+                    print("\n\nTentando novamente em um segundo e meio com o IP temporário")
+                    sleep(1.5)
+                    self.conecta_servidor(cont = cont-1, ip_temp = True)
+                else:
+                    return False
+            else:
+                ip = self.buscar_ip(self.cabecalho_etiqueta)
+                self.atualizar_ip(ip)
+                self.conecta_servidor(verificou_com_ip_secundario = True)
 
-    def gera_cabecalho(self):
+    def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
-        cabecalho = info_cabecalho.read()
+        cabecalho = info_cabecalho.readlines()
+
+        self.cabecalho_etiqueta = cabecalho[0].split("=")[1]
+        self.cabecalho_ip_secundario = cabecalho[1].split("=")[1]
+
+        print(self.cabecalho_etiqueta)
+        print(self.cabecalho_ip_secundario)
         print(cabecalho)
 
         return cabecalho
@@ -39,6 +66,8 @@ class backend():
                 except:
                     pass
                 return status
+        else:
+            raise
 
     def mapear_spdata(self):
         pass
@@ -49,6 +78,8 @@ class backend():
                 self.servidor.send(b'04')
             except:
                 pass
+        else:
+            print("Não foi possível alcançar o servidor SESP")
     def buscar_impressora_padrao(self, maquina):
         pass
 
@@ -72,8 +103,7 @@ class backend():
                     pass
                 return horario_atual
         else:
-            print("Deu erro")
-
+            print("Não foi possível alcançar o servidor SESP")
 
     def atualizar_horario(self, horario):
         data, hora = horario.split("|")

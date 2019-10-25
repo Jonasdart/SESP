@@ -1,4 +1,5 @@
 from datetime import datetime
+from banco_de_dados import glpi
 
 class backend():
     def __init__(self):
@@ -27,3 +28,6 @@ class backend():
             return f"{horario_previsto}"
         else:
             return "False"
+
+    def buscar_ip_maquina(self, etiqueta):
+        pass
