@@ -3,7 +3,7 @@ from banco_de_dados import glpi
 
 class backend():
     def __init__(self):
-        pass
+        self.glpi = glpi()
 
     def busca_hora_atual(self):
         hora = datetime.now().strftime('%H:%M')
@@ -29,5 +29,5 @@ class backend():
         else:
             return "False"
 
-    def buscar_ip_maquina(self, etiqueta):
+    def retornar_ip_maquina(self, etiqueta):
         pass
