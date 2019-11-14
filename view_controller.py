@@ -18,22 +18,39 @@ class sesp_view():
         except:
             pass
 
-        self.altura = int(self.tela.winfo_screenheight()/1.2)
-        self.largura = int(self.tela.winfo_screenwidth()/1.2)
+        self.altura = int(self.tela.winfo_screenheight()- 75)
+        self.largura = int(self.tela.winfo_screenwidth())
+
+        self.tela.state("zoomed")
 
         self.x.append((self.largura/2)/4)
         self.y.append((self.altura/2)/4)
         self.y.append((self.altura/2)/1.27)
         self.y.append(self.altura/1.5)
 
+        if self.x[0] > 100:
+            self.tamanho_fonte_botoes = "11"
+        else:
+            self.tamanho_fonte_botoes = "8"
+
+        print(self.x)
+        print(self.y)
+
     def tela_inicial(self):
         self.tela = Tk()
         self.posiciona_janela()
         self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
+        self.tela["bg"] = "#193E4D"
 
-        botao1 = Button(self.tela, text = "Atualizar Velórios", bg = "yellow", fg = "black", height = "7", width = "15", bd = "10", relief = "flat")
-        botao2 = Button(self.tela, text = "Atualizar Velórios", bg = "yellow", fg = "black", height = "7", width = "15", bd = "10", relief = "flat")
-        botao3 = Button(self.tela, text = "Atualizar Velórios", bg = "yellow", fg = "black", height = "7", width = "15", bd = "10", relief = "flat")
+        botao1 = Button(self.tela, text = "Verificar Internet", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "8", width = "17", 
+            bd = "1", relief = "flat", overrelief = "sunken")
+        botao2 = Button(self.tela, text = "Verificar SPDATA", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "8", width = "17", 
+            bd = "1", relief = "flat", overrelief = "sunken")
+        botao3 = Button(self.tela, text = "Verificar Impressora", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "8", width = "17", 
+            bd = "1", relief = "flat", overrelief = "sunken")
 
 
         botao1.place(x=f"{self.x[0]}", y = f"{self.y[0]}")
