@@ -4,7 +4,7 @@ import os
 
 class backend():
     def __init__(self):
-        self.cabecalho = self.busca_cabecalho()
+        pass
 
     def conecta_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
         self.servidor = socket(AF_INET, SOCK_STREAM)
@@ -45,11 +45,12 @@ class backend():
         cabecalho = info_cabecalho.readlines()
 
         self.cabecalho_etiqueta = cabecalho[0].split("=")[1]
-        self.cabecalho_ip_secundario = cabecalho[1].split("=")[1]
+        self.cabecalho_ip = cabecalho[1].split("=")[1]
+        self.cabecalho_ip_secundario = cabecalho[2].split("=")[1]
 
-        print(self.cabecalho_etiqueta)
-        print(self.cabecalho_ip_secundario)
-        print(cabecalho)
+        print(f"\n\nVocê está usando a máquina etiqueta {self.cabecalho_etiqueta}")
+        print(f"O IP padrão da máquina é o {self.cabecalho_ip}")
+        print(f"O ip secundário de suporte SESP é o {self.cabecalho_ip_secundario}")
 
         return cabecalho
 

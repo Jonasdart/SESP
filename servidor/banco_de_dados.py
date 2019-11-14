@@ -6,7 +6,7 @@ class glpi():
 		self.gerador_de_query = gera_query()
 		self.conectado = False
 
-	def conecta(self)
+	def conecta(self):
 		self.credenciais = self.credencia()
 		try:
 			self.banco = mdb.connect(self.credenciais[0], self.credenciais[1], 
