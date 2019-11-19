@@ -31,6 +31,23 @@ class controller():
             else:
                 print(f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}")
 
+    def spdata_nao_abre(self):
+        try:
+            self.atualizar_horario()
+        except:
+            #aqui se não conseguir buscar o horário, o problema provavelmente está na internet
+            #portanto devemos chamar a função de correção de internet
+            pass
+        try:
+            mapeamento_ok = self.backend.mapear_spdata()
+        except:
+            pass
+
+        if mapeamento_ok:
+            print("O mapeamento foi refeito")
+        else:
+            print("O mapeamento não foi concluido")
+
 if __name__ == "__main__":
     main = controller()
     try:

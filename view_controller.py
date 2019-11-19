@@ -5,10 +5,12 @@
 from tkinter import *
 from time import sleep
 from model import backend
+from controller import controller
 
 class sesp_view():
     def __init__(self):
         self.backend = backend()
+        self.controller = controller()
 
         self.botoes_menu_x = list()
         self.botoes_menu_y = list()
@@ -57,7 +59,7 @@ class sesp_view():
             bd = "1", relief = "flat", overrelief = "sunken")
         verificar_spdata = Button(tela, text = "SPDATA Não Abre", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
-            bd = "1", relief = "flat", overrelief = "sunken")
+            bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.spdata_nao_abre)
         verificar_travamento_spdata = Button(tela, text = "SPDATA Travando", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken")
@@ -112,6 +114,7 @@ class sesp_view():
         self.tela = Tk()
         self.posiciona_janela()
         self.botoes_controle()
+        self.mostra_esconde_botoes()
         self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
         self.tela["bg"] = "#193E4D"
  

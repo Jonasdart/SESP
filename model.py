@@ -1,6 +1,7 @@
 from socket import *
 from time import sleep
 import os
+import subprocess
 
 class backend():
     def __init__(self):
@@ -71,7 +72,18 @@ class backend():
             raise
 
     def mapear_spdata(self):
-        pass
+        try:
+            os.system("net use I: /delete >nul")
+        except:
+            pass
+        try:
+            os.system("net use I: \\\\192.168.0.251\\spdatai /user:192.168.0.251\\administrador 123456 /persistent:yes")
+        except:
+            return False
+        else:
+            return True
+
+
 
     def mapear_impressora(self, ip, impressora):
         if self.conecta_servidor():
