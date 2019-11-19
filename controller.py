@@ -18,6 +18,17 @@ class controller():
             data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
             self.backend.atualizar_horario(data_e_hora_atuais)
 
+    def corrigir_internet(self):
+        try:
+            self.backend.definir_proxy()
+        except:
+            pass
+        try:
+            self.atualizar_horario()
+        except:
+            raise
+
+
     def verificar_spdata(self):
         try:
             status = self.backend.verificar_spdata()
@@ -39,14 +50,10 @@ class controller():
             #portanto devemos chamar a função de correção de internet
             pass
         try:
-            mapeamento_ok = self.backend.mapear_spdata()
+            mapeamento_msg_confirmacao = self.backend.mapear_spdata()
         except:
             pass
-
-        if mapeamento_ok:
-            print("O mapeamento foi refeito")
-        else:
-            print("O mapeamento não foi concluido")
+        return mapeamento_msg_confirmacao
 
 if __name__ == "__main__":
     main = controller()

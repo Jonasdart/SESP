@@ -56,7 +56,7 @@ class sesp_view():
 
         verificar_internet = Button(tela, text = "Internet Não Funciona", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
-            bd = "1", relief = "flat", overrelief = "sunken")
+            bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.corrigir_internet)
         verificar_spdata = Button(tela, text = "SPDATA Não Abre", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.spdata_nao_abre)
