@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #dev by Jonas Duarte - Duzz System
-
+import threading
 from tkinter import *
 from time import sleep
 from model import backend
@@ -16,9 +16,12 @@ class sesp_view():
         self.botoes_menu_y = list()
         self.botoes_controle_x = list()
         self.botoes_controle_y = list()
+        
         self.tela_inicial()
 
     def posiciona_janela(self):
+        self.gera_gif_carregamento()
+
         try:
             self.x.clear()
             self.y.clear()
@@ -56,10 +59,10 @@ class sesp_view():
 
         verificar_internet = Button(tela, text = "Internet Não Funciona", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.corrigir_internet)
+            bd = "1", relief = "flat", overrelief = "sunken")
         verificar_spdata = Button(tela, text = "SPDATA Não Abre", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.spdata_nao_abre)
+            bd = "1", relief = "flat", overrelief = "sunken")
         verificar_travamento_spdata = Button(tela, text = "SPDATA Travando", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken")
@@ -72,6 +75,15 @@ class sesp_view():
         verificar_impressora = Button(tela, text = "Não Consigo Imprimir", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken")
+
+        #COMANDOS
+
+        verificar_internet["command"] = lambda: self.armador('01')
+        verificar_spdata["command"] = lambda: self.armador('02')
+        verificar_travamento_spdata["command"] = lambda: self.armador('03')
+        verificar_glpi["command"] = lambda: self.armador('04')
+        verificar_computador["command"] = lambda: self.armador('05')
+        verificar_impressora["command"] = lambda: self.armador('06')
 
         return [verificar_internet, verificar_spdata, verificar_travamento_spdata, verificar_glpi, verificar_computador, verificar_impressora]
 
@@ -119,6 +131,67 @@ class sesp_view():
         self.tela["bg"] = "#193E4D"
  
         self.tela.mainloop()
+
+    def gera_gif_carregamento(self):
+        self.gif_frames = list()
+        for x in range(100):
+            try:
+                self.gif_frames.append(PhotoImage(file=f'img/carregamento/gif_carregamento4.GIF', format = f'gif -index {x}'))
+                #gif_frames.append(PhotoImage(file=f'img/carregamento/c_c_{x}.png'))
+            except:
+                break
+
+    def armador(self, tipo):
+
+        if tipo is '01':
+            self.acao = threading.Thread(target = self.controller.corrigir_internet)
+            self.acao.start()
+        elif tipo is '02':
+            self.acao = threading.Thread(target= self.controller.spdata_nao_abre)
+            self.acao.start()
+        elif tipo is '03':
+            pass
+
+        self.gera_popup_carregamento(self.gif_frames)
+
+    def gera_popup_carregamento(self, gif):
+        #popup_fundo_carregamento = Toplevel(self.tela)
+        popup_carregamento = Toplevel(self.tela)
+
+        """popup_fundo_carregamento.transient(self.tela)
+        popup_fundo_carregamento.overrideredirect(True)
+        popup_fundo_carregamento.geometry("+350+100")
+        popup_fundo_carregamento.lift()
+        popup_fundo_carregamento.wm_attributes("-topmost", True)
+        popup_fundo_carregamento.wm_attributes("-disabled", True)
+        popup_fundo_carregamento.wm_attributes("-transparentcolor", "white")"""
+
+        popup_carregamento.transient(self.tela)
+        popup_carregamento.overrideredirect(True)
+        popup_carregamento.geometry(f"+600+300")
+        popup_carregamento.lift()
+        popup_carregamento.wm_attributes("-topmost", True)
+        popup_carregamento.wm_attributes("-disabled", True)
+        popup_carregamento.wm_attributes("-transparentcolor", "white")
+
+        """label_f = Label(popup_fundo_carregamento, bg = "white", image=gif[0])
+        label_f.pack()"""
+        label = Label(popup_carregamento, bg="white")
+        label.pack()
+
+        self.inicia_gif_carregamento(popup_carregamento, gif, label)
+
+    def inicia_gif_carregamento(self, popup, gif, label, indice = 0):
+        try:
+            label.configure(image = gif[indice])
+        except:
+            indice = 0
+            label.configure(image = gif[indice])
+
+        if self.acao.isAlive():
+            popup.after(70, lambda: self.inicia_gif_carregamento(popup, gif, label, indice+1))
+        else:
+            popup.destroy()
 
 
 if __name__ == "__main__":

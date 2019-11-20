@@ -15,8 +15,13 @@ class controller():
             print("Não foi possível acessar o servidor SESP")
             raise
         else:
-            data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
-            self.backend.atualizar_horario(data_e_hora_atuais)
+            try:
+                data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
+            except:
+                print("Não foi possível acessar o servidor SESP")
+                
+            else:
+                self.backend.atualizar_horario(data_e_hora_atuais)
 
     def corrigir_internet(self):
         try:

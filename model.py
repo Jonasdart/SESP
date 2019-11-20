@@ -6,9 +6,11 @@ import subprocess
 class backend():
     def __init__(self):
         self.busca_cabecalho()
+        self.conectado = False
 
     def conecta_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
         self.servidor = socket(AF_INET, SOCK_STREAM)
+
         if not ip_temp:
             try:
                 #self.servidor.connect(('192.168.1.0', 50007))
@@ -22,12 +24,14 @@ class backend():
                     if self.atualizar_ip(self.cabecalho_ip_secundario):
                         self.conecta_servidor(ip_temp = True)
                     else:
-                        return False
+                        self.conectado = False
+                        raise
                 else:
-                    print("Contei como erro")
-                    return False
+                    self.conectado = False
+                    raise
             else:
-                return True
+                self.conectado = True
+                return
         else:
             try:
                 #self.servidor.connect(('192.168.1.0', 50007))
@@ -37,7 +41,7 @@ class backend():
                     print("\n\nTentando novamente com o IP temporário")
                     self.conecta_servidor(cont = cont-1, ip_temp = True)
                 else:
-                    return False
+                    self.conectado = False
             else:
                 ip = self.buscar_ip(self.cabecalho_etiqueta)
                 self.atualizar_ip(ip)
@@ -54,7 +58,12 @@ class backend():
         return cabecalho
 
     def verificar_spdata(self):
-        if self.conecta_servidor():
+        if not self.conectado:
+            try:
+                self.conecta_servidor()
+            except:
+                raise
+        else:
             try:
                 self.servidor.send(b'02')
             except:
@@ -66,12 +75,9 @@ class backend():
                 except:
                     pass
                 return status
-        else:
-            raise
 
     def mapear_spdata(self):
         try:
-            os.system("@echo off")
             os.system("net use I: /delete >nul")
         except:
             pass
@@ -85,13 +91,17 @@ class backend():
 
 
     def mapear_impressora(self, ip, impressora):
-        if self.conecta_servidor():
+        if not self.conectado:
+            try:
+                self.conecta_servidor()
+            except:
+                raise
+        else:
             try:
                 self.servidor.send(b'04')
             except:
                 pass
-        else:
-            print("Não foi possível alcançar o servidor SESP")
+
     def buscar_impressora_padrao(self, maquina):
         pass
 
@@ -102,7 +112,13 @@ class backend():
         pass
 
     def buscar_horario_atual(self):
-        if self.conecta_servidor():
+
+        if not self.conectado:
+            try:
+                self.conecta_servidor()
+            except:
+                raise
+        else:
             try:
                 self.servidor.send(b'01')
             except:
@@ -114,8 +130,6 @@ class backend():
                 except:
                     pass
                 return horario_atual
-        else:
-            print("Não foi possível alcançar o servidor SESP")
 
     def atualizar_horario(self, horario):
         data, hora = horario.split("|")
