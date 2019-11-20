@@ -1,10 +1,11 @@
 from socket import *
 from time import sleep
 import os
+import subprocess
 
 class backend():
     def __init__(self):
-        pass
+        self.busca_cabecalho()
 
     def conecta_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
         self.servidor = socket(AF_INET, SOCK_STREAM)
@@ -14,13 +15,16 @@ class backend():
                 self.servidor.connect(('localhost', 50007))
             except:
                 if cont is not 0:
-                    print("\n\nTentando novamente em um segundo e meio")
-                    sleep(1.5)
+                    print("\n\nTentando novamente")
                     self.conecta_servidor(cont = cont-1)
                 elif not verificou_com_ip_secundario:
-                    self.atualizar_ip(self.cabecalho_ip_secundario)
-                    self.conecta_servidor(ip_temp = True)
+                    print("\n\nTentando novamente com o IP temporário")
+                    if self.atualizar_ip(self.cabecalho_ip_secundario):
+                        self.conecta_servidor(ip_temp = True)
+                    else:
+                        return False
                 else:
+                    print("Contei como erro")
                     return False
             else:
                 return True
@@ -30,8 +34,7 @@ class backend():
                 self.servidor.connect(('localhost', 50007))
             except:
                 if cont is not 0:
-                    print("\n\nTentando novamente em um segundo e meio com o IP temporário")
-                    sleep(1.5)
+                    print("\n\nTentando novamente com o IP temporário")
                     self.conecta_servidor(cont = cont-1, ip_temp = True)
                 else:
                     return False
@@ -44,14 +47,10 @@ class backend():
         info_cabecalho = open("cabecalho.txt", "r")
         cabecalho = info_cabecalho.readlines()
 
-        self.cabecalho_etiqueta = cabecalho[0].split("=")[1]
-        self.cabecalho_ip = cabecalho[1].split("=")[1]
-        self.cabecalho_ip_secundario = cabecalho[2].split("=")[1]
-
-        print(f"\n\nVocê está usando a máquina etiqueta {self.cabecalho_etiqueta}")
-        print(f"O IP padrão da máquina é o {self.cabecalho_ip}")
-        print(f"O ip secundário de suporte SESP é o {self.cabecalho_ip_secundario}")
-
+        self.cabecalho_etiqueta = cabecalho[0].split("=")[1].strip()
+        self.cabecalho_ip = cabecalho[1].split("=")[1].strip()
+        self.cabecalho_ip_secundario = cabecalho[2].split("=")[1].strip()
+        self.cabecalho_excessoes = cabecalho[3].split("=")[1].strip()
         return cabecalho
 
     def verificar_spdata(self):
@@ -71,7 +70,19 @@ class backend():
             raise
 
     def mapear_spdata(self):
-        pass
+        try:
+            os.system("@echo off")
+            os.system("net use I: /delete >nul")
+        except:
+            pass
+        try:
+            os.system("net use I: \\\\192.168.0.251\\spdatai /user:192.168.0.251\\administrador 123456 /persistent:yes")
+        except:
+            return False
+        else:
+            return True
+
+
 
     def mapear_impressora(self, ip, impressora):
         if self.conecta_servidor():
@@ -113,22 +124,34 @@ class backend():
             os.system(f"time {hora}")
         except:
             pass
-    def reiniciar_maquina(self):
-        retorno = True
 
+    def reiniciar_maquina(self):
         try:
             os.system("shutdown /r")
         except:
-            retorno = False
-
-        return retorno
-
+            return False
+        else:
+            return True
 
     def buscar_ip(self, maquina):
-        pass
+        return self.cabecalho_ip
 
     def atualizar_ip(self, ip):
-        pass
+        try:
+            os.system(f'netsh int ip set address name="Conexão Local" source=static {ip} 255.255.255.0 192.168.0.1 1')
+            os.system('netsh int ip set dns "Conexão Local" static 8.8.8.8')
+            os.system('netsh int ip set wins "Conexão Local" static 8.8.4.4')
+        except:
+            return False
+        else:
+            return True
 
+    def definir_proxy(self):
+        try:
+            os.system('REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f')
+            os.system('REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d 192.168.0.1:8080 /f')
+            os.system(f'REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "{self.cabecalho_excessoes}" /f')
+        except:
+            pass
 """teste = backend()
 teste.reiniciar_maquina()"""

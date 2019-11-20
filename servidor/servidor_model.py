@@ -1,9 +1,10 @@
 from datetime import datetime
-from banco_de_dados import glpi
+#from banco_de_dados import glpi
 
 class backend():
     def __init__(self):
-        self.glpi = glpi()
+        pass
+        #self.glpi = glpi()
 
     def busca_hora_atual(self):
         hora = datetime.now().strftime('%H:%M')

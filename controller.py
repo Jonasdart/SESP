@@ -18,6 +18,17 @@ class controller():
             data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
             self.backend.atualizar_horario(data_e_hora_atuais)
 
+    def corrigir_internet(self):
+        try:
+            self.backend.definir_proxy()
+        except:
+            pass
+        try:
+            self.atualizar_horario()
+        except:
+            raise
+
+
     def verificar_spdata(self):
         try:
             status = self.backend.verificar_spdata()
@@ -30,6 +41,19 @@ class controller():
                 return True
             else:
                 print(f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}")
+
+    def spdata_nao_abre(self):
+        try:
+            self.atualizar_horario()
+        except:
+            #aqui se não conseguir buscar o horário, o problema provavelmente está na internet
+            #portanto devemos chamar a função de correção de internet
+            pass
+        try:
+            mapeamento_msg_confirmacao = self.backend.mapear_spdata()
+        except:
+            pass
+        return mapeamento_msg_confirmacao
 
 if __name__ == "__main__":
     main = controller()
