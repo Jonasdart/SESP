@@ -1,4 +1,4 @@
-caminho_bd = 192.168.x.xxx
+caminho_bd = localhost
 usuario = root
-senha 	= senha
+senha 	= 
 banco_de_dados = glpi

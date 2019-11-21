@@ -47,6 +47,9 @@ class backend():
                 self.atualizar_ip(ip)
                 self.conecta_servidor(verificou_com_ip_secundario = True)
 
+    def atualiza_cabecalho(self, ip = None, etiqueta = None):
+        pass
+
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
         cabecalho = info_cabecalho.readlines()
@@ -63,6 +66,8 @@ class backend():
                 self.conecta_servidor()
             except:
                 raise
+            else:
+                self.verificar_spdata()
         else:
             try:
                 self.servidor.send(b'02')
@@ -96,11 +101,10 @@ class backend():
                 self.conecta_servidor()
             except:
                 raise
+            else:
+                self.mapear_impressora(ip, impressora)
         else:
-            try:
-                self.servidor.send(b'04')
-            except:
-                pass
+            pass
 
     def buscar_impressora_padrao(self, maquina):
         pass
@@ -118,6 +122,8 @@ class backend():
                 self.conecta_servidor()
             except:
                 raise
+            else:
+                self.buscar_horario_atual()
         else:
             try:
                 self.servidor.send(b'01')
@@ -148,7 +154,29 @@ class backend():
             return True
 
     def buscar_ip(self, maquina):
-        return self.cabecalho_ip
+        if not self.conectado:
+            try:
+                self.conecta_servidor()
+            except:
+                raise
+            else:
+                self.buscar_ip(maquina)
+        else:
+            try:
+                requisicao = f'03-{maquina}'
+                self.servidor.send(bytes(requisicao, 'utf-8'))
+            except:
+                raise
+            else:
+                ip = self.servidor.recv(1024)
+                try:
+                    self.servidor.close()
+                except:
+                    pass
+                else:
+                    self.conectado = False
+                print(ip)
+                return ip
 
     def atualizar_ip(self, ip):
         try:

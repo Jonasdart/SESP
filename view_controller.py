@@ -89,7 +89,6 @@ class sesp_view():
         #COMANDOS
 
         verificar_internet["command"] = lambda: self.armador('01')
-        verificar_spdata["command"] = lambda: self.armador('02')
         verificar_travamento_spdata["command"] = lambda: self.armador('03')
         verificar_glpi["command"] = lambda: self.armador('04')
         verificar_computador["command"] = lambda: self.armador('05')
@@ -148,7 +147,8 @@ class sesp_view():
     def armador(self, tipo):
 
         if tipo is '01':
-            self.acao = threading.Thread(target = self.controller.corrigir_internet)
+            #self.acao = threading.Thread(target = self.controller.corrigir_internet)
+            self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
             self.acao.start()
         elif tipo is '02':
             self.acao = threading.Thread(target= self.controller.spdata_nao_abre)
