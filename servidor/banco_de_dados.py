@@ -39,8 +39,8 @@ class glpi():
             print("Tentando conectar ao GLPI...")
             self.conecta()
 
-        query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipadresses", 
-            where = True, coluna_verificacao = "mainitems_id", valor_where = maquina)
+        query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipaddresses", 
+            where = True, coluna_verificacao = ["mainitems_id", "mainitemtype"], valor_where = [maquina, "Computer"])
 
         return self.commit_com_retorno(query)
         

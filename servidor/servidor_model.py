@@ -43,6 +43,11 @@ class backend():
             info = self.busca_info_maquina(etiqueta)
         except:
             raise
+
+        try:
+            info = info[0]
+        except:
+            pass
         print(info)
         try:
             ip = info[5]

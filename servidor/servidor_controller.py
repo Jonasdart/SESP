@@ -42,13 +42,10 @@ class controller():
         except:
             raise
 
-        print(requisicao)
 
         return self.armador(requisicao)
 
     def armador(self, requisicao):
-        print(requisicao[0])
-        print(requisicao[1])
         if requisicao[0] == '01':
             return self.data_e_hora_atuais()
         elif requisicao[0] == '02':

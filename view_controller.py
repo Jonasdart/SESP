@@ -159,6 +159,7 @@ class sesp_view():
         self.gera_popup_carregamento(self.gif_frames)
 
     def gera_popup_informacoes(self, ativo = False, popup_informacoes = None):
+        self.backend.busca_cabecalho()
         if not ativo:
             self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = True, popup_informacoes = popup_informacoes)
             self.botao_meu_computador["relief"] = "sunken"
