@@ -56,7 +56,6 @@ class controller():
             pass
         try:
             mapeamento_msg_confirmacao = self.backend.mapear_spdata()
-            print(mapeamento_msg_confirmacao)
         except:
             pass
         return mapeamento_msg_confirmacao
