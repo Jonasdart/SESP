@@ -189,7 +189,7 @@ class sesp_view():
             label.configure(image = gif[indice])
 
         if self.acao.isAlive():
-            popup.after(70, lambda: self.inicia_gif_carregamento(popup, gif, label, indice+1))
+            popup.after(90, lambda: self.inicia_gif_carregamento(popup, gif, label, indice+1))
         else:
             popup.destroy()
 
