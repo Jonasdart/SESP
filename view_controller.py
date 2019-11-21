@@ -19,6 +19,16 @@ class sesp_view():
         
         self.tela_inicial()
 
+    def tela_inicial(self):
+        self.tela = Tk()
+        self.posiciona_janela()
+        self.botoes_controle()
+        self.mostra_esconde_botoes()
+        self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
+        self.tela["bg"] = "#193E4D"
+ 
+        self.tela.mainloop()
+
     def posiciona_janela(self):
         self.gera_gif_carregamento()
 
@@ -94,15 +104,20 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        meu_computador = Button(tela, text = "Meu Computador", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        self.botao_meu_computador = Button(tela, text = "Meu Computador", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken", command = self.backend.busca_cabecalho)
         self.botao_lateral = Button(tela, justify = "left", text = ">", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}", "bold"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "40", width = "2", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.mostra_esconde_botoes())
+            bd = "1", relief = "flat", overrelief = "sunken")
 
-        meu_computador.place(x=f"{self.botoes_controle_x[1]}", y = f"{self.botoes_controle_y[1]}")
+        self.botao_meu_computador.place(x=f"{self.botoes_controle_x[1]}", y = f"{self.botoes_controle_y[1]}")
         self.botao_lateral.place(x=f"{self.botoes_controle_x[0]}", y = f"{self.botoes_controle_y[0]}")
+
+        #COMANDOS
+
+        self.botao_meu_computador["command"] = self.gera_popup_informacoes
+        self.botao_lateral["command"] = lambda: self.mostra_esconde_botoes()
 
     def posiciona_botoes_menu(self):
         #eixo x
@@ -122,22 +137,11 @@ class sesp_view():
         self.botoes_controle_y.append(1)
         self.botoes_controle_y.append((self.altura/2)/20)
 
-    def tela_inicial(self):
-        self.tela = Tk()
-        self.posiciona_janela()
-        self.botoes_controle()
-        self.mostra_esconde_botoes()
-        self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
-        self.tela["bg"] = "#193E4D"
- 
-        self.tela.mainloop()
-
     def gera_gif_carregamento(self):
         self.gif_frames = list()
         for x in range(100):
             try:
                 self.gif_frames.append(PhotoImage(file=f'img/carregamento/gif_carregamento4.GIF', format = f'gif -index {x}'))
-                #gif_frames.append(PhotoImage(file=f'img/carregamento/c_c_{x}.png'))
             except:
                 break
 
@@ -154,17 +158,40 @@ class sesp_view():
 
         self.gera_popup_carregamento(self.gif_frames)
 
-    def gera_popup_carregamento(self, gif):
-        #popup_fundo_carregamento = Toplevel(self.tela)
-        popup_carregamento = Toplevel(self.tela)
+    def gera_popup_informacoes(self, ativo = False, popup_informacoes = None):
+        if not ativo:
+            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = True, popup_informacoes = popup_informacoes)
+            self.botao_meu_computador["relief"] = "sunken"
+            self.botao_meu_computador["bg"] = "#193E4D"
+            altura = int((self.altura - 100) / 2)
+            largura = int(self.largura / 2)
+            popup_informacoes = Toplevel(self.tela)
+            popup_informacoes["bg"] = "#091A1B"
+            popup_informacoes.transient(self.tela)
+            popup_informacoes.overrideredirect(True)
+            popup_informacoes.geometry(f"{largura}x{altura}+{int(altura)}+{int(largura/3)}")
+            popup_informacoes.lift()
+            popup_informacoes.wm_attributes("-topmost", True)
+            popup_informacoes.wm_attributes("-disabled", True)
+            popup_informacoes.wm_attributes("-transparentcolor", "white")
 
-        """popup_fundo_carregamento.transient(self.tela)
-        popup_fundo_carregamento.overrideredirect(True)
-        popup_fundo_carregamento.geometry("+350+100")
-        popup_fundo_carregamento.lift()
-        popup_fundo_carregamento.wm_attributes("-topmost", True)
-        popup_fundo_carregamento.wm_attributes("-disabled", True)
-        popup_fundo_carregamento.wm_attributes("-transparentcolor", "white")"""
+            """string = f"Olá! Você está no computador {self.backend.cabecalho_etiqueta}\n"
+                                                string += "Se o problema não for corrigido\nabra um chamado no sistema GLPI\n"
+                                                string += f'O número do seu acesso remoto é:\n {self.backend.cabecalho_ip}'"""
+            string = f'COMPUTADOR = {self.backend.cabecalho_etiqueta}\n\n'
+            string+= f'ACESSO REMOTO = {self.backend.cabecalho_ip}\n\n'
+            string+= f'SE O PROBLEMA NÃO FOR RESOLVIDO\nABRA UM CHAMADO COM O GLPI'
+
+            label = Label(popup_informacoes, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
+            label.pack(expand = True)
+        else:
+            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = False)
+            self.botao_meu_computador["relief"] = "flat"
+            self.botao_meu_computador["bg"] = "#0B1F22"
+            popup_informacoes.destroy()
+
+    def gera_popup_carregamento(self, gif):
+        popup_carregamento = Toplevel(self.tela)
 
         popup_carregamento.transient(self.tela)
         popup_carregamento.overrideredirect(True)
