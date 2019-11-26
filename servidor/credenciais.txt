@@ -1,4 +1,4 @@
-caminho_bd = 192.168.1.221
-usuario = sesp
-senha 	= Ne271536hat
+caminho_bd = 192.168.5.100
+usuario = SESP
+senha 	= 123
 banco_de_dados = glpi

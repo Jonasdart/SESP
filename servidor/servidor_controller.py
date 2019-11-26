@@ -5,7 +5,7 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-        self.endereco = '192.168.0.69'
+        self.endereco = '192.168.5.104'
         #self.endereco = 'localhost'
         self.porta = 50007
 
@@ -31,7 +31,6 @@ class controller():
         except:
             pass
         else:
-            print("Conexão fechada")
             self.espera_requisicao()
 
     def espera_requisicao(self):
@@ -64,7 +63,6 @@ class controller():
         elif requisicao[0] == '02':
             return self.verificar_spdata()
         elif requisicao[0] == '03':
-            print(requisicao[1])
             return self.buscar_ip_maquina(requisicao[1])
         elif requisicao[0] == '04':
             #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
@@ -92,14 +90,8 @@ if __name__ == "__main__":
     try:
         main.iniciar_servidor()
     except:
-        print("Reiniciando Servidor...")
-        sleep(1)
-        try:
-            main.reiniciar_servidor()
-        except:
-            raise
+        raise
     else:
-        print("Reiniciando Servidor...")
         sleep(1)
         try:
             main.reiniciar_servidor()

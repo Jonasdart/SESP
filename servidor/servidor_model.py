@@ -48,7 +48,6 @@ class backend():
             info = info[0]
         except:
             pass
-        print(info)
         try:
             ip = info[5]
         except:

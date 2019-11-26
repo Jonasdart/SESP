@@ -8,15 +8,12 @@ class glpi():
 
     def conecta(self):
         self.credenciais = self.credencia()
-        print(self.credenciais)
         try:
             self.banco = mdb.connect(self.credenciais[0], self.credenciais[1], 
                 self.credenciais[2], self.credenciais[3])
         except:
-            print("Tentando novamente")
-            self.conecta()
+            raise
         else:
-            print("Conectado")
             self.cursor = self.banco.cursor()
             self.conectado = True
     def credencia(self):
@@ -30,13 +27,16 @@ class glpi():
         retorno_credenciais = list()
 
         for item in credenciais:
-            retorno_credenciais.append(item.split('=')[1].strip())
+            itens = item.split('=')
+            try:
+                retorno_credenciais.append(itens[1].strip())
+            except:
+                pass
 
         return retorno_credenciais
 
     def buscar_info_maquina(self, maquina):
         if not self.conectado:
-            print("Tentando conectar ao GLPI...")
             self.conecta()
 
         query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipaddresses", 

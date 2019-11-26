@@ -25,6 +25,14 @@ class controller():
 
     def corrigir_internet(self):
         try:
+            ip = self.backend.buscar_ip(self.backend.cabecalho_etiqueta)
+        except:
+            pass
+        try:
+            self.backend.atualizar_ip(ip)
+        except:
+            pass
+        try:
             self.backend.definir_proxy()
         except:
             pass
