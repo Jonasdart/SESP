@@ -13,8 +13,8 @@ class backend():
 
         if not ip_temp:
             try:
-                #self.servidor.connect(('192.168.1.0', 50007))
-                self.servidor.connect(('localhost', 50007))
+                self.servidor.connect(('192.168.0.69', 50007))
+                #self.servidor.connect(('localhost', 50007))
             except:
                 if cont is not 0:
                     print("\n\nTentando novamente")
@@ -34,7 +34,7 @@ class backend():
                 return
         else:
             try:
-                #self.servidor.connect(('192.168.1.0', 50007))
+                #self.servidor.connect(('192.168.0.69', 50007))
                 self.servidor.connect(('localhost', 50007))
             except:
                 if cont is not 0:

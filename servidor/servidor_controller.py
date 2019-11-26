@@ -5,36 +5,49 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-        #self.endereco = '192.168.0.22'
-        self.endereco = 'localhost'
+        self.endereco = '192.168.0.69'
+        #self.endereco = 'localhost'
         self.porta = 50007
 
     def iniciar_servidor(self):
         self.servidor = socket(AF_INET, SOCK_STREAM)
         self.servidor.bind((self.endereco, self.porta))
 
-        self.servidor.listen(5)
+        self.servidor.listen(100)
 
         self.espera_requisicao()
 
+    def reiniciar_servidor(self):
+        try:
+            self.servidor.close()
+        except:
+            pass
+
+        self.iniciar_servidor()
+
+    def fechar_conexao(self):
+        try:
+            self.conexao.close()
+        except:
+            pass
+        else:
+            print("Conexão fechada")
+            self.espera_requisicao()
+
     def espera_requisicao(self):
         while True:
-            self.id_conexao, conexao = self.servidor.accept()
+            self.conexao, id_conexao = self.servidor.accept()
 
-            print(f"Nova Conexão de {conexao}")
+            print(f"Nova Conexão de {id_conexao}")
 
             while True:
-                requisicao = self.id_conexao.recv(1024)
+                requisicao = self.conexao.recv(1024)
                 if not requisicao: 
                     break
 
-                self.id_conexao.send(self.trata_requisicao(requisicao))
-            try:
-                self.id_conexao.close()
-            except:
-                pass
-            else:
-                print("Conexão fechada")
+                self.conexao.send(self.trata_requisicao(requisicao))
+        self.fechar_conexao()
+
     def trata_requisicao(self, requisicao):
         requisicao = requisicao.decode('utf-8')
         try:
@@ -79,14 +92,16 @@ if __name__ == "__main__":
     try:
         main.iniciar_servidor()
     except:
-        raise
+        print("Reiniciando Servidor...")
+        sleep(1)
+        try:
+            main.reiniciar_servidor()
+        except:
+            raise
     else:
         print("Reiniciando Servidor...")
         sleep(1)
         try:
-            main.id_conexao.close()
+            main.reiniciar_servidor()
         except:
-            pass
-        else:
-            print("Conexão fechadinha")
-        main.iniciar_servidor()
+            raise
