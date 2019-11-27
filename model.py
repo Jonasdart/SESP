@@ -8,44 +8,25 @@ class backend():
         self.busca_cabecalho()
         self.conectado = False
 
-    def conecta_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
-        self.servidor = socket(AF_INET, SOCK_STREAM)
-
-        if not ip_temp:
-            try:
-                #self.servidor.connect(('192.168.0.69', 50007))
-                self.servidor.connect(('localhost', 50007))
-            except:
-                if cont is not 0:
-                    print("\n\nTentando novamente")
-                    self.conecta_servidor(cont = cont-1)
-                elif not verificou_com_ip_secundario:
-                    print("\n\nTentando novamente com o IP temporário")
-                    if self.atualizar_ip(self.cabecalho_ip_secundario):
-                        self.conecta_servidor(ip_temp = True)
-                    else:
-                        self.conectado = False
-                        raise
-                else:
-                    self.conectado = False
-                    raise
-            else:
-                self.conectado = True
-                return
+    def conecta_ao_servidor(self):
+        try:
+            self.servidor.close()
+        except:
+            pass
+        try:
+            self.servidor = socket(AF_INET, SOCK_STREAM)
+            self.servidor.connect(('192.168.0.69', 50007))
+            #self.servidor.connect(('localhost', 50007))
+        except:
+            raise
         else:
-            try:
-                #self.servidor.connect(('192.168.0.69', 50007))
-                self.servidor.connect(('localhost', 50007))
-            except:
-                if cont is not 0:
-                    print("\n\nTentando novamente com o IP temporário")
-                    self.conecta_servidor(cont = cont-1, ip_temp = True)
-                else:
-                    self.conectado = False
-            else:
-                ip = self.buscar_ip(self.cabecalho_etiqueta)
-                self.atualizar_ip(ip)
-                self.conecta_servidor(verificou_com_ip_secundario = True)
+            return True
+
+    def encerrar_conexao(self):
+        try:
+            self.servidor.close()
+        except:
+            pass
 
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
@@ -77,25 +58,17 @@ class backend():
             novo_cabecalho.close()
 
     def verificar_spdata(self):
-        if not self.conectado:
-            try:
-                self.conecta_servidor()
-            except:
-                raise
-            else:
-                self.verificar_spdata()
+        try:
+            self.servidor.send(b'02')
+        except:
+            raise
         else:
+            status = self.servidor.recv(1024)
             try:
-                self.servidor.send(b'02')
+                self.servidor.close()
             except:
-                raise
-            else:
-                status = self.servidor.recv(1024)
-                try:
-                    self.servidor.close()
-                except:
-                    pass
-                return status
+                pass
+            return status
 
     def mapear_spdata(self):
         try:
@@ -112,15 +85,7 @@ class backend():
 
 
     def mapear_impressora(self, ip, impressora):
-        if not self.conectado:
-            try:
-                self.conecta_servidor()
-            except:
-                raise
-            else:
-                self.mapear_impressora(ip, impressora)
-        else:
-            pass
+        pass
 
     def buscar_impressora_padrao(self, maquina):
         pass
@@ -132,26 +97,17 @@ class backend():
         pass
 
     def buscar_horario_atual(self):
-
-        if not self.conectado:
-            try:
-                self.conecta_servidor()
-            except:
-                raise
-            else:
-                self.buscar_horario_atual()
+        try:
+            self.servidor.send(b'01')
+        except:
+            raise
         else:
+            horario_atual = self.servidor.recv(1024)
             try:
-                self.servidor.send(b'01')
+                self.servidor.close()
             except:
-                raise
-            else:
-                horario_atual = self.servidor.recv(1024)
-                try:
-                    self.servidor.close()
-                except:
-                    pass
-                return horario_atual
+                pass
+            return horario_atual
 
     def atualizar_horario(self, horario):
         data, hora = horario.split("|")
@@ -160,6 +116,9 @@ class backend():
             os.system(f"time {hora}")
         except:
             pass
+
+    def realizar_correcao_de_disco(self):
+        pass
 
     def reiniciar_maquina(self):
         try:
@@ -170,32 +129,24 @@ class backend():
             return True
 
     def buscar_ip(self, maquina):
-        if not self.conectado:
-            try:
-                self.conecta_servidor()
-            except:
-                raise
-            else:
-                self.buscar_ip(maquina)
+        try:
+            requisicao = f'03-{maquina}'
+            self.servidor.send(bytes(requisicao, 'utf-8'))
+        except:
+            raise
         else:
+            ip = self.servidor.recv(1024)
+            ip = ip.decode('utf-8')
             try:
-                requisicao = f'03-{maquina}'
-                self.servidor.send(bytes(requisicao, 'utf-8'))
+                self.servidor.close()
             except:
-                raise
+                pass
             else:
-                ip = self.servidor.recv(1024)
-                ip = ip.decode('utf-8')
-                try:
-                    self.servidor.close()
-                except:
-                    pass
-                else:
-                    self.conectado = False
-                
-                self.atualiza_cabecalho(ip = ip)
+                self.conectado = False
+            
+            self.atualiza_cabecalho(ip = ip)
 
-                return ip
+            return ip
 
     def atualizar_ip(self, ip):
         try:

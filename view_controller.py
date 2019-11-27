@@ -92,7 +92,7 @@ class sesp_view():
         verificar_spdata["command"] = lambda: self.armador('02')
         verificar_travamento_spdata["command"] = lambda: self.armador('03')
         verificar_glpi["command"] = lambda: self.armador('04')
-        verificar_computador["command"] = lambda: self.armador('05')
+        verificar_computador["command"] = lambda: self.armador('05_1')
         verificar_impressora["command"] = lambda: self.armador('06')
 
         return [verificar_internet, verificar_spdata, verificar_travamento_spdata, verificar_glpi, verificar_computador, verificar_impressora]
@@ -116,8 +116,9 @@ class sesp_view():
 
         #COMANDOS
 
-        self.botao_meu_computador["command"] = self.gera_popup_informacoes
+        self.botao_meu_computador["command"] = lambda: self.armador('00')
         self.botao_lateral["command"] = lambda: self.mostra_esconde_botoes()
+
 
     def posiciona_botoes_menu(self):
         #eixo x
@@ -146,19 +147,48 @@ class sesp_view():
                 break
 
     def armador(self, tipo):
-
-        if tipo is '01':
-            self.acao = threading.Thread(target = self.controller.corrigir_internet)
+        if tipo is '00':
+            self.acao = threading.Thread(target = self.gera_popup_informacoes())
+            self.acao.start()
+        elif tipo is '01':
+            self.acao = threading.Thread(target = self.controller.corrigir_internet())
             #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
             self.acao.start()
         elif tipo is '02':
-            self.acao = threading.Thread(target= self.controller.spdata_nao_abre)
+            self.acao = threading.Thread(target = lambda: self.controller.spdata_nao_abre())
             self.acao.start()
         elif tipo is '03':
-            self.acao = threading.Thread(target = lambda: self.backend.atualiza_cabecalho(ip = '1'))
+            self.acao = threading.Thread(target = lambda: self.controller.verificar_spdata())
             self.acao.start()
+        elif tipo is '04':
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            self.acao.start()
+        elif tipo is '05':
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
+            self.acao.start()
+        elif tipo is '05_1':
+            self.gera_popup_confirmacao()
+        if len(tipo) is 2:
+            self.gera_popup_carregamento(self.gif_frames)
 
-        self.gera_popup_carregamento(self.gif_frames)
+    def gera_popup_confirmacao(self, tela = None, mensagem = "O computador será reiniciado...", texto_botao = "Continuar", bg = "#091A1B", fg = "yellow", cor_botao = "#B8B63D"):
+        if tela is None:
+            tela = self.tela
+
+        altura = int((self.altura - 400) / 2)
+        largura = int(self.largura / 4)
+
+        popup_confirmacao = Toplevel(tela)
+        popup_confirmacao.geometry(f"{largura}x{altura}+{int(largura*1.5)}+{int(altura)}")
+        popup_confirmacao.overrideredirect(1)
+        popup_confirmacao["bg"] = bg
+
+        label_mensagem = Label(popup_confirmacao, text = mensagem, font = ("Verdana", "12", "bold"), bg = bg, fg = fg)
+        label_mensagem.pack(expand = True)
+        botao = Button(popup_confirmacao, text = texto_botao, bg = cor_botao, fg = "black", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
+            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.armador('05'))
+        botao.pack(expand = True)
 
     def gera_popup_informacoes(self, ativo = False, popup_informacoes = None):
         self.backend.busca_cabecalho()
@@ -188,7 +218,7 @@ class sesp_view():
             label = Label(popup_informacoes, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
             label.pack(expand = True)
         else:
-            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = False)
+            self.botao_meu_computador["command"] = lambda: self.armador('00')
             self.botao_meu_computador["relief"] = "flat"
             self.botao_meu_computador["bg"] = "#0B1F22"
             popup_informacoes.destroy()

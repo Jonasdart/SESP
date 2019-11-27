@@ -5,7 +5,7 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-        self.endereco = '192.168.5.104'
+        self.endereco = '192.168.0.69'
         #self.endereco = 'localhost'
         self.porta = 50007
 
@@ -13,7 +13,7 @@ class controller():
         self.servidor = socket(AF_INET, SOCK_STREAM)
         self.servidor.bind((self.endereco, self.porta))
 
-        self.servidor.listen(100)
+        self.servidor.listen(1000)
 
         self.espera_requisicao()
 
@@ -30,8 +30,8 @@ class controller():
             self.conexao.close()
         except:
             pass
-        else:
-            self.espera_requisicao()
+            
+        self.espera_requisicao()
 
     def espera_requisicao(self):
         while True:
@@ -59,17 +59,21 @@ class controller():
 
     def armador(self, requisicao):
         if requisicao[0] == '01':
-            return self.data_e_hora_atuais()
+            retorno = self.data_e_hora_atuais()
         elif requisicao[0] == '02':
-            return self.verificar_spdata()
+            retorno = self.verificar_spdata()
         elif requisicao[0] == '03':
-            return self.buscar_ip_maquina(requisicao[1])
+            retorno = self.buscar_ip_maquina(requisicao[1])
         elif requisicao[0] == '04':
             #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
             pass
         elif requisicao[0] == '05':
             pass
             #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
+
+        self.fechar_conexao()
+
+        return retorno
 
     def data_e_hora_atuais(self):
         hora = self.backend.busca_hora_atual()
@@ -91,9 +95,4 @@ if __name__ == "__main__":
         main.iniciar_servidor()
     except:
         raise
-    else:
-        sleep(1)
-        try:
-            main.reiniciar_servidor()
-        except:
-            raise
+
