@@ -7,12 +7,14 @@ class controller():
     def __init__(self):
         self.backend = backend()
         self.conectado = False
-
+        self.feedback = ''
+        self.feedback_fixo = ''
     def inicio(self):
         pass
 
     def conecta_ao_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
         if not self.conectado:
+            self.feedback_fixo = 'Estabelecendo Conexão com o servidor SESP'
             if not ip_temp:
                 try:
                     self.conectado = self.backend.conecta_ao_servidor()
@@ -21,14 +23,16 @@ class controller():
                         self.feedback = "Tentando novamente"
                         self.conecta_ao_servidor(cont = cont-1)
                     elif not verificou_com_ip_secundario:
-                        self.feedback = "\n\nTentando novamente com o IP temporário"
+                        self.feedback = "Tentando novamente com o IP temporário"
                         if self.usar_ip_temporario():
                             self.conecta_ao_servidor(ip_temp = True)
                         else:
                             self.conectado = False
-                            raise
+                            return
                     else:
                         self.conectado = False
+                        self.feedback_fixo = "Não foi possível acessar o servidor SESP"
+                        self.feedback = "Favor entrar em contato com o Administrador"
                         raise
                 else:
                     self.conectado = True
@@ -38,9 +42,15 @@ class controller():
                     self.conectado = self.backend.conecta_ao_servidor()
                 except:
                     if cont is not 0:
+                        self.feedback = "Tentando novamente com o IP temporário"
                         self.conecta_ao_servidor(cont = cont-1, ip_temp = True)
                     else:
+                        self.feedback = "Não foi possível acessar com o IP temporário"
                         self.conectado = False
+                        self.definir_ip
+                            
+                        self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)
+                        
                 else:
                     self.atualizar_ip()
                     self.conecta_ao_servidor(verificou_com_ip_secundario = True)
@@ -58,13 +68,12 @@ class controller():
         try:
             data_e_hora_atuais = self.backend.buscar_horario_atual()
         except:
-            print("Não foi possível acessar o servidor SESP")
             raise
         else:
             try:
                 data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
             except:
-                print("Não foi possível acessar o servidor SESP")
+                raise
                 
             else:
                 self.backend.atualizar_horario(data_e_hora_atuais)
@@ -78,6 +87,8 @@ class controller():
         return msg_confirmacao
 
     def atualizar_ip(self):
+        self.conecta_ao_servidor()
+        self.backend.busca_cabecalho()
         try:
             ip = self.backend.buscar_ip(self.backend.cabecalho_etiqueta)
         except:
@@ -86,6 +97,20 @@ class controller():
             self.backend.atualizar_ip(ip)
         except:
             raise
+        try:
+            self.backend.atualiza_cabecalho(ip = ip)
+        except:
+            raise
+
+    def definir_ip(self, ip = None):
+        if ip is None:
+            ip = self.backend.cabecalho_ip
+
+        self.feedback = "Voltando ao IP cadastrado"
+
+        msg_confirmacao = self.backend.atualizar_ip(ip)
+
+        return msg_confirmacao
 
     def corrigir_internet(self):
         self.conecta_ao_servidor()

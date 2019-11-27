@@ -15,8 +15,8 @@ class backend():
             pass
         try:
             self.servidor = socket(AF_INET, SOCK_STREAM)
-            self.servidor.connect(('192.168.0.69', 50007))
-            #self.servidor.connect(('localhost', 50007))
+            #self.servidor.connect(('192.168.0.69', 50007))
+            self.servidor.connect(('localhost', 50007))
         except:
             raise
         else:

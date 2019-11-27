@@ -12,6 +12,8 @@ class sesp_view():
         self.backend = backend()
         self.controller = controller()
 
+        self.feedback = 'teste'
+
         self.botoes_menu_x = list()
         self.botoes_menu_y = list()
         self.botoes_controle_x = list()
@@ -26,7 +28,20 @@ class sesp_view():
         self.mostra_esconde_botoes()
         self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
         self.tela["bg"] = "#193E4D"
+
+        self.label_feedback_fixo = Label(self.tela, text = self.feedback, font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            height = "2", bd = "1", relief = "flat")
+        self.label_feedback_fixo.pack()#place(x = f'{self.largura/2.6}', y = f'{self.altura/5}')
+        self.label_feedback = Label(self.tela, text = self.feedback, font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            height = "2", bd = "1", relief = "flat")
+        self.label_feedback.pack()#place(x = f'{self.largura/2.4}', y = f'{self.altura/4}')
  
+        try:
+            self.acao_feedback = threading.Thread(target = self.busca_feedback)
+            self.acao_feedback.start()
+        except:
+            raise
+
         self.tela.mainloop()
 
     def posiciona_janela(self):
@@ -116,7 +131,7 @@ class sesp_view():
 
         #COMANDOS
 
-        self.botao_meu_computador["command"] = lambda: self.armador('00')
+        self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes()
         self.botao_lateral["command"] = lambda: self.mostra_esconde_botoes()
 
 
@@ -146,12 +161,33 @@ class sesp_view():
             except:
                 break
 
+    def busca_feedback(self):
+
+        self.feedback_fixo = self.controller.feedback_fixo
+        self.feedback = self.controller.feedback
+
+        if len(self.feedback_fixo) is not 0:
+            self.label_feedback_fixo["bg"] = "#193E4D"
+        else:
+            self.label_feedback_fixo["bg"] = "#193E4D"
+
+        if len(self.feedback) is not 0:
+            self.label_feedback["bg"] = "#193E4D"
+            
+        else:
+            self.label_feedback["bg"] = "#193E4D"
+            
+        self.label_feedback_fixo["text"] = self.feedback_fixo
+        self.label_feedback_fixo["width"] = f'{len(self.feedback_fixo)+2}'
+        self.label_feedback["text"] = self.feedback
+        self.label_feedback["width"] = f'{len(self.feedback)+2}'
+        
+        self.tela.after(180, self.busca_feedback)
+
     def armador(self, tipo):
-        if tipo is '00':
-            self.acao = threading.Thread(target = self.gera_popup_informacoes())
-            self.acao.start()
-        elif tipo is '01':
-            self.acao = threading.Thread(target = self.controller.corrigir_internet())
+
+        if tipo is '01':
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
             #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
             self.acao.start()
         elif tipo is '02':
@@ -167,11 +203,11 @@ class sesp_view():
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
             self.acao.start()
         elif tipo is '05_1':
-            self.gera_popup_confirmacao()
+            self.gera_popup_confirmacao(mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO')
         if len(tipo) is 2:
             self.gera_popup_carregamento(self.gif_frames)
 
-    def gera_popup_confirmacao(self, tela = None, mensagem = "O computador será reiniciado...", texto_botao = "Continuar", bg = "#091A1B", fg = "yellow", cor_botao = "#B8B63D"):
+    def gera_popup_confirmacao(self, tela = None, titulo = "AVISO", mensagem = "O computador será reiniciado...", texto_botao_1 = "Continuar", texto_botao_2 = "Cancelar", bg = "#091A1B", fg = "yellow", cor_botao = "#B8B63D"):
         if tela is None:
             tela = self.tela
 
@@ -180,15 +216,23 @@ class sesp_view():
 
         popup_confirmacao = Toplevel(tela)
         popup_confirmacao.geometry(f"{largura}x{altura}+{int(largura*1.5)}+{int(altura)}")
-        popup_confirmacao.overrideredirect(1)
+        popup_confirmacao.title(titulo)
+        popup_confirmacao.resizable(0,0)
         popup_confirmacao["bg"] = bg
 
         label_mensagem = Label(popup_confirmacao, text = mensagem, font = ("Verdana", "12", "bold"), bg = bg, fg = fg)
         label_mensagem.pack(expand = True)
-        botao = Button(popup_confirmacao, text = texto_botao, bg = cor_botao, fg = "black", 
+        label_borda = Label(popup_confirmacao, bg = bg, width = f'{largura}', height = "5")
+        label_borda.pack(expand = True)
+        botao_confirmar = Button(popup_confirmacao, text = texto_botao_1, bg = cor_botao, fg = "black", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
             bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.armador('05'))
-        botao.pack(expand = True)
+        botao_cancelar = Button(popup_confirmacao, text = texto_botao_2, bg = cor_botao, fg = "black", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
+            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: popup_confirmacao.destroy()) 
+
+        botao_confirmar.place(x = largura/3.9, y = altura/1.3)
+        botao_cancelar.place(x = largura/1.9, y = altura/1.3)
 
     def gera_popup_informacoes(self, ativo = False, popup_informacoes = None):
         self.backend.busca_cabecalho()
@@ -198,6 +242,8 @@ class sesp_view():
             self.botao_meu_computador["bg"] = "#193E4D"
             altura = int((self.altura - 100) / 2)
             largura = int(self.largura / 2)
+            print(altura)
+            print(largura)
             popup_informacoes = Toplevel(self.tela)
             popup_informacoes["bg"] = "#091A1B"
             popup_informacoes.transient(self.tela)
@@ -208,9 +254,6 @@ class sesp_view():
             popup_informacoes.wm_attributes("-disabled", True)
             popup_informacoes.wm_attributes("-transparentcolor", "white")
 
-            """string = f"Olá! Você está no computador {self.backend.cabecalho_etiqueta}\n"
-                                                string += "Se o problema não for corrigido\nabra um chamado no sistema GLPI\n"
-                                                string += f'O número do seu acesso remoto é:\n {self.backend.cabecalho_ip}'"""
             string = f'COMPUTADOR = {self.backend.cabecalho_etiqueta}\n\n'
             string+= f'ACESSO REMOTO = {self.backend.cabecalho_ip}\n\n'
             string+= f'SE O PROBLEMA NÃO FOR RESOLVIDO\nABRA UM CHAMADO COM O GLPI'
@@ -218,7 +261,7 @@ class sesp_view():
             label = Label(popup_informacoes, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
             label.pack(expand = True)
         else:
-            self.botao_meu_computador["command"] = lambda: self.armador('00')
+            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes()
             self.botao_meu_computador["relief"] = "flat"
             self.botao_meu_computador["bg"] = "#0B1F22"
             popup_informacoes.destroy()
