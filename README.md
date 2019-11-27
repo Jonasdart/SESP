@@ -1,8 +1,3 @@
-SELECT * FROM glpi_ipaddresses WHERE 
-
-`mainitems_id` = '003' AND 
-`mainitemtype` = 'Computer'
-
 Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataforma que auxiliará os demais colaboradores da empresa a resolverem pequenos problemas que podem acontecer e interromper na rotina de trabalho.
 
 - O sistema
