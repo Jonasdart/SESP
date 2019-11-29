@@ -1,4 +1,4 @@
-caminho_bd = 192.168.5.100
+caminho_bd = 187.44.1.55
 usuario = SESP
 senha 	= 123
 banco_de_dados = glpi

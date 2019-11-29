@@ -47,12 +47,14 @@ class controller():
                     else:
                         self.feedback = "Não foi possível acessar com o IP temporário"
                         self.conectado = False
-                        self.definir_ip
+                        self.restaurar_ip()
                             
                         self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)
                         
                 else:
+                    self.conectado = True
                     self.atualizar_ip()
+                    self.conectado = False
                     self.conecta_ao_servidor(verificou_com_ip_secundario = True)
 
     def desconectar_do_servidor(self):
@@ -93,16 +95,18 @@ class controller():
             ip = self.backend.buscar_ip(self.backend.cabecalho_etiqueta)
         except:
             raise
-        try:
-            self.backend.atualizar_ip(ip)
-        except:
-            raise
-        try:
-            self.backend.atualiza_cabecalho(ip = ip)
-        except:
-            raise
+        if len(ip) is not 0:
+            try:
+                self.backend.atualizar_ip(ip)
+            except:
+                raise
+            else:
+                try:
+                    self.backend.atualiza_cabecalho(ip = ip)
+                except:
+                    raise
 
-    def definir_ip(self, ip = None):
+    def restaurar_ip(self, ip = None):
         if ip is None:
             ip = self.backend.cabecalho_ip
 
@@ -113,15 +117,18 @@ class controller():
         return msg_confirmacao
 
     def corrigir_internet(self):
-        self.conecta_ao_servidor()
-        try:
-            self.atualizar_ip()
-        except:
-            raise
         try:
             self.backend.definir_proxy()
         except:
             raise
+        
+        self.conecta_ao_servidor()
+
+        try:
+            self.atualizar_ip()
+        except:
+            raise
+        
         try:
             self.atualizar_horario()
         except:

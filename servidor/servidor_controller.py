@@ -5,8 +5,8 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-        self.endereco = '192.168.0.69'
-        #self.endereco = 'localhost'
+        #self.endereco = '192.168.0.69'
+        self.endereco = 'localhost'
         self.porta = 50007
 
     def iniciar_servidor(self):

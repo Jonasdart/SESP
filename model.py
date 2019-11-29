@@ -9,6 +9,7 @@ class backend():
         self.conectado = False
 
     def conecta_ao_servidor(self):
+        ip = self.ip_servidor_sesp()
         try:
             self.servidor.close()
         except:
@@ -16,7 +17,7 @@ class backend():
         try:
             self.servidor = socket(AF_INET, SOCK_STREAM)
             #self.servidor.connect(('192.168.0.69', 50007))
-            self.servidor.connect(('localhost', 50007))
+            self.servidor.connect((f'{ip}', 50007))
         except:
             raise
         else:
@@ -27,6 +28,14 @@ class backend():
             self.servidor.close()
         except:
             pass
+
+    def ip_servidor_sesp(self):
+        arq = open('sesp.txt', 'r')
+        info_servidor = arq.readlines()
+        ip = info_servidor[0].split('=')[1].strip()
+        
+        return ip
+
 
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
@@ -167,3 +176,10 @@ class backend():
             pass
 """teste = backend()
 teste.reiniciar_maquina()"""
+
+if __name__ == "__main__":
+    main = backend()
+    try:
+        main.servidor_sesp()
+    except:
+        raise

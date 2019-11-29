@@ -82,23 +82,23 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        verificar_internet = Button(tela, text = "Internet Não Funciona", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_internet = Button(tela, text = "INTERNET NÃO FUNCIONA", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_spdata = Button(tela, text = "SPDATA Não Abre", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_spdata = Button(tela, text = "SPDATA NÃO ABRE", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_travamento_spdata = Button(tela, text = "SPDATA Travando", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_travamento_spdata = Button(tela, text = "SPDATA TRAVANDO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_glpi = Button(tela, text = "GLPI Sem Acesso", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_glpi = Button(tela, text = "GLPI SEM ACESSO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_computador = Button(tela, text = "Computador Travando", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_computador = Button(tela, text = "COMPUTADOR TRAVANDO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_impressora = Button(tela, text = "Não Consigo Imprimir", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_impressora = Button(tela, text = "NÃO CONSIGO IMPRIMIR", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
 
         #COMANDOS
@@ -220,7 +220,7 @@ class sesp_view():
         popup_confirmacao.resizable(0,0)
         popup_confirmacao["bg"] = bg
 
-        label_mensagem = Label(popup_confirmacao, text = mensagem, font = ("Verdana", "12", "bold"), bg = bg, fg = fg)
+        label_mensagem = Label(popup_confirmacao, text = mensagem, font = ("Verdana", "12", "bold"), bg = bg, fg = "yellow")
         label_mensagem.pack(expand = True)
         label_borda = Label(popup_confirmacao, bg = bg, width = f'{largura}', height = "5")
         label_borda.pack(expand = True)
@@ -267,24 +267,13 @@ class sesp_view():
             popup_informacoes.destroy()
 
     def gera_popup_carregamento(self, gif):
-        popup_carregamento = Toplevel(self.tela)
+        
+        label = Label(self.tela, bg="#193E4D")
+        label.pack(expand = True)
 
-        popup_carregamento.transient(self.tela)
-        popup_carregamento.overrideredirect(True)
-        popup_carregamento.geometry(f"+600+300")
-        popup_carregamento.lift()
-        popup_carregamento.wm_attributes("-topmost", True)
-        popup_carregamento.wm_attributes("-disabled", True)
-        popup_carregamento.wm_attributes("-transparentcolor", "white")
+        self.inicia_gif_carregamento(gif, label)
 
-        """label_f = Label(popup_fundo_carregamento, bg = "white", image=gif[0])
-        label_f.pack()"""
-        label = Label(popup_carregamento, bg="white")
-        label.pack()
-
-        self.inicia_gif_carregamento(popup_carregamento, gif, label)
-
-    def inicia_gif_carregamento(self, popup, gif, label, indice = 0):
+    def inicia_gif_carregamento(self, gif, label, indice = 0):
         try:
             label.configure(image = gif[indice])
         except:
@@ -292,9 +281,9 @@ class sesp_view():
             label.configure(image = gif[indice])
 
         if self.acao.isAlive():
-            popup.after(90, lambda: self.inicia_gif_carregamento(popup, gif, label, indice+1))
+            self.tela.after(90, lambda: self.inicia_gif_carregamento(gif, label, indice+1))
         else:
-            popup.destroy()
+            label.pack_forget()
 
 
 if __name__ == "__main__":
