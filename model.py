@@ -6,46 +6,49 @@ import subprocess
 class backend():
     def __init__(self):
         self.busca_cabecalho()
+        self.conectado = False
 
-    def conecta_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
-        self.servidor = socket(AF_INET, SOCK_STREAM)
-        if not ip_temp:
+    def conecta_ao_servidor(self):
+        ip, porta = self.ip_servidor_sesp()
+        if not self.conectado:
             try:
-                #self.servidor.connect(('192.168.1.0', 50007))
-                self.servidor.connect(('localhost', 50007))
+                self.servidor.close()
             except:
-                if cont is not 0:
-                    print("\n\nTentando novamente")
-                    self.conecta_servidor(cont = cont-1)
-                elif not verificou_com_ip_secundario:
-                    print("\n\nTentando novamente com o IP temporário")
-                    if self.atualizar_ip(self.cabecalho_ip_secundario):
-                        self.conecta_servidor(ip_temp = True)
-                    else:
-                        return False
-                else:
-                    print("Contei como erro")
-                    return False
+                pass
+            try:
+                self.servidor = socket(AF_INET, SOCK_STREAM)
+                #self.servidor.connect(('192.168.0.69', 50007))
+                self.servidor.connect((f'{ip}', porta))
+            except:
+                raise
             else:
                 return True
         else:
-            try:
-                #self.servidor.connect(('192.168.1.0', 50007))
-                self.servidor.connect(('localhost', 50007))
-            except:
-                if cont is not 0:
-                    print("\n\nTentando novamente com o IP temporário")
-                    self.conecta_servidor(cont = cont-1, ip_temp = True)
-                else:
-                    return False
-            else:
-                ip = self.buscar_ip(self.cabecalho_etiqueta)
-                self.atualizar_ip(ip)
-                self.conecta_servidor(verificou_com_ip_secundario = True)
+            return True
+
+    def encerrar_conexao(self):
+        try:
+            self.servidor.close()
+        except:
+            pass
+        else:
+            self.conectado = False
+
+    def ip_servidor_sesp(self):
+        arq = open('sesp.txt', 'r')
+        info_servidor = arq.readlines()
+        arq.close()
+
+        ip = info_servidor[0].split('=')[1].strip()
+        porta = int(info_servidor[1].split('=')[1].strip())
+        
+        return ip, porta
+
 
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
         cabecalho = info_cabecalho.readlines()
+        info_cabecalho.close()
 
         self.cabecalho_etiqueta = cabecalho[0].split("=")[1].strip()
         self.cabecalho_ip = cabecalho[1].split("=")[1].strip()
@@ -53,25 +56,40 @@ class backend():
         self.cabecalho_excessoes = cabecalho[3].split("=")[1].strip()
         return cabecalho
 
+    def atualiza_cabecalho(self, ip = None, etiqueta = None, ip_secundario = None):
+        if ip is not None:
+            cabecalho_antigo = open("cabecalho.txt", "r")
+            linhas_cabecalho_antigo = cabecalho_antigo.readlines()
+            cabecalho_antigo.close()
+
+            texto_ip = linhas_cabecalho_antigo[1].split('=')
+
+            novo_cabecalho = open("cabecalho.txt", "w")
+            contador = 0
+
+            for linha in linhas_cabecalho_antigo:
+                if contador is not 1:
+                    novo_cabecalho.write(linha)
+                else:
+                    novo_cabecalho.write(f'{texto_ip[0]}= {ip}\n')
+                contador += 1
+            novo_cabecalho.close()
+
     def verificar_spdata(self):
-        if self.conecta_servidor():
-            try:
-                self.servidor.send(b'02')
-            except:
-                raise
-            else:
-                status = self.servidor.recv(1024)
-                try:
-                    self.servidor.close()
-                except:
-                    pass
-                return status
-        else:
+        try:
+            self.servidor.send(b'02')
+        except:
             raise
+        else:
+            status = self.servidor.recv(1024)
+            try:
+                self.encerrar_conexao()
+            except:
+                pass
+            return status
 
     def mapear_spdata(self):
         try:
-            os.system("@echo off")
             os.system("net use I: /delete >nul")
         except:
             pass
@@ -85,13 +103,8 @@ class backend():
 
 
     def mapear_impressora(self, ip, impressora):
-        if self.conecta_servidor():
-            try:
-                self.servidor.send(b'04')
-            except:
-                pass
-        else:
-            print("Não foi possível alcançar o servidor SESP")
+        pass
+
     def buscar_impressora_padrao(self, maquina):
         pass
 
@@ -102,20 +115,17 @@ class backend():
         pass
 
     def buscar_horario_atual(self):
-        if self.conecta_servidor():
-            try:
-                self.servidor.send(b'01')
-            except:
-                raise
-            else:
-                horario_atual = self.servidor.recv(1024)
-                try:
-                    self.servidor.close()
-                except:
-                    pass
-                return horario_atual
+        try:
+            self.servidor.send(b'01')
+        except:
+            raise
         else:
-            print("Não foi possível alcançar o servidor SESP")
+            horario_atual = self.servidor.recv(1024)
+            try:
+                self.encerrar_conexao()
+            except:
+                pass
+            return horario_atual
 
     def atualizar_horario(self, horario):
         data, hora = horario.split("|")
@@ -124,6 +134,9 @@ class backend():
             os.system(f"time {hora}")
         except:
             pass
+
+    def realizar_correcao_de_disco(self):
+        pass
 
     def reiniciar_maquina(self):
         try:
@@ -134,7 +147,22 @@ class backend():
             return True
 
     def buscar_ip(self, maquina):
-        return self.cabecalho_ip
+        try:
+            requisicao = f'03-{maquina}'
+            self.servidor.send(bytes(requisicao, 'utf-8'))
+        except:
+            raise
+        else:
+            ip = self.servidor.recv(1024)
+            ip = ip.decode('utf-8')
+            try:
+                self.encerrar_conexao()
+            except:
+                pass
+            
+            self.atualiza_cabecalho(ip = ip)
+
+            return ip
 
     def atualizar_ip(self, ip):
         try:
@@ -155,3 +183,10 @@ class backend():
             pass
 """teste = backend()
 teste.reiniciar_maquina()"""
+
+if __name__ == "__main__":
+    main = backend()
+    try:
+        main.servidor_sesp()
+    except:
+        raise

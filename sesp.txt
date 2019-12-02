@@ -1,0 +1,2 @@
+servidor    = localhost
+porta       = 50007

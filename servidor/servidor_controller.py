@@ -5,55 +5,82 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-        #self.endereco = '192.168.0.22'
-        self.endereco = "localhost"
-        self.porta = 50007
+
+    def ip_servidor_sesp(self):
+        arq = open('sesp.txt', 'r')
+        info_servidor = arq.readlines()
+        arq.close()
+
+        ip = info_servidor[0].split('=')[1].strip()
+        porta = int(info_servidor[1].split('=')[1].strip())
+        
+        return ip, porta
 
     def iniciar_servidor(self):
+        self.endereco, self.porta = self.ip_servidor_sesp()
+
         self.servidor = socket(AF_INET, SOCK_STREAM)
-        self.servidor.bind((self.endereco, self.porta))
+        self.servidor.bind((f'{self.endereco}', self.porta))
 
-        self.servidor.listen(5)
+        self.servidor.listen(1000)
 
+        self.espera_requisicao()
+
+    def reiniciar_servidor(self):
+        try:
+            self.servidor.close()
+        except:
+            pass
+
+        self.iniciar_servidor()
+
+    def fechar_conexao(self):
+        try:
+            self.conexao.close()
+        except:
+            pass
+            
         self.espera_requisicao()
 
     def espera_requisicao(self):
         while True:
-            self.id_conexao, conexao = self.servidor.accept()
+            self.conexao, id_conexao = self.servidor.accept()
 
-            print(f"Nova Conexão de {conexao}")
+            print(f"Nova Conexão de {id_conexao}")
 
             while True:
-                requisicao = self.id_conexao.recv(1024)
+                requisicao = self.conexao.recv(1024)
                 if not requisicao: 
                     break
 
-                self.id_conexao.send(self.trata_requisicao(requisicao))
-            try:
-                self.id_conexao.close()
-            except:
-                pass
-            else:
-                print("Conexão fechada")
-    def trata_requisicao(self, requisicao):
-        requisicao = requisicao.decode("utf-8")
+                self.conexao.send(self.trata_requisicao(requisicao))
+        self.fechar_conexao()
 
-        return self.armador(f"{requisicao}")
+    def trata_requisicao(self, requisicao):
+        requisicao = requisicao.decode('utf-8')
+        try:
+            requisicao = requisicao.split('-')
+        except:
+            raise
+
+
+        return self.armador(requisicao)
 
     def armador(self, requisicao):
-        if requisicao == '01':
-            return self.data_e_hora_atuais()
-        elif requisicao == '02':
-            return self.verificar_spdata()
-        elif requisicao == '03':
-            #RETORNAR O IP DA MAQUINA DE ACORDO COM A ETIQUETA
-            pass
-        elif requisicao == '04':
+        if requisicao[0] == '01':
+            retorno = self.data_e_hora_atuais()
+        elif requisicao[0] == '02':
+            retorno = self.verificar_spdata()
+        elif requisicao[0] == '03':
+            retorno = self.buscar_ip_maquina(requisicao[1])
+        elif requisicao[0] == '04':
             #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
             pass
-        elif requisicao == "05":
+        elif requisicao[0] == '05':
             pass
             #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
+            
+        return retorno
 
     def data_e_hora_atuais(self):
         hora = self.backend.busca_hora_atual()
@@ -64,19 +91,16 @@ class controller():
         return bytes(data_e_hora, 'utf-8')
 
     def verificar_spdata(self):
-        return bytes(self.backend.status_spdata(), "utf-8")
+        return bytes(self.backend.status_spdata(), 'utf-8')
+
+    def buscar_ip_maquina(self, etiqueta):
+        return bytes(self.backend.retornar_ip_maquina(etiqueta), 'utf-8')
 
 if __name__ == "__main__":
     main = controller()
     try:
         main.iniciar_servidor()
     except:
-        print("Reiniciando Servidor...")
-        sleep(1)
-        try:
-            main.id_conexao.close()
-        except:
-            raise
-        else:
-            print("Conexão fechada")
-        main.iniciar_servidor()
+        raise
+        main.reiniciar_servidor()
+

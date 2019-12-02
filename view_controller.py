@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #dev by Jonas Duarte - Duzz System
-
+import threading
 from tkinter import *
 from time import sleep
 from model import backend
@@ -12,13 +12,41 @@ class sesp_view():
         self.backend = backend()
         self.controller = controller()
 
+        self.feedback = 'teste'
+
         self.botoes_menu_x = list()
         self.botoes_menu_y = list()
         self.botoes_controle_x = list()
         self.botoes_controle_y = list()
+        
         self.tela_inicial()
 
+    def tela_inicial(self):
+        self.tela = Tk()
+        self.posiciona_janela()
+        self.botoes_controle()
+        self.mostra_esconde_botoes()
+        self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
+        self.tela["bg"] = "#193E4D"
+
+        self.label_feedback_fixo = Label(self.tela, text = self.feedback, font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            height = "2", bd = "1", relief = "flat")
+        self.label_feedback_fixo.pack()#place(x = f'{self.largura/2.6}', y = f'{self.altura/5}')
+        self.label_feedback = Label(self.tela, text = self.feedback, font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            height = "2", bd = "1", relief = "flat")
+        self.label_feedback.pack()#place(x = f'{self.largura/2.4}', y = f'{self.altura/4}')
+ 
+        try:
+            self.acao_feedback = threading.Thread(target = self.busca_feedback)
+            self.acao_feedback.start()
+        except:
+            raise
+
+        self.tela.mainloop()
+
     def posiciona_janela(self):
+        self.gera_gif_carregamento()
+
         try:
             self.x.clear()
             self.y.clear()
@@ -54,24 +82,33 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        verificar_internet = Button(tela, text = "Internet Não Funciona", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.corrigir_internet)
-        verificar_spdata = Button(tela, text = "SPDATA Não Abre", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = self.controller.spdata_nao_abre)
-        verificar_travamento_spdata = Button(tela, text = "SPDATA Travando", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_internet = Button(tela, text = "INTERNET NÃO FUNCIONA", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_glpi = Button(tela, text = "GLPI Sem Acesso", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_spdata = Button(tela, text = "SPDATA NÃO ABRE", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_computador = Button(tela, text = "Computador Travando", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_travamento_spdata = Button(tela, text = "SPDATA TRAVANDO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_impressora = Button(tela, text = "Não Consigo Imprimir", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
+        verificar_glpi = Button(tela, text = "GLPI SEM ACESSO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
+        verificar_computador = Button(tela, text = "COMPUTADOR TRAVANDO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
+            bd = "1", relief = "flat", overrelief = "sunken")
+        verificar_impressora = Button(tela, text = "NÃO CONSIGO IMPRIMIR", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
+            bd = "1", relief = "flat", overrelief = "sunken")
+
+        #COMANDOS
+
+        verificar_internet["command"] = lambda: self.armador('01')
+        verificar_spdata["command"] = lambda: self.armador('02')
+        verificar_travamento_spdata["command"] = lambda: self.armador('03')
+        verificar_glpi["command"] = lambda: self.armador('04')
+        verificar_computador["command"] = lambda: self.armador('05_1')
+        verificar_impressora["command"] = lambda: self.armador('06')
 
         return [verificar_internet, verificar_spdata, verificar_travamento_spdata, verificar_glpi, verificar_computador, verificar_impressora]
 
@@ -82,15 +119,21 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        meu_computador = Button(tela, text = "Meu Computador", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        self.botao_meu_computador = Button(tela, text = "Meu Computador", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken", command = self.backend.busca_cabecalho)
         self.botao_lateral = Button(tela, justify = "left", text = ">", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}", "bold"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "40", width = "2", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.mostra_esconde_botoes())
+            bd = "1", relief = "flat", overrelief = "sunken")
 
-        meu_computador.place(x=f"{self.botoes_controle_x[1]}", y = f"{self.botoes_controle_y[1]}")
+        self.botao_meu_computador.place(x=f"{self.botoes_controle_x[1]}", y = f"{self.botoes_controle_y[1]}")
         self.botao_lateral.place(x=f"{self.botoes_controle_x[0]}", y = f"{self.botoes_controle_y[0]}")
+
+        #COMANDOS
+
+        self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes()
+        self.botao_lateral["command"] = lambda: self.mostra_esconde_botoes()
+
 
     def posiciona_botoes_menu(self):
         #eixo x
@@ -110,15 +153,138 @@ class sesp_view():
         self.botoes_controle_y.append(1)
         self.botoes_controle_y.append((self.altura/2)/20)
 
-    def tela_inicial(self):
-        self.tela = Tk()
-        self.posiciona_janela()
-        self.botoes_controle()
-        self.mostra_esconde_botoes()
-        self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
-        self.tela["bg"] = "#193E4D"
- 
-        self.tela.mainloop()
+    def gera_gif_carregamento(self):
+        self.gif_frames = list()
+        for x in range(100):
+            try:
+                self.gif_frames.append(PhotoImage(file=f'img/carregamento/gif_carregamento4.GIF', format = f'gif -index {x}'))
+            except:
+                break
+
+    def busca_feedback(self):
+
+        self.feedback_fixo = self.controller.feedback_fixo
+        self.feedback = self.controller.feedback
+
+        if len(self.feedback_fixo) is not 0:
+            self.label_feedback_fixo["bg"] = "#193E4D"
+        else:
+            self.label_feedback_fixo["bg"] = "#193E4D"
+
+        if len(self.feedback) is not 0:
+            self.label_feedback["bg"] = "#193E4D"
+            
+        else:
+            self.label_feedback["bg"] = "#193E4D"
+            
+        self.label_feedback_fixo["text"] = self.feedback_fixo
+        self.label_feedback_fixo["width"] = f'{len(self.feedback_fixo)+2}'
+        self.label_feedback["text"] = self.feedback
+        self.label_feedback["width"] = f'{len(self.feedback)+2}'
+        
+        self.tela.after(180, self.busca_feedback)
+
+    def armador(self, tipo):
+        self.controller.conecta_ao_servidor()
+
+        if tipo is '01':
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
+            self.acao.start()
+        elif tipo is '02':
+            self.acao = threading.Thread(target = lambda: self.controller.spdata_nao_abre())
+            self.acao.start()
+        elif tipo is '03':
+            self.acao = threading.Thread(target = lambda: self.controller.verificar_spdata())
+            self.acao.start()
+        elif tipo is '04':
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            self.acao.start()
+        elif tipo is '05':
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
+            self.acao.start()
+        elif tipo is '05_1':
+            self.gera_popup_confirmacao(mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO')
+        if len(tipo) is 2:
+            self.gera_popup_carregamento(self.gif_frames)
+
+    def gera_popup_confirmacao(self, tela = None, titulo = "AVISO", mensagem = "O computador será reiniciado...", texto_botao_1 = "Continuar", texto_botao_2 = "Cancelar", bg = "#091A1B", fg = "yellow", cor_botao = "#B8B63D"):
+        if tela is None:
+            tela = self.tela
+
+        altura = int((self.altura - 400) / 2)
+        largura = int(self.largura / 4)
+
+        popup_confirmacao = Toplevel(tela)
+        popup_confirmacao.geometry(f"{largura}x{altura}+{int(largura*1.5)}+{int(altura)}")
+        popup_confirmacao.title(titulo)
+        popup_confirmacao.resizable(0,0)
+        popup_confirmacao["bg"] = bg
+
+        label_mensagem = Label(popup_confirmacao, text = mensagem, font = ("Verdana", "12", "bold"), bg = bg, fg = "yellow")
+        label_mensagem.pack(expand = True)
+        label_borda = Label(popup_confirmacao, bg = bg, width = f'{largura}', height = "5")
+        label_borda.pack(expand = True)
+        botao_confirmar = Button(popup_confirmacao, text = texto_botao_1, bg = cor_botao, fg = "black", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
+            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.armador('05'))
+        botao_cancelar = Button(popup_confirmacao, text = texto_botao_2, bg = cor_botao, fg = "black", 
+            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
+            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: popup_confirmacao.destroy()) 
+
+        botao_confirmar.place(x = largura/3.9, y = altura/1.3)
+        botao_cancelar.place(x = largura/1.9, y = altura/1.3)
+
+    def gera_popup_informacoes(self, ativo = False, popup_informacoes = None):
+        self.backend.busca_cabecalho()
+        if not ativo:
+            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = True, popup_informacoes = popup_informacoes)
+            self.botao_meu_computador["relief"] = "sunken"
+            self.botao_meu_computador["bg"] = "#193E4D"
+            altura = int((self.altura - 100) / 2)
+            largura = int(self.largura / 2)
+            print(altura)
+            print(largura)
+            popup_informacoes = Toplevel(self.tela)
+            popup_informacoes["bg"] = "#091A1B"
+            popup_informacoes.transient(self.tela)
+            popup_informacoes.overrideredirect(True)
+            popup_informacoes.geometry(f"{largura}x{altura}+{int(altura)}+{int(largura/3)}")
+            popup_informacoes.lift()
+            popup_informacoes.wm_attributes("-topmost", True)
+            popup_informacoes.wm_attributes("-disabled", True)
+            popup_informacoes.wm_attributes("-transparentcolor", "white")
+
+            string = f'COMPUTADOR = {self.backend.cabecalho_etiqueta}\n\n'
+            string+= f'ACESSO REMOTO = {self.backend.cabecalho_ip}\n\n'
+            string+= f'SE O PROBLEMA NÃO FOR RESOLVIDO\nABRA UM CHAMADO COM O GLPI'
+
+            label = Label(popup_informacoes, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
+            label.pack(expand = True)
+        else:
+            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes()
+            self.botao_meu_computador["relief"] = "flat"
+            self.botao_meu_computador["bg"] = "#0B1F22"
+            popup_informacoes.destroy()
+
+    def gera_popup_carregamento(self, gif):
+        
+        label = Label(self.tela, bg="#193E4D")
+        label.pack(expand = True)
+
+        self.inicia_gif_carregamento(gif, label)
+
+    def inicia_gif_carregamento(self, gif, label, indice = 0):
+        try:
+            label.configure(image = gif[indice])
+        except:
+            indice = 0
+            label.configure(image = gif[indice])
+
+        if self.acao.isAlive():
+            self.tela.after(90, lambda: self.inicia_gif_carregamento(gif, label, indice+1))
+        else:
+            label.pack_forget()
 
 
 if __name__ == "__main__":
