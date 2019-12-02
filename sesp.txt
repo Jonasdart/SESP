@@ -1,1 +1,2 @@
-servidor = 192.168.0.69
+servidor    = 192.168.0.69
+porta       = 50007
