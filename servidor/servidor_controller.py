@@ -5,13 +5,22 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-        #self.endereco = '192.168.0.69'
-        self.endereco = 'localhost'
-        self.porta = 50007
+
+    def ip_servidor_sesp(self):
+        arq = open('sesp.txt', 'r')
+        info_servidor = arq.readlines()
+        arq.close()
+
+        ip = info_servidor[0].split('=')[1].strip()
+        porta = int(info_servidor[1].split('=')[1].strip())
+        
+        return ip, porta
 
     def iniciar_servidor(self):
+        self.endereco, self.porta = self.ip_servidor_sesp()
+
         self.servidor = socket(AF_INET, SOCK_STREAM)
-        self.servidor.bind((self.endereco, self.porta))
+        self.servidor.bind((f'{self.endereco}', self.porta))
 
         self.servidor.listen(1000)
 
@@ -70,9 +79,7 @@ class controller():
         elif requisicao[0] == '05':
             pass
             #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
-
-        self.fechar_conexao()
-
+            
         return retorno
 
     def data_e_hora_atuais(self):
@@ -95,4 +102,5 @@ if __name__ == "__main__":
         main.iniciar_servidor()
     except:
         raise
+        main.reiniciar_servidor()
 

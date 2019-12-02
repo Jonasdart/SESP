@@ -1,2 +1,2 @@
-manutencao = False
-horario_previsto = Retorno ao meio dia
+manutencao = True
+horario_previsto = Sistema retorna em breve

@@ -9,17 +9,20 @@ class backend():
         self.conectado = False
 
     def conecta_ao_servidor(self):
-        ip = self.ip_servidor_sesp()
-        try:
-            self.servidor.close()
-        except:
-            pass
-        try:
-            self.servidor = socket(AF_INET, SOCK_STREAM)
-            #self.servidor.connect(('192.168.0.69', 50007))
-            self.servidor.connect((f'{ip}', 50007))
-        except:
-            raise
+        ip, porta = self.ip_servidor_sesp()
+        if not self.conectado:
+            try:
+                self.servidor.close()
+            except:
+                pass
+            try:
+                self.servidor = socket(AF_INET, SOCK_STREAM)
+                #self.servidor.connect(('192.168.0.69', 50007))
+                self.servidor.connect((f'{ip}', porta))
+            except:
+                raise
+            else:
+                return True
         else:
             return True
 
@@ -28,18 +31,24 @@ class backend():
             self.servidor.close()
         except:
             pass
+        else:
+            self.conectado = False
 
     def ip_servidor_sesp(self):
         arq = open('sesp.txt', 'r')
         info_servidor = arq.readlines()
+        arq.close()
+
         ip = info_servidor[0].split('=')[1].strip()
+        porta = int(info_servidor[1].split('=')[1].strip())
         
-        return ip
+        return ip, porta
 
 
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
         cabecalho = info_cabecalho.readlines()
+        info_cabecalho.close()
 
         self.cabecalho_etiqueta = cabecalho[0].split("=")[1].strip()
         self.cabecalho_ip = cabecalho[1].split("=")[1].strip()
@@ -74,7 +83,7 @@ class backend():
         else:
             status = self.servidor.recv(1024)
             try:
-                self.servidor.close()
+                self.encerrar_conexao()
             except:
                 pass
             return status
@@ -113,7 +122,7 @@ class backend():
         else:
             horario_atual = self.servidor.recv(1024)
             try:
-                self.servidor.close()
+                self.encerrar_conexao()
             except:
                 pass
             return horario_atual
@@ -147,11 +156,9 @@ class backend():
             ip = self.servidor.recv(1024)
             ip = ip.decode('utf-8')
             try:
-                self.servidor.close()
+                self.encerrar_conexao()
             except:
                 pass
-            else:
-                self.conectado = False
             
             self.atualiza_cabecalho(ip = ip)
 
