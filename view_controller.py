@@ -185,6 +185,7 @@ class sesp_view():
         self.tela.after(180, self.busca_feedback)
 
     def armador(self, tipo):
+        self.controller.conecta_ao_servidor()
 
         if tipo is '01':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())

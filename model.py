@@ -10,16 +10,19 @@ class backend():
 
     def conecta_ao_servidor(self):
         ip, porta = self.ip_servidor_sesp()
-        try:
-            self.servidor.close()
-        except:
-            pass
-        try:
-            self.servidor = socket(AF_INET, SOCK_STREAM)
-            #self.servidor.connect(('192.168.0.69', 50007))
-            self.servidor.connect((f'{ip}', porta))
-        except:
-            raise
+        if not self.conectado:
+            try:
+                self.servidor.close()
+            except:
+                pass
+            try:
+                self.servidor = socket(AF_INET, SOCK_STREAM)
+                #self.servidor.connect(('192.168.0.69', 50007))
+                self.servidor.connect((f'{ip}', porta))
+            except:
+                raise
+            else:
+                return True
         else:
             return True
 
@@ -35,7 +38,7 @@ class backend():
         arq = open('sesp.txt', 'r')
         info_servidor = arq.readlines()
         arq.close()
-        
+
         ip = info_servidor[0].split('=')[1].strip()
         porta = int(info_servidor[1].split('=')[1].strip())
         

@@ -9,53 +9,58 @@ class controller():
         self.conectado = False
         self.feedback = ''
         self.feedback_fixo = ''
-    def inicio(self):
-        pass
+
+    def restaura_mensagem_feedback(self):
+        self.feedback = ''
+        self.feedback_fixo = ''
 
     def conecta_ao_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
-        if not self.conectado:
-            self.feedback_fixo = 'Estabelecendo Conexão com o servidor SESP'
-            if not ip_temp:
-                try:
-                    self.conectado = self.backend.conecta_ao_servidor()
-                except:
-                    if cont is not 0:
-                        self.feedback = "Tentando novamente"
-                        self.conecta_ao_servidor(cont = cont-1)
-                    elif not verificou_com_ip_secundario:
-                        self.feedback = "Tentando novamente com o IP temporário"
-                        if self.usar_ip_temporario():
-                            self.conecta_ao_servidor(ip_temp = True)
-                        else:
-                            self.conectado = False
-                            return
+        self.feedback_fixo = 'Estabelecendo Conexão com o servidor SESP'
+        if not ip_temp:
+            try:
+                self.conectado = self.backend.conecta_ao_servidor()
+            except:
+                if cont is not 0:
+                    self.feedback = "Tentando novamente"
+                    self.conecta_ao_servidor(cont = cont-1)
+                elif not verificou_com_ip_secundario:
+                    self.feedback = "Tentando novamente com o IP temporário"
+                    if self.usar_ip_temporario():
+                        self.conecta_ao_servidor(ip_temp = True)
                     else:
                         self.conectado = False
-                        self.feedback_fixo = "Não foi possível acessar o servidor SESP"
-                        self.feedback = "Favor entrar em contato com o Administrador"
-                        raise
+                        return
                 else:
-                    self.conectado = True
-                    return
-            else:
-                try:
-                    self.conectado = self.backend.conecta_ao_servidor()
-                except:
-                    if cont is not 0:
-                        self.feedback = "Tentando novamente com o IP temporário"
-                        self.conecta_ao_servidor(cont = cont-1, ip_temp = True)
-                    else:
-                        self.feedback = "Não foi possível acessar com o IP temporário"
-                        self.conectado = False
-                        self.restaurar_ip()
-                            
-                        self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)
-                        
-                else:
-                    self.conectado = True
-                    self.atualizar_ip()
                     self.conectado = False
-                    self.conecta_ao_servidor(verificou_com_ip_secundario = True)
+                    self.feedback_fixo = "Não foi possível acessar o servidor SESP"
+                    self.feedback = "Favor entrar em contato com o Administrador"
+                    raise
+            else:
+                if self.conectado:
+                    return True
+                else:
+                    self.feedback_fixo = "Não foi possível acessar o servidor SESP"
+                    self.feedback = "Favor entrar em contato com o Administrador"
+                    raise
+        else:
+            try:
+                self.conectado = self.backend.conecta_ao_servidor()
+            except:
+                if cont is not 0:
+                    self.feedback = "Tentando novamente com o IP temporário"
+                    self.conecta_ao_servidor(cont = cont-1, ip_temp = True)
+                else:
+                    self.feedback = "Não foi possível acessar com o IP temporário"
+                    self.conectado = False
+                    self.restaurar_ip()
+                        
+                    self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)
+                    
+            else:
+                self.conectado = True
+                self.atualizar_ip()
+                self.conectado = False
+                self.conecta_ao_servidor(verificou_com_ip_secundario = True)
 
     def desconectar_do_servidor(self):
         try:
@@ -142,10 +147,14 @@ class controller():
         except:
             raise
         else:
+            self.restaura_mensagem_feedback()
             status = status.decode("utf-8")
             if "False" in status:
+                self.feedback_fixo = f"Não possui nenhum procedimento interrompendo o funcionamento do sistema"
+                self.feedback = 'Entre em contato com o Administrador'
                 return True
             else:
+                self.feedback_fixo = f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}"
                 return f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}"
 
     def spdata_nao_abre(self):

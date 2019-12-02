@@ -10,7 +10,7 @@ class controller():
         arq = open('sesp.txt', 'r')
         info_servidor = arq.readlines()
         arq.close()
-        
+
         ip = info_servidor[0].split('=')[1].strip()
         porta = int(info_servidor[1].split('=')[1].strip())
         
@@ -79,9 +79,7 @@ class controller():
         elif requisicao[0] == '05':
             pass
             #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
-
-        self.fechar_conexao()
-
+            
         return retorno
 
     def data_e_hora_atuais(self):
