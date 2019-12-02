@@ -11,8 +11,8 @@ class sesp_view():
     def __init__(self):
         self.backend = backend()
         self.controller = controller()
-
-        self.feedback = 'teste'
+        self.feedback_fixo = ''
+        self.feedback = ''
 
         self.botoes_menu_x = list()
         self.botoes_menu_y = list()
@@ -157,7 +157,7 @@ class sesp_view():
         self.gif_frames = list()
         for x in range(100):
             try:
-                self.gif_frames.append(PhotoImage(file=f'img/carregamento/gif_carregamento4.GIF', format = f'gif -index {x}'))
+                self.gif_frames.append(PhotoImage(file=f'img/carregamento/carregamento_foguete.GIF', format = f'gif -index {x}'))
             except:
                 break
 
@@ -185,29 +185,34 @@ class sesp_view():
         self.tela.after(180, self.busca_feedback)
 
     def armador(self, tipo):
-
         if tipo is '01':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            self.mostra_esconde_botoes(mostrar = False)
             #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
             self.acao.start()
         elif tipo is '02':
             self.acao = threading.Thread(target = lambda: self.controller.spdata_nao_abre())
+            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '03':
             self.acao = threading.Thread(target = lambda: self.controller.verificar_spdata())
+            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '04':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '05':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
+            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '05_1':
+            self.mostra_esconde_botoes(mostrar = False)
             self.gera_popup_confirmacao(mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO')
         if len(tipo) is 2:
             self.gera_popup_carregamento(self.gif_frames)
 
-    def gera_popup_confirmacao(self, tela = None, titulo = "AVISO", mensagem = "O computador será reiniciado...", texto_botao_1 = "Continuar", texto_botao_2 = "Cancelar", bg = "#091A1B", fg = "yellow", cor_botao = "#B8B63D"):
+    def gera_popup_confirmacao(self, tela = None, titulo = "AVISO", mensagem = "O computador será reiniciado...", texto_botao_1 = "Continuar", texto_botao_2 = "Cancelar", bg = "#091A1B", fg = "yellow", cor_botao = "#B8B63D", comando = '05'):
         if tela is None:
             tela = self.tela
 
@@ -226,7 +231,7 @@ class sesp_view():
         label_borda.pack(expand = True)
         botao_confirmar = Button(popup_confirmacao, text = texto_botao_1, bg = cor_botao, fg = "black", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
-            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.armador('05'))
+            bd = "1", relief = "flat", overrelief = "sunken", command = lambda: self.armador(comando))
         botao_cancelar = Button(popup_confirmacao, text = texto_botao_2, bg = cor_botao, fg = "black", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "1", width = "10", 
             bd = "1", relief = "flat", overrelief = "sunken", command = lambda: popup_confirmacao.destroy()) 
@@ -268,7 +273,7 @@ class sesp_view():
 
     def gera_popup_carregamento(self, gif):
         
-        label = Label(self.tela, bg="#193E4D")
+        label = Label(self.tela, bg = "#193E4D")
         label.pack(expand = True)
 
         self.inicia_gif_carregamento(gif, label)
@@ -281,8 +286,9 @@ class sesp_view():
             label.configure(image = gif[indice])
 
         if self.acao.isAlive():
-            self.tela.after(90, lambda: self.inicia_gif_carregamento(gif, label, indice+1))
+            self.tela.after(50, lambda: self.inicia_gif_carregamento(gif, label, indice+1))
         else:
+            self.mostra_esconde_botoes()
             label.pack_forget()
 
 
