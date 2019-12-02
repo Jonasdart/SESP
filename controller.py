@@ -154,7 +154,8 @@ class controller():
                 self.feedback = 'Entre em contato com o Administrador'
                 return True
             else:
-                self.feedback_fixo = f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}"
+                self.feedback_fixo = f"Sistema SPDATA está em manutenção travamentos poderão acontecer"
+                self.feedback = status
                 return f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}"
 
     def spdata_nao_abre(self):
