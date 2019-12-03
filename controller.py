@@ -147,6 +147,7 @@ class controller():
 
     def verificar_spdata(self):
         self.conecta_ao_servidor()
+
         try:
             status = self.backend.verificar_spdata()
         except:
@@ -179,12 +180,15 @@ class controller():
             #portanto devemos chamar a função de correção de internet
             pass
         try:
+            self.feedback_fixo = 'Corrigindo SPDATA'
             self.feedback = 'Fazendo o mapeamento do SPDATA'
             mapeamento_msg_confirmacao = self.backend.mapear_spdata()
         except:
             self.feedback_fixo = 'Não foi possível mapear o SPDATA'
             self.feedback = 'Entre em contato com o Administrador'
             pass
+        else:
+            self.feedback = 'Mapeamento concluído'
         return mapeamento_msg_confirmacao
 
     def corrigir_travamento_computador(self, chkdsk = False):

@@ -1,2 +1,2 @@
-manutencao = True
+manutencao = False
 horario_previsto = Atualizacao em andamento - O sistema retorna em breve
