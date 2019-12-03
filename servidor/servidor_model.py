@@ -20,13 +20,13 @@ class backend():
         arquivo_status = open("status_spdata.txt", "r")
         status = arquivo_status.readlines()
         arquivo_status.close()
-        horario_previsto = status[1].split("=")[1]
+        horario_previsto = status[1].split("=")[1].strip()
         status = status[0]
-        status = status.split("=")[1]
+        status = status.split("=")[1].strip()
 
              
         if "True" in status:     
-            return f"{horario_previsto}"
+            return horario_previsto
         else:
             return "False"
 
@@ -34,7 +34,7 @@ class backend():
         try:
             info = self.glpi.buscar_info_maquina(etiqueta)
         except:
-            raise
+            pass
         else:
             return info
 

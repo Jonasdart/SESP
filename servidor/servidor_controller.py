@@ -91,7 +91,7 @@ class controller():
         return bytes(data_e_hora, 'utf-8')
 
     def verificar_spdata(self):
-        return bytes(self.backend.status_spdata(), 'utf-8')
+        return self.backend.status_spdata().encode('utf-8')
 
     def buscar_ip_maquina(self, etiqueta):
         return bytes(self.backend.retornar_ip_maquina(etiqueta), 'utf-8')
@@ -101,6 +101,5 @@ if __name__ == "__main__":
     try:
         main.iniciar_servidor()
     except:
-        raise
         main.reiniciar_servidor()
 

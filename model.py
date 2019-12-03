@@ -181,9 +181,7 @@ class backend():
             os.system(f'REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "{self.cabecalho_excessoes}" /f')
         except:
             pass
-"""teste = backend()
-teste.reiniciar_maquina()"""
-
+            
 if __name__ == "__main__":
     main = backend()
     try:
