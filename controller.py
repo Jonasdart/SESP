@@ -1,3 +1,8 @@
+#encoding: utf-8
+# -*- coding: utf-8 -*-
+
+#dev by Jonas Duarte - Duzz System
+
 from model import backend
 from time import sleep
 from socket import *
@@ -148,27 +153,37 @@ class controller():
             raise
         else:
             self.restaura_mensagem_feedback()
+            print(status)
             status = status.decode("utf-8")
             if "False" in status:
                 self.feedback_fixo = f"Não possui nenhum procedimento interrompendo o funcionamento do sistema"
                 self.feedback = 'Entre em contato com o Administrador'
-                return True
+                retorno = False
             else:
                 self.feedback_fixo = f"Sistema SPDATA está em manutenção travamentos poderão acontecer"
                 self.feedback = status
-                return f"Sistema SPDATA está em manutenção travamentos poderão acontecer - {status}"
+                
+                retorno = f"Sistema SPDATA está em manutenção \ntravamentos poderão acontecer \n\n\n{status}"
+                
+        return retorno 
 
     def spdata_nao_abre(self):
         self.conecta_ao_servidor()
+        self.feedback_fixo = 'Corrigindo SPDATA'
         try:
+            self.feedback = 'Atualizando horário do computador'
             self.atualizar_horario()
         except:
+            self.feedback = 'Não foi possível atualizar a data e hora'
             #aqui se não conseguir buscar o horário, o problema provavelmente está na internet
             #portanto devemos chamar a função de correção de internet
             pass
         try:
+            self.feedback = 'Fazendo o mapeamento do SPDATA'
             mapeamento_msg_confirmacao = self.backend.mapear_spdata()
         except:
+            self.feedback_fixo = 'Não foi possível mapear o SPDATA'
+            self.feedback = 'Entre em contato com o Administrador'
             pass
         return mapeamento_msg_confirmacao
 
