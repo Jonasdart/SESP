@@ -214,8 +214,7 @@ class sesp_view():
 
     def comando_correcao_travamento_pc(self):
         mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO'
-        self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '05',
-            texto_botao_meio = 'OI')
+        self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '05')
         
     def comando_verificacao_spdata(self, terminou_processo = False):
         if terminou_processo:
@@ -223,7 +222,7 @@ class sesp_view():
                 if not self.em_verificacao:
                     mensagem = "O sistema está OK!\nClique em 'Tente Novamente' para uma verificação completa\nCaso persista, entre em contato com o Administrador"
                     self.gera_popup_confirmacao(titulo = "Verificação SPDATA", mensagem = mensagem, 
-                        texto_botao_1 = "OK", texto_botao_2 = "Tentar Novamente", comando_botao_2 = '02')
+                        texto_botao_1 = "OK", texto_botao_2 = "Tente Novamente", comando_botao_2 = '02')
                 else:
                     mensagem = self.em_verificacao
                     self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK")

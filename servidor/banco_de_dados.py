@@ -38,6 +38,7 @@ class glpi():
         return retorno_credenciais
 
     def buscar_info_maquina(self, maquina):
+        self.conecta()
         query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipaddresses", 
             where = True, coluna_verificacao = ["mainitems_id", "mainitemtype"], valor_where = [maquina, "Computer"])
 

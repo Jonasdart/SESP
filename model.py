@@ -159,10 +159,11 @@ class backend():
                 self.encerrar_conexao()
             except:
                 pass
-            
-            self.atualiza_cabecalho(ip = ip)
-
-            return ip
+            if ip is not None:
+                self.atualiza_cabecalho(ip = ip)
+                return ip
+            else:
+                raise
 
     def atualizar_ip(self, ip):
         try:
