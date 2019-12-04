@@ -11,13 +11,9 @@ class backend():
     def conecta_ao_servidor(self):
         ip, porta = self.ip_servidor_sesp()
         if not self.conectado:
-            try:
-                self.servidor.close()
-            except:
-                pass
+            self.encerrar_conexao()
             try:
                 self.servidor = socket(AF_INET, SOCK_STREAM)
-                #self.servidor.connect(('192.168.0.69', 50007))
                 self.servidor.connect((f'{ip}', porta))
             except:
                 raise
@@ -171,9 +167,7 @@ class backend():
             os.system('netsh int ip set dns "Conexão Local" static 8.8.8.8')
             os.system('netsh int ip set wins "Conexão Local" static 8.8.4.4')
         except:
-            return False
-        else:
-            return True
+            raise
 
     def definir_proxy(self):
         try:

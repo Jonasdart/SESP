@@ -34,7 +34,7 @@ class backend():
         try:
             info = self.glpi.buscar_info_maquina(etiqueta)
         except:
-            pass
+            return 'error'
         else:
             return info
 
@@ -42,15 +42,15 @@ class backend():
         try:
             info = self.busca_info_maquina(etiqueta)
         except:
-            raise
+            pass
 
         try:
             info = info[0]
         except:
-            pass
+            return 'error'
         try:
             ip = info[5]
         except:
-            raise
+            return 'error'
         else:
             return ip
