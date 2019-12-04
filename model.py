@@ -163,7 +163,7 @@ class backend():
 
     def atualizar_ip(self, ip):
         try:
-            os.system(f'netsh int ip set address name="Conexão Local" source=static {ip} 255.255.255.0 192.168.0.1 1')
+            os.system(f'netsh int ip set address name="Conexão local" source=static {ip} 255.255.255.0 192.168.0.1 1')
             os.system('netsh int ip set dns "Conexão Local" static 8.8.8.8')
             os.system('netsh int ip set wins "Conexão Local" static 8.8.4.4')
         except:
