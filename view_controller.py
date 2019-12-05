@@ -19,14 +19,19 @@ class sesp_view():
         self.botoes_menu_y = list()
         self.botoes_controle_x = list()
         self.botoes_controle_y = list()
-        
+
         self.tela_inicial()
 
     def tela_inicial(self):
         self.tela = Tk()
+
+        self.acao = threading.Thread(target = self.gera_gif_carregamento)
+        self.acao.start()
+
         self.posiciona_janela()
         self.botoes_controle()
         self.mostra_esconde_botoes()
+
         self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
         self.tela["bg"] = "#193E4D"
 
@@ -46,7 +51,6 @@ class sesp_view():
         self.tela.mainloop()
 
     def posiciona_janela(self):
-        self.gera_gif_carregamento()
 
         try:
             self.x.clear()
@@ -183,52 +187,45 @@ class sesp_view():
         self.label_feedback["text"] = self.feedback
         self.label_feedback["width"] = f'{len(self.feedback)+2}'
         
-        self.tela.after(180, self.busca_feedback)
+        self.tela.after(10, self.busca_feedback)
 
     def armador(self, tipo):
+        self.controller.restaura_mensagem_feedback()
+        self.destruir_popup(mostrar_botoes = False)
         if tipo is '01':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
-            self.mostra_esconde_botoes(mostrar = False)
             #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
             self.acao.start()
         elif tipo is '02':
             self.acao = threading.Thread(target = lambda: self.controller.spdata_nao_abre())
-            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '03':
-            self.mostra_esconde_botoes(mostrar = False)
             self.comando_verificacao_spdata()
         elif tipo is '04':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
-            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '05':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
-            self.mostra_esconde_botoes(mostrar = False)
             self.acao.start()
         elif tipo is '05_1':
-            self.mostra_esconde_botoes(mostrar = False)
             self.comando_correcao_travamento_pc()
         if len(tipo) is 2:
             self.gera_popup_carregamento(self.gif_frames)
 
     def comando_correcao_travamento_pc(self):
         mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO'
-        self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '05',
-            texto_botao_meio = 'OI')
+        self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '05')
         
     def comando_verificacao_spdata(self, terminou_processo = False):
-
         if terminou_processo:
-            self.mostra_esconde_botoes(mostrar = False)
-
-            if not self.em_verificacao:
-                mensagem = "O sistema está OK!\nClique em 'Tente Novamente' para uma verificação completa\nCaso persista, entre em contato com o Administrador"
-                self.gera_popup_confirmacao(titulo = "Verificação SPDATA", mensagem = mensagem, 
-                    texto_botao_1 = "OK", texto_botao_2 = "Tentar Novamente", comando_botao_2 = '02')
-            else:
-                mensagem = self.em_verificacao
-                self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK")
+            if self.em_verificacao is not None:
+                if not self.em_verificacao:
+                    mensagem = "O sistema está OK!\nClique em 'Tente Novamente' para uma verificação completa\nCaso persista, entre em contato com o Administrador"
+                    self.gera_popup_confirmacao(titulo = "Verificação SPDATA", mensagem = mensagem, 
+                        texto_botao_1 = "OK", texto_botao_2 = "Tente Novamente", comando_botao_2 = '02')
+                else:
+                    mensagem = self.em_verificacao
+                    self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK")
 
         else:
             self.acao = threading.Thread(target = lambda: self.busca_informacao_spdata())
@@ -241,101 +238,109 @@ class sesp_view():
             tela = self.tela
 
         if processo.isAlive():
-            tela.after(10, lambda: self.terminou_processo(tela = tela, processo = processo))
+            tela.after(100, lambda: self.terminou_processo(tela = tela, processo = processo))
         else:
             self.comando_verificacao_spdata(terminou_processo = True)
 
     def busca_informacao_spdata(self):
         self.terminou_processo()
-        self.em_verificacao = self.controller.verificar_spdata()
+        try:
+            self.em_verificacao = self.controller.verificar_spdata()
+        except:
+            self.em_verificacao = None
 
 
     def gera_popup_confirmacao(self, tela = None, titulo = "AVISO", mensagem = "O computador será reiniciado...", 
         texto_botao_meio = None, texto_botao_1 = None, texto_botao_2 = None, bg = "#091A1B", fg = "yellow", 
         cor_botao = "#B8B63D", comando_botao_meio = None, comando_botao_1 = None, comando_botao_2 = None):
+
+        self.destruir_popup(mostrar_botoes = False)
+
         if tela is None:
             tela = self.tela
 
         altura = int((self.altura - 50) / 2)
         largura = int(self.largura / 2)
 
-        popup_confirmacao = Toplevel(tela)
-        popup_confirmacao.geometry(f"{largura}x{altura}+{int(largura - 300)}+{int(altura - 250)}")
-        popup_confirmacao.title(titulo)
-        popup_confirmacao.resizable(0,0)
-        popup_confirmacao["bg"] = bg
+        self.popup = Toplevel(tela)
+        self.popup.geometry(f"{largura}x{altura}+{int(largura - 350)}+{int(altura - 250)}")
+        self.popup.title(titulo)
+        self.popup.resizable(0,0)
+        self.popup["bg"] = bg
 
-        label_mensagem = Label(popup_confirmacao, text = mensagem, font = ("Verdana", "15", "bold"), bg = bg, fg = "yellow")
+        label_mensagem = Label(self.popup, text = mensagem, font = ("Verdana", "15", "bold"), bg = bg, fg = "yellow")
         label_mensagem.pack(expand = True)
-        label_borda = Label(popup_confirmacao, bg = bg, width = f'{largura}', height = "5")
+        label_borda = Label(self.popup, bg = bg, width = f'{largura}', height = "5")
         label_borda.pack()
 
         if texto_botao_meio is not None:
-            botao_meio = Button(popup_confirmacao, text = texto_botao_meio, bg = cor_botao, fg = "black", 
+            botao_meio = Button(self.popup, text = texto_botao_meio, bg = cor_botao, fg = "black", 
                 highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "2", width = "13", 
                 bd = "1", relief = "flat", overrelief = "sunken")
 
             if comando_botao_meio is None:
-                botao_meio["command"] = lambda: self.destruir_popup(popup_confirmacao)
+                botao_meio["command"] = lambda: self.destruir_popup()
             else:
                 botao_meio["command"] = lambda: self.armador(comando_botao_meio)
 
             botao_meio.place(x = largura/2.4, y = altura/1.3)
 
         if texto_botao_1 is not None:
-            botao_1 = Button(popup_confirmacao, text = texto_botao_1, bg = cor_botao, fg = "black", 
+            botao_1 = Button(self.popup, text = texto_botao_1, bg = cor_botao, fg = "black", 
                 highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "2", width = "13", 
                 bd = "1", relief = "flat", overrelief = "sunken")
 
             if comando_botao_1 is None: 
-                botao_1["command"] = lambda: self.destruir_popup(popup_confirmacao)
+                botao_1["command"] = lambda: self.destruir_popup()
             else:
-                botao_1["command"] = lambda: self.armador(comando_botao1)
+                botao_1["command"] = lambda: self.armador(comando_botao_1)
 
             botao_1.place(x = largura/3.7, y = altura/1.3)
 
         if texto_botao_2 is not None:
-            botao_2 = Button(popup_confirmacao, text = texto_botao_2, bg = cor_botao, fg = "black", 
+            botao_2 = Button(self.popup, text = texto_botao_2, bg = cor_botao, fg = "black", 
                 highlightcolor = "white", activebackground = "#193E4D", activeforeground = "black", height = "2", width = "13", 
                 bd = "1", relief = "flat", overrelief = "sunken")
 
             if comando_botao_2 is None: 
-                botao_2["command"] = lambda: self.destruir_popup(popup_confirmacao)
+                botao_2["command"] = lambda: self.destruir_popup()
             else:
-                botao_2["command"] = lambda: self.armador(comando_botao2)
+                botao_2["command"] = lambda: self.armador(comando_botao_2)
 
             botao_2.place(x = largura/1.772, y = altura/1.3)
         
-    def gera_popup_informacoes(self, ativo = False, popup_informacoes = None):
+    def gera_popup_informacoes(self, ativo = False, popup = None):
         self.backend.busca_cabecalho()
         if not ativo:
-            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = True, popup_informacoes = popup_informacoes)
-            self.botao_meu_computador["relief"] = "sunken"
-            self.botao_meu_computador["bg"] = "#193E4D"
+            
             altura = int((self.altura - 100) / 2)
             largura = int(self.largura / 2)
 
-            popup_informacoes = Toplevel(self.tela)
-            popup_informacoes["bg"] = "#091A1B"
-            popup_informacoes.transient(self.tela)
-            popup_informacoes.overrideredirect(True)
-            popup_informacoes.geometry(f"{largura}x{altura}+{int(altura)}+{int(largura/3)}")
-            popup_informacoes.lift()
-            popup_informacoes.wm_attributes("-topmost", True)
-            popup_informacoes.wm_attributes("-disabled", True)
-            popup_informacoes.wm_attributes("-transparentcolor", "white")
+            self.popup = Toplevel(self.tela)
+            self.popup["bg"] = "#091A1B"
+            self.popup.transient(self.tela)
+            self.popup.overrideredirect(True)
+            self.popup.geometry(f"{largura}x{altura}+{int(altura)}+{int(largura/3)}")
+            self.popup.lift()
+            self.popup.wm_attributes("-topmost", True)
+            self.popup.wm_attributes("-disabled", True)
+            self.popup.wm_attributes("-transparentcolor", "white")
+
+            self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes(ativo = True, popup = self.popup)
+            self.botao_meu_computador["relief"] = "sunken"
+            self.botao_meu_computador["bg"] = "#193E4D"
 
             string = f'COMPUTADOR = {self.backend.cabecalho_etiqueta}\n\n'
             string+= f'ACESSO REMOTO = {self.backend.cabecalho_ip}\n\n'
             string+= f'SE O PROBLEMA NÃO FOR RESOLVIDO\nABRA UM CHAMADO COM O GLPI'
 
-            label = Label(popup_informacoes, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
+            label = Label(self.popup, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
             label.pack(expand = True)
         else:
             self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes()
             self.botao_meu_computador["relief"] = "flat"
             self.botao_meu_computador["bg"] = "#0B1F22"
-            popup_informacoes.destroy()
+            self.popup.destroy()
 
     def gera_popup_carregamento(self, gif):
         
@@ -344,11 +349,23 @@ class sesp_view():
 
         self.inicia_gif_carregamento(gif, label)
 
-    def destruir_popup(self, popup):
-        self.mostra_esconde_botoes()
-        self.controller.restaura_mensagem_feedback()
+    def destruir_popup(self, popup = None, label = None, mostrar_botoes = True):
+        if mostrar_botoes:
+            self.mostra_esconde_botoes()
+        else:
+            self.mostra_esconde_botoes(mostrar = False)
+
+        try:
+            self.popup.destroy()
+        except:
+            pass
         try:
             popup.destroy()
+        except:
+            pass
+        try:
+            label.pack_forget()
+            label.place_forget()
         except:
             pass
 
@@ -362,8 +379,7 @@ class sesp_view():
         if self.acao.isAlive():
             self.tela.after(50, lambda: self.inicia_gif_carregamento(gif, label, indice+1))
         else:
-            self.mostra_esconde_botoes()
-            label.pack_forget()
+            self.destruir_popup(label = label)
 
 
 if __name__ == "__main__":

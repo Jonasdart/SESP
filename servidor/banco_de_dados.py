@@ -6,15 +6,14 @@ class glpi():
         self.gerador_de_query = gera_query()
         self.conectado = False
 
-    def conecta(self, tentando_novamente = False):
+    def conecta(self):
         self.credenciais = self.credencia()
         try:
             self.banco = mdb.connect(self.credenciais[0], self.credenciais[1], 
                 self.credenciais[2], self.credenciais[3])
         except:
             self.conectado = False
-            if tentando_novamente:
-                raise
+            raise
         else:
             self.cursor = self.banco.cursor()
             self.conectado = True
@@ -38,6 +37,7 @@ class glpi():
         return retorno_credenciais
 
     def buscar_info_maquina(self, maquina):
+        self.conecta()
         query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipaddresses", 
             where = True, coluna_verificacao = ["mainitems_id", "mainitemtype"], valor_where = [maquina, "Computer"])
 
@@ -45,8 +45,12 @@ class glpi():
         
     def commit_sem_retorno(self, query):
         if not self.conectado:
-            self.conecta(tentando_novamente = True)
-            self.commit_sem_retorno(query)
+            try:
+                self.conecta()
+            except:
+                raise
+            else:
+                self.commit_sem_retorno(query)
         else:  
             try:
                 self.cursor.execute(query)
@@ -58,8 +62,12 @@ class glpi():
 
     def commit_com_retorno(self, query):
         if not self.conectado:
-            self.conecta(tentando_novamente = True)
-            self.commit_com_retorno(query)
+            try:
+                self.conecta()
+            except:
+                raise
+            else:
+                self.commit_com_retorno(query)
         else:  
             try:
                 self.cursor.execute(query)

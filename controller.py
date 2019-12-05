@@ -30,11 +30,13 @@ class controller():
                     self.conecta_ao_servidor(cont = cont-1)
                 elif not verificou_com_ip_secundario:
                     self.feedback = "Tentando novamente com o IP temporário"
-                    if self.usar_ip_temporario():
-                        self.conecta_ao_servidor(ip_temp = True)
-                    else:
+                    try:
+                        self.usar_ip_temporario()
+                    except:
                         self.conectado = False
-                        return
+                        raise
+                    else:
+                        self.conecta_ao_servidor(ip_temp = True)
                 else:
                     self.conectado = False
                     self.feedback_fixo = "Não foi possível acessar o servidor SESP"
@@ -59,8 +61,7 @@ class controller():
                     self.conectado = False
                     self.restaurar_ip()
                         
-                    self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)
-                    
+                    self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)                
             else:
                 self.conectado = True
                 self.atualizar_ip()
@@ -78,43 +79,50 @@ class controller():
     def atualizar_horario(self):
         self.conecta_ao_servidor()
         try:
+            self.feedback = 'Buscando horário atual...'
             data_e_hora_atuais = self.backend.buscar_horario_atual()
         except:
-            raise
+            self.feedback = 'Não foi possível encontrar o horário atual no servidor'
         else:
             try:
+                self.feedback = 'Decodificando configuração de data/hora...'
                 data_e_hora_atuais = data_e_hora_atuais.decode("utf-8")
             except:
-                raise
+                self.feedback = 'Não foi possível decodificar a data e hora'
                 
             else:
+                self.feedback = 'Atualizando a configuração de data/hora...'
                 self.backend.atualizar_horario(data_e_hora_atuais)
 
     def usar_ip_temporario(self, ip = None):
         if ip is None:
             ip = self.backend.cabecalho_ip_secundario
 
-        msg_confirmacao = self.backend.atualizar_ip(ip)
-
-        return msg_confirmacao
+        try:
+            self.backend.atualizar_ip(ip)
+        except:
+            self.feedback = 'Não foi possível configurar o IP temporário'
+            raise
 
     def atualizar_ip(self):
         self.conecta_ao_servidor()
         self.backend.busca_cabecalho()
         try:
+            self.feedback = 'Buscando o endereço de IP...'
             ip = self.backend.buscar_ip(self.backend.cabecalho_etiqueta)
         except:
-            raise
-        if len(ip) is not 0:
-            try:
-                self.backend.atualizar_ip(ip)
-            except:
-                raise
-            else:
+            self.feedback = f'Não foi possível encontrar o IP da máquina {self.backend.cabecalho_etiqueta}'
+        else:
+            if len(ip) is not 0:
                 try:
-                    self.backend.atualiza_cabecalho(ip = ip)
+                    self.backend.atualizar_ip(ip)
                 except:
-                    raise
+                    self.feedback = f'Não foi possível definir o IP {ip} como principal'
+                else:
+                    try:
+                        self.backend.atualiza_cabecalho(ip = ip)
+                    except:
+                        self.feedback = f'Não foi possível atualizar o cabeçalho'
 
     def restaurar_ip(self, ip = None):
         if ip is None:
@@ -122,38 +130,41 @@ class controller():
 
         self.feedback = "Voltando ao IP cadastrado"
 
-        msg_confirmacao = self.backend.atualizar_ip(ip)
-
-        return msg_confirmacao
+        try:
+            self.backend.atualizar_ip(ip)
+        except:
+            self.feedback = 'Não foi possível voltar ao IP cadastrado'
 
     def corrigir_internet(self):
+        self.feedback_fixo = 'Corrigindo conexão à internet'
         try:
+            self.feedback = 'Definindo configurações de proxy'
             self.backend.definir_proxy()
         except:
-            raise
+            self.feedback = 'Não foi possível configurar o proxy'
         
         self.conecta_ao_servidor()
 
         try:
             self.atualizar_ip()
         except:
-            raise
+            pass
         
         try:
             self.atualizar_horario()
         except:
-            raise
+            pass
 
 
     def verificar_spdata(self):
         self.conecta_ao_servidor()
+
         try:
             status = self.backend.verificar_spdata()
         except:
-            raise
+            self.feedback = 'Não foi possível verificar o spdata'
         else:
             self.restaura_mensagem_feedback()
-            print(status)
             status = status.decode("utf-8")
             if "False" in status:
                 self.feedback_fixo = f"Não possui nenhum procedimento interrompendo o funcionamento do sistema"
@@ -177,18 +188,22 @@ class controller():
             self.feedback = 'Não foi possível atualizar a data e hora'
             #aqui se não conseguir buscar o horário, o problema provavelmente está na internet
             #portanto devemos chamar a função de correção de internet
-            pass
+
         try:
+            self.feedback_fixo = 'Corrigindo SPDATA'
             self.feedback = 'Fazendo o mapeamento do SPDATA'
             mapeamento_msg_confirmacao = self.backend.mapear_spdata()
         except:
             self.feedback_fixo = 'Não foi possível mapear o SPDATA'
             self.feedback = 'Entre em contato com o Administrador'
             pass
+        else:
+            self.feedback = 'Mapeamento concluído'
         return mapeamento_msg_confirmacao
 
     def corrigir_travamento_computador(self, chkdsk = False):
         self.conecta_ao_servidor()
+        self.feedback_fixo = 'Corrigindo problemas no sistema operacional'
         if chkdsk:
             try:
                 self.backend.realizar_correcao_de_disco()
@@ -197,15 +212,4 @@ class controller():
         try:
             self.backend.reiniciar_maquina()
         except:
-            raise
-
-
-if __name__ == "__main__":
-    main = controller()
-    try:
-        main.atualizar_horario()
-    except:
-        pass
-    else:
-        main.verificar_spdata()
-    #main.inicio()
+            self.feedback = 'Não foi possível reiniciar o computador'
