@@ -155,8 +155,18 @@ class controller():
         except:
             pass
 
+    def corrigir_spdata(self):
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
+
+        self.spdata_nao_abre()
+
+        return self.verificar_spdata()
 
     def verificar_spdata(self):
+        print("Verificar spdata")
         self.conecta_ao_servidor()
 
         try:
@@ -179,6 +189,7 @@ class controller():
         return retorno 
 
     def spdata_nao_abre(self):
+        print("spdata n abre")
         self.conecta_ao_servidor()
         self.feedback_fixo = 'Corrigindo SPDATA'
         try:
@@ -192,14 +203,17 @@ class controller():
         try:
             self.feedback_fixo = 'Corrigindo SPDATA'
             self.feedback = 'Fazendo o mapeamento do SPDATA'
-            mapeamento_msg_confirmacao = self.backend.mapear_spdata()
+            try:
+                self.backend.mapear_spdata()
+            except:
+                self.feedback_fixo = 'Não foi possível mapear o SPDATA'
+                self.feedback = 'Entre em contato com o Administrador'
         except:
             self.feedback_fixo = 'Não foi possível mapear o SPDATA'
             self.feedback = 'Entre em contato com o Administrador'
             pass
         else:
             self.feedback = 'Mapeamento concluído'
-        return mapeamento_msg_confirmacao
 
     def corrigir_travamento_computador(self, chkdsk = False):
         self.conecta_ao_servidor()

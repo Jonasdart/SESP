@@ -92,9 +92,9 @@ class backend():
         try:
             os.system("net use I: \\\\192.168.0.251\\spdatai /user:192.168.0.251\\administrador 123456 /persistent:yes")
         except:
-            return False
+            raise
         else:
-            return True
+            return
 
 
 
