@@ -201,7 +201,11 @@ class sesp_view():
             self.acao.start()
         elif tipo is '04_1':
             self.comando_correcao_travamento_pc()
-        if len(tipo) is 2:
+        elif '00' in tipo:
+            procedimento = tipo.split('-')[1]
+            self.acao = threading.Thread(target = lambda: self.controller.enviar_log(procedimento))
+            self.acao.start()
+        if tipo is not '04_1':
             self.gera_popup_carregamento(self.gif_frames)
 
     def comando_correcao_travamento_pc(self):
@@ -214,7 +218,7 @@ class sesp_view():
                 if not self.em_verificacao:
                     mensagem = "VERIFICAÇÃO CONCLUÍDA COM SUCESSO\nSISTEMA ESTÁ OK!\n\nPor favor, verifique se o problema foi corrigido e nos informe clicando no botão."
                     self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
-                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou")
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-Correcao do SPDATA')
                 else:
                     mensagem = self.em_verificacao
                     self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK", bg = 'yellow', fg = 'black', cor_botao = 'white')
@@ -230,7 +234,7 @@ class sesp_view():
             tela = self.tela
 
         if processo.isAlive():
-            tela.after(100, lambda: self.terminou_processo(tela = tela, processo = processo))
+            tela.after(200, lambda: self.terminou_processo(tela = tela, processo = processo))
         else:
             self.comando_verificacao_spdata(terminou_processo = True)
 

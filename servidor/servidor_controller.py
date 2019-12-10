@@ -52,8 +52,10 @@ class controller():
                 requisicao = self.conexao.recv(1024)
                 if not requisicao: 
                     break
-
-                self.conexao.send(self.trata_requisicao(requisicao))
+                try:
+                    self.conexao.send(self.trata_requisicao(requisicao))
+                except:
+                    raise
         self.fechar_conexao()
 
     def trata_requisicao(self, requisicao):
@@ -63,11 +65,20 @@ class controller():
         except:
             raise
 
-
         return self.armador(requisicao)
 
+    def salvar_log(self, log):
+        try:
+            self.backend.salvar_log(log)
+        except:
+            raise
+        else:
+            return True
+
     def armador(self, requisicao):
-        if requisicao[0] == '01':
+        if requisicao[0] == '00':
+            retorno = self.salvar_log(requisicao[1])
+        elif requisicao[0] == '01':
             retorno = self.data_e_hora_atuais()
         elif requisicao[0] == '02':
             retorno = self.verificar_spdata()

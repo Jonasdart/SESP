@@ -76,6 +76,24 @@ class controller():
         else:
             self.conectado = False
 
+    def enviar_log(self, procedimento):
+        self.conecta_ao_servidor()
+        try:
+            self.feedback_fixo = 'Gerando arquivo de log'
+            log = self.backend.gerar_log(procedimento)
+        except:
+            self.feedback_fixo = 'Erro ao gerar log'
+            raise
+        self.conecta_ao_servidor()
+        try:
+            self.feedback_fixo = 'Enviando log ao servidor'
+            self.backend.enviar_log(log)
+        except:
+            self.feedback_fixo = 'Não foi possível enviar o log ao servidor'
+            raise
+        else:
+            self.restaura_mensagem_feedback()
+
     def atualizar_horario(self):
         self.conecta_ao_servidor()
         try:
@@ -166,7 +184,6 @@ class controller():
         return self.verificar_spdata()
 
     def verificar_spdata(self):
-        print("Verificar spdata")
         self.conecta_ao_servidor()
 
         try:
@@ -178,7 +195,6 @@ class controller():
             status = status.decode("utf-8")
             if "False" in status:
                 self.feedback_fixo = f"Não possui nenhum procedimento interrompendo o funcionamento do sistema"
-                self.feedback = 'Entre em contato com o Administrador'
                 retorno = False
             else:
                 self.feedback_fixo = f"Sistema SPDATA está em manutenção travamentos poderão acontecer"
@@ -189,7 +205,6 @@ class controller():
         return retorno 
 
     def spdata_nao_abre(self):
-        print("spdata n abre")
         self.conecta_ao_servidor()
         self.feedback_fixo = 'Corrigindo SPDATA'
         try:

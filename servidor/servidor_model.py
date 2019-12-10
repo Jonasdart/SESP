@@ -54,3 +54,21 @@ class backend():
             return 'error'
         else:
             return ip
+
+    def salvar_log(self, log):
+        try:
+            data_e_hora = f'{self.busca_data_atual()} | {self.busca_hora_atual()} '
+            log = f'{data_e_hora}...{log}'
+        except:
+            raise
+        try:
+            try:
+                arquivo_log = open(f'logs/{self.busca_data_atual()}.txt', 'a')
+            except:
+                raise
+            arquivo_log.write(f'{log}\n')
+            arquivo_log.close()
+        except:
+            raise
+
+        return True

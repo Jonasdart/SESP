@@ -1,4 +1,5 @@
 from socket import *
+from datetime import datetime
 from time import sleep
 import os
 import subprocess
@@ -40,6 +41,18 @@ class backend():
         
         return ip, porta
 
+    def gerar_log(self, procedimento):
+        data_e_hora = self.buscar_horario_atual()
+        log = f'Computador {self.cabecalho_etiqueta} _ ip {self.cabecalho_ip} _ Realizou com sucesso :: {procedimento}'
+
+        return log
+
+    def enviar_log(self, log):
+        try:
+            log = f'00-{log}'
+            self.servidor.send(bytes(log, 'utf-8'))
+        except:
+            raise
 
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
