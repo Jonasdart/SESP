@@ -178,10 +178,12 @@ class controller():
             self.conecta_ao_servidor()
         except:
             raise
+        manutencao = self.verificar_spdata()
+        if manutencao is not None:
+            if not manutencao:
+                self.spdata_nao_abre()
 
-        self.spdata_nao_abre()
-
-        return self.verificar_spdata()
+        return manutencao
 
     def verificar_spdata(self):
         self.conecta_ao_servidor()

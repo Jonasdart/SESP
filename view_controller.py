@@ -188,14 +188,19 @@ class sesp_view():
         self.controller.restaura_mensagem_feedback()
         self.destruir_popup(mostrar_botoes = False)
         if tipo is '01':
-            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
-            #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
-            self.acao.start()
+            self.comando_corrigir_internet()
+        elif tipo is '01_1':
+            self.comando_corrigir_internet(terminou_processo = True)
         elif tipo is '02':
             self.comando_verificacao_spdata()
+        elif tipo is '02_1':
+            print("oi")
+            self.comando_verificacao_spdata(terminou_processo = True)
         elif tipo is '03':
-            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
-            self.acao.start()
+            self.comando_corrigir_glpi()
+        elif tipo is '03_1':
+            print("oi")
+            self.comando_corrigir_glpi(terminou_processo = True)
         elif tipo is '04':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
             self.acao.start()
@@ -211,6 +216,16 @@ class sesp_view():
     def comando_correcao_travamento_pc(self):
         mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO'
         self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '04')
+
+    def comando_corrigir_internet(self, terminou_processo = False):
+        if terminou_processo:
+            mensagem = "Internet foi verificada com sucesso!\n\nPor favor, verifique se o problema foi corrigido e nos informe clicando no botão."
+            self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-Correcao da Internet')
+        else:
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            self.acao.start()
+            self.terminou_processo('01_1')
         
     def comando_verificacao_spdata(self, terminou_processo = False):
         if terminou_processo:
@@ -221,25 +236,37 @@ class sesp_view():
                         texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-Correcao do SPDATA')
                 else:
                     mensagem = self.em_verificacao
+                    print(mensagem)
                     self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK", bg = 'yellow', fg = 'black', cor_botao = 'white')
 
         else:
             self.acao = threading.Thread(target = lambda: self.busca_informacao_spdata())
-            self.acao.start()           
+            self.acao.start()
+            self.terminou_processo('02_1')
 
-    def terminou_processo(self, tela = None, processo = None):
+    def comando_corrigir_glpi(self, terminou_processo = False):
+        if terminou_processo:
+            mensagem = "O acesso ao GLPI foi verificado com sucesso!\n\nPor favor, teste e nos informe se o problema foi corrigido clicando no botão."
+            self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-Correcao do acesso ao GLPI')
+        else:
+            self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
+            self.acao.start()
+            self.terminou_processo('03_1')      
+
+    def terminou_processo(self, comando, tela = None, processo = None):
+        print(comando)
         if processo is None:
             processo = self.acao
         if tela is None:
             tela = self.tela
 
         if processo.isAlive():
-            tela.after(200, lambda: self.terminou_processo(tela = tela, processo = processo))
+            tela.after(100, lambda: self.terminou_processo(comando, tela = tela, processo = processo))
         else:
-            self.comando_verificacao_spdata(terminou_processo = True)
+            self.armador(comando)
 
     def busca_informacao_spdata(self):
-        self.terminou_processo()
         try:
             self.em_verificacao = self.controller.corrigir_spdata()
         except:
@@ -346,6 +373,7 @@ class sesp_view():
         self.inicia_gif_carregamento(gif, label)
 
     def destruir_popup(self, popup = None, label = None, mostrar_botoes = True):
+        print("destruindo popup")
         if mostrar_botoes:
             self.mostra_esconde_botoes()
         else:
@@ -375,6 +403,7 @@ class sesp_view():
         if self.acao.isAlive():
             self.tela.after(50, lambda: self.inicia_gif_carregamento(gif, label, indice+1))
         else:
+            print("mandei destruir popup")
             self.destruir_popup(label = label)
 
 

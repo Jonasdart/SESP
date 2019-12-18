@@ -1,2 +1,2 @@
-manutencao = False
-horario_previsto = Atualizacao em andamento - O sistema retorna em breve
+manutencao = True
+horario_previsto = FAZENDO BACKUP - SISTEMA LENTO
