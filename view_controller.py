@@ -87,13 +87,10 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        verificar_internet = Button(tela, text = "INTERNET NÃO FUNCIONA", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        verificar_internet = Button(tela, text = "CORRIGIR INTERNET", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_spdata = Button(tela, text = "SPDATA NÃO ABRE", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
-            highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
-            bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_travamento_spdata = Button(tela, text = "SPDATA TRAVANDO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        corrigir_spdata = Button(tela, text = "CORRIGIR SPDATA", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
         verificar_glpi = Button(tela, text = "GLPI SEM ACESSO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
@@ -109,13 +106,12 @@ class sesp_view():
         #COMANDOS
 
         verificar_internet["command"] = lambda: self.armador('01')
-        verificar_spdata["command"] = lambda: self.armador('02')
-        verificar_travamento_spdata["command"] = lambda: self.armador('03')
-        verificar_glpi["command"] = lambda: self.armador('04')
-        verificar_computador["command"] = lambda: self.armador('05_1')
-        verificar_impressora["command"] = lambda: self.armador('06')
+        corrigir_spdata["command"] = lambda: self.armador('02')
+        verificar_glpi["command"] = lambda: self.armador('03')
+        verificar_computador["command"] = lambda: self.armador('04_1')
+        verificar_impressora["command"] = lambda: self.armador('05')
 
-        return [verificar_internet, verificar_spdata, verificar_travamento_spdata, verificar_glpi, verificar_computador, verificar_impressora]
+        return [verificar_internet, corrigir_spdata, verificar_glpi, verificar_computador, verificar_impressora]
 
 
     def botoes_controle(self, tela = None):
@@ -144,7 +140,6 @@ class sesp_view():
         #eixo x
         self.botoes_menu_x.append((self.largura/2)/10)
         #eixo y
-        self.botoes_menu_y.append((self.altura/1)/8)
         self.botoes_menu_y.append((self.altura/1)/5)
         self.botoes_menu_y.append((self.altura/1)/3.62)
         self.botoes_menu_y.append((self.altura/1)/2.85)
@@ -197,35 +192,36 @@ class sesp_view():
             #self.acao = threading.Thread(target = lambda: self.backend.buscar_ip(self.backend.cabecalho_etiqueta))
             self.acao.start()
         elif tipo is '02':
-            self.acao = threading.Thread(target = lambda: self.controller.spdata_nao_abre())
-            self.acao.start()
-        elif tipo is '03':
             self.comando_verificacao_spdata()
-        elif tipo is '04':
+        elif tipo is '03':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
             self.acao.start()
-        elif tipo is '05':
+        elif tipo is '04':
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_travamento_computador())
             self.acao.start()
-        elif tipo is '05_1':
+        elif tipo is '04_1':
             self.comando_correcao_travamento_pc()
-        if len(tipo) is 2:
+        elif '00' in tipo:
+            procedimento = tipo.split('-')[1]
+            self.acao = threading.Thread(target = lambda: self.controller.enviar_log(procedimento))
+            self.acao.start()
+        if tipo is not '04_1':
             self.gera_popup_carregamento(self.gif_frames)
 
     def comando_correcao_travamento_pc(self):
         mensagem = 'SALVE SEUS TRABALHOS\n\nO COMPUTADOR SERÁ REINICIADO'
-        self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '05')
+        self.gera_popup_confirmacao(mensagem = mensagem, texto_botao_1 = 'Continuar', texto_botao_2 = 'Cancelar', comando_botao_1 = '04')
         
     def comando_verificacao_spdata(self, terminou_processo = False):
         if terminou_processo:
             if self.em_verificacao is not None:
                 if not self.em_verificacao:
-                    mensagem = "O sistema está OK!\nClique em 'Tente Novamente' para uma verificação completa\nCaso persista, entre em contato com o Administrador"
-                    self.gera_popup_confirmacao(titulo = "Verificação SPDATA", mensagem = mensagem, 
-                        texto_botao_1 = "OK", texto_botao_2 = "Tente Novamente", comando_botao_2 = '02')
+                    mensagem = "VERIFICAÇÃO CONCLUÍDA COM SUCESSO\nSISTEMA ESTÁ OK!\n\nPor favor, verifique se o problema foi corrigido e nos informe clicando no botão."
+                    self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-Correcao do SPDATA')
                 else:
                     mensagem = self.em_verificacao
-                    self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK")
+                    self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK", bg = 'yellow', fg = 'black', cor_botao = 'white')
 
         else:
             self.acao = threading.Thread(target = lambda: self.busca_informacao_spdata())
@@ -238,14 +234,14 @@ class sesp_view():
             tela = self.tela
 
         if processo.isAlive():
-            tela.after(100, lambda: self.terminou_processo(tela = tela, processo = processo))
+            tela.after(200, lambda: self.terminou_processo(tela = tela, processo = processo))
         else:
             self.comando_verificacao_spdata(terminou_processo = True)
 
     def busca_informacao_spdata(self):
         self.terminou_processo()
         try:
-            self.em_verificacao = self.controller.verificar_spdata()
+            self.em_verificacao = self.controller.corrigir_spdata()
         except:
             self.em_verificacao = None
 
@@ -268,7 +264,7 @@ class sesp_view():
         self.popup.resizable(0,0)
         self.popup["bg"] = bg
 
-        label_mensagem = Label(self.popup, text = mensagem, font = ("Verdana", "15", "bold"), bg = bg, fg = "yellow")
+        label_mensagem = Label(self.popup, text = mensagem, font = ("Verdana", "15", "bold"), bg = bg, fg = fg)
         label_mensagem.pack(expand = True)
         label_borda = Label(self.popup, bg = bg, width = f'{largura}', height = "5")
         label_borda.pack()

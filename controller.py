@@ -76,6 +76,24 @@ class controller():
         else:
             self.conectado = False
 
+    def enviar_log(self, procedimento):
+        self.conecta_ao_servidor()
+        try:
+            self.feedback_fixo = 'Gerando arquivo de log'
+            log = self.backend.gerar_log(procedimento)
+        except:
+            self.feedback_fixo = 'Erro ao gerar log'
+            raise
+        self.conecta_ao_servidor()
+        try:
+            self.feedback_fixo = 'Enviando log ao servidor'
+            self.backend.enviar_log(log)
+        except:
+            self.feedback_fixo = 'Não foi possível enviar o log ao servidor'
+            raise
+        else:
+            self.restaura_mensagem_feedback()
+
     def atualizar_horario(self):
         self.conecta_ao_servidor()
         try:
@@ -155,6 +173,15 @@ class controller():
         except:
             pass
 
+    def corrigir_spdata(self):
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
+
+        self.spdata_nao_abre()
+
+        return self.verificar_spdata()
 
     def verificar_spdata(self):
         self.conecta_ao_servidor()
@@ -168,7 +195,6 @@ class controller():
             status = status.decode("utf-8")
             if "False" in status:
                 self.feedback_fixo = f"Não possui nenhum procedimento interrompendo o funcionamento do sistema"
-                self.feedback = 'Entre em contato com o Administrador'
                 retorno = False
             else:
                 self.feedback_fixo = f"Sistema SPDATA está em manutenção travamentos poderão acontecer"
@@ -192,14 +218,17 @@ class controller():
         try:
             self.feedback_fixo = 'Corrigindo SPDATA'
             self.feedback = 'Fazendo o mapeamento do SPDATA'
-            mapeamento_msg_confirmacao = self.backend.mapear_spdata()
+            try:
+                self.backend.mapear_spdata()
+            except:
+                self.feedback_fixo = 'Não foi possível mapear o SPDATA'
+                self.feedback = 'Entre em contato com o Administrador'
         except:
             self.feedback_fixo = 'Não foi possível mapear o SPDATA'
             self.feedback = 'Entre em contato com o Administrador'
             pass
         else:
             self.feedback = 'Mapeamento concluído'
-        return mapeamento_msg_confirmacao
 
     def corrigir_travamento_computador(self, chkdsk = False):
         self.conecta_ao_servidor()
