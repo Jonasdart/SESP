@@ -3,6 +3,7 @@ from datetime import datetime
 from time import sleep
 import os
 import subprocess
+import platform
 
 class backend():
     def __init__(self):
@@ -42,17 +43,30 @@ class backend():
         return ip, porta
 
     def gerar_log(self, procedimento):
-        data_e_hora = self.buscar_horario_atual()
-        log = f'Computador {self.cabecalho_etiqueta} _ ip {self.cabecalho_ip} _ Realizou com sucesso :: {procedimento}'
-
+        info_computador = self.busca_info_computador()
+        nome_computador = info_computador['nome']
+        sistema_operacional = info_computador['so']
+        log = f'{nome_computador}-{self.cabecalho_etiqueta}\t{self.cabecalho_ip} - {sistema_operacional} - {procedimento}'
+        print(log)
         return log
 
     def enviar_log(self, log):
         try:
-            log = f'00-{log}'
+            log = f'00;{log}'
             self.servidor.send(bytes(log, 'utf-8'))
         except:
             raise
+        else:
+            try:
+                self.encerrar_conexao()
+            except:
+                pass
+
+    def busca_info_computador(self):
+        nome_pc = platform.node()
+        sistema_operacional_pc = platform.platform()
+
+        return {'nome': nome_pc, 'so': sistema_operacional_pc}
 
     def busca_cabecalho(self):
         info_cabecalho = open("cabecalho.txt", "r")
@@ -61,8 +75,7 @@ class backend():
 
         self.cabecalho_etiqueta = cabecalho[0].split("=")[1].strip()
         self.cabecalho_ip = cabecalho[1].split("=")[1].strip()
-        self.cabecalho_ip_secundario = cabecalho[2].split("=")[1].strip()
-        self.cabecalho_excessoes = cabecalho[3].split("=")[1].strip()
+        self.cabecalho_excessoes = cabecalho[2].split("=")[1].strip()
         return cabecalho
 
     def atualiza_cabecalho(self, ip = None, etiqueta = None, ip_secundario = None):
@@ -130,6 +143,7 @@ class backend():
             raise
         else:
             horario_atual = self.servidor.recv(1024)
+            print(horario_atual)
             try:
                 self.encerrar_conexao()
             except:
@@ -157,7 +171,7 @@ class backend():
 
     def buscar_ip(self, maquina):
         try:
-            requisicao = f'03-{maquina}'
+            requisicao = f'03;{maquina}'
             self.servidor.send(bytes(requisicao, 'utf-8'))
         except:
             raise
@@ -189,6 +203,9 @@ class backend():
             os.system(f'REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "{self.cabecalho_excessoes}" /f')
         except:
             pass
+
+    def definir_papel_parede(self):
+        pass
             
 if __name__ == "__main__":
     main = backend()

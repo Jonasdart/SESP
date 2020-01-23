@@ -8,10 +8,8 @@ from time import sleep
 from socket import *
 
 class controller():
-
     def __init__(self):
         self.backend = backend()
-        self.conectado = False
         self.feedback = ''
         self.feedback_fixo = ''
 
@@ -19,54 +17,29 @@ class controller():
         self.feedback = ''
         self.feedback_fixo = ''
 
-    def conecta_ao_servidor(self, cont = 3, ip_temp = False, verificou_com_ip_secundario = False):
+    def conecta_ao_servidor(self, cont = 3):
         self.feedback_fixo = 'Estabelecendo Conexão com o servidor SESP'
-        if not ip_temp:
+        if not self.backend.conectado:
             try:
-                self.conectado = self.backend.conecta_ao_servidor()
+                self.backend.conectado = self.backend.conecta_ao_servidor()
             except:
                 if cont is not 0:
                     self.feedback = "Tentando novamente"
                     self.conecta_ao_servidor(cont = cont-1)
-                elif not verificou_com_ip_secundario:
-                    self.feedback = "Tentando novamente com o IP temporário"
-                    try:
-                        self.usar_ip_temporario()
-                    except:
-                        self.conectado = False
-                        raise
-                    else:
-                        self.conecta_ao_servidor(ip_temp = True)
                 else:
-                    self.conectado = False
+                    self.backend.conectado = False
                     self.feedback_fixo = "Não foi possível acessar o servidor SESP"
                     self.feedback = "Favor entrar em contato com o Administrador"
                     raise
             else:
-                if self.conectado:
+                if self.backend.conectado:
                     return True
                 else:
                     self.feedback_fixo = "Não foi possível acessar o servidor SESP"
                     self.feedback = "Favor entrar em contato com o Administrador"
                     raise
         else:
-            try:
-                self.conectado = self.backend.conecta_ao_servidor()
-            except:
-                if cont is not 0:
-                    self.feedback = "Tentando novamente com o IP temporário"
-                    self.conecta_ao_servidor(cont = cont-1, ip_temp = True)
-                else:
-                    self.feedback = "Não foi possível acessar com o IP temporário"
-                    self.conectado = False
-                    self.restaurar_ip()
-                        
-                    self.conecta_ao_servidor(cont = 0, verificou_com_ip_secundario = True)                
-            else:
-                self.conectado = True
-                self.atualizar_ip()
-                self.conectado = False
-                self.conecta_ao_servidor(verificou_com_ip_secundario = True)
+            self.feedback = 'Conectado ao SESP'
 
     def desconectar_do_servidor(self):
         try:
@@ -74,17 +47,19 @@ class controller():
         except:
             pass
         else:
-            self.conectado = False
+            self.backend.conectado = False
 
     def enviar_log(self, procedimento):
-        self.conecta_ao_servidor()
         try:
             self.feedback_fixo = 'Gerando arquivo de log'
             log = self.backend.gerar_log(procedimento)
         except:
             self.feedback_fixo = 'Erro ao gerar log'
             raise
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
         try:
             self.feedback_fixo = 'Enviando log ao servidor'
             self.backend.enviar_log(log)
@@ -95,7 +70,10 @@ class controller():
             self.restaura_mensagem_feedback()
 
     def atualizar_horario(self):
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
         try:
             self.feedback = 'Buscando horário atual...'
             data_e_hora_atuais = self.backend.buscar_horario_atual()
@@ -112,18 +90,11 @@ class controller():
                 self.feedback = 'Atualizando a configuração de data/hora...'
                 self.backend.atualizar_horario(data_e_hora_atuais)
 
-    def usar_ip_temporario(self, ip = None):
-        if ip is None:
-            ip = self.backend.cabecalho_ip_secundario
-
-        try:
-            self.backend.atualizar_ip(ip)
-        except:
-            self.feedback = 'Não foi possível configurar o IP temporário'
-            raise
-
     def atualizar_ip(self):
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
         self.backend.busca_cabecalho()
         try:
             self.feedback = 'Buscando o endereço de IP...'
@@ -161,7 +132,10 @@ class controller():
         except:
             self.feedback = 'Não foi possível configurar o proxy'
         
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
 
         try:
             self.atualizar_ip()
@@ -186,7 +160,10 @@ class controller():
         return manutencao
 
     def verificar_spdata(self):
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
 
         try:
             status = self.backend.verificar_spdata()
@@ -207,7 +184,10 @@ class controller():
         return retorno 
 
     def spdata_nao_abre(self):
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
         self.feedback_fixo = 'Corrigindo SPDATA'
         try:
             self.feedback = 'Atualizando horário do computador'
@@ -233,7 +213,10 @@ class controller():
             self.feedback = 'Mapeamento concluído'
 
     def corrigir_travamento_computador(self, chkdsk = False):
-        self.conecta_ao_servidor()
+        try:
+            self.conecta_ao_servidor()
+        except:
+            raise
         self.feedback_fixo = 'Corrigindo problemas no sistema operacional'
         if chkdsk:
             try:

@@ -28,6 +28,7 @@ class controller():
 
     def reiniciar_servidor(self):
         try:
+            print('Reiniciando o servidor SESP')
             self.servidor.close()
         except:
             pass
@@ -43,28 +44,30 @@ class controller():
         self.espera_requisicao()
 
     def espera_requisicao(self):
-        while True:
-            self.conexao, id_conexao = self.servidor.accept()
-
-            print(f"Nova Conexão de {id_conexao}")
-
+        try:
             while True:
-                requisicao = self.conexao.recv(1024)
-                if not requisicao: 
-                    break
-                try:
-                    self.conexao.send(self.trata_requisicao(requisicao))
-                except:
-                    raise
-        self.fechar_conexao()
+                self.conexao, id_conexao = self.servidor.accept()
+
+                print(f"Nova Conexão de {id_conexao}")
+
+                while True:
+                    requisicao = self.conexao.recv(1024)
+                    if not requisicao: 
+                        break
+                    try:
+                        self.conexao.send(self.trata_requisicao(requisicao))
+                    except:
+                        raise
+            self.fechar_conexao()
+        except:
+            self.reiniciar_servidor()
 
     def trata_requisicao(self, requisicao):
         requisicao = requisicao.decode('utf-8')
         try:
-            requisicao = requisicao.split('-')
+            requisicao = requisicao.split(';')
         except:
             raise
-
         return self.armador(requisicao)
 
     def salvar_log(self, log):
@@ -73,7 +76,7 @@ class controller():
         except:
             raise
         else:
-            return True
+            return bytes('OK', 'utf-8')
 
     def armador(self, requisicao):
         if requisicao[0] == '00':
@@ -112,5 +115,5 @@ if __name__ == "__main__":
     try:
         main.iniciar_servidor()
     except:
-        main.reiniciar_servidor()
+        raise
 

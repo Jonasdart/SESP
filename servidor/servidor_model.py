@@ -57,13 +57,15 @@ class backend():
 
     def salvar_log(self, log):
         try:
-            data_e_hora = f'{self.busca_data_atual()} | {self.busca_hora_atual()} '
-            log = f'{data_e_hora}...{log}'
+            hora = self.busca_hora_atual()
+            data = self.busca_data_atual()
+            log = f'{hora} | {log}'
         except:
             raise
+        
         try:
             try:
-                arquivo_log = open(f'logs/{self.busca_data_atual()}.txt', 'a')
+                arquivo_log = open(f'logs/{data}.txt', 'a')
             except:
                 raise
             arquivo_log.write(f'{log}\n')
