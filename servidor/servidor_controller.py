@@ -1,3 +1,6 @@
+#dev by Jonas Duarte - Duzz System
+
+import configparser
 from servidor_model import backend
 from socket import *
 from time import sleep
@@ -5,14 +8,13 @@ from time import sleep
 class controller():
     def __init__(self):
         self.backend = backend()
-
+        
     def ip_servidor_sesp(self):
-        arq = open('sesp.txt', 'r')
-        info_servidor = arq.readlines()
-        arq.close()
+        config = configparser.ConfigParser()
+        config.read('sesp.cfg')
 
-        ip = info_servidor[0].split('=')[1].strip()
-        porta = int(info_servidor[1].split('=')[1].strip())
+        porta = int(config.get('ConfigServer', 'Porta'))
+        ip = config.get('ConfigServer', 'IpServer')
         
         return ip, porta
 
@@ -110,10 +112,13 @@ class controller():
     def buscar_ip_maquina(self, etiqueta):
         return bytes(self.backend.retornar_ip_maquina(etiqueta), 'utf-8')
 
+import os
+
 if __name__ == "__main__":
     main = controller()
     try:
         main.iniciar_servidor()
     except:
         raise
+
 

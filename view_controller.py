@@ -109,7 +109,7 @@ class sesp_view():
         corrigir_spdata["command"] = lambda: self.armador('02')
         verificar_glpi["command"] = lambda: self.armador('03')
         verificar_computador["command"] = lambda: self.armador('04_1')
-        verificar_impressora["command"] = lambda: print(self.backend.busca_info_computador())
+        verificar_impressora["command"] = lambda: self.controller.abrir_glpi()
 
         return [verificar_internet, corrigir_spdata, verificar_glpi, verificar_computador, verificar_impressora]
 
@@ -222,7 +222,7 @@ class sesp_view():
         if terminou_processo:
             mensagem = "Internet foi verificada com sucesso!\n\nPor favor, verifique se o problema foi corrigido e nos informe clicando no botão."
             self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
-                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-SUCESSO :: Correcao da Internet', comando_botao_2 = '00-FALHA :: Correcao da Internet')
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-SUCESSO\t:: Correcao da Internet', comando_botao_2 = '00-FALHA\t:: Correcao da Internet')
         else:
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
             self.acao.start()
@@ -234,7 +234,7 @@ class sesp_view():
                 if not self.em_verificacao:
                     mensagem = "VERIFICAÇÃO CONCLUÍDA COM SUCESSO\nSISTEMA ESTÁ OK!\n\nPor favor, verifique se o problema foi corrigido e nos informe clicando no botão."
                     self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
-                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-SUCESSO :: Correcao do SPDATA', comando_botao_2 = '00-FALHA :: Correcao do SPDATA')
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-SUCESSO\t:: Correcao do SPDATA', comando_botao_2 = '00-FALHA\t:: Correcao do SPDATA')
                 else:
                     mensagem = self.em_verificacao
                     self.gera_popup_confirmacao(titulo = "Verificação", mensagem = mensagem, texto_botao_meio = "OK", bg = 'yellow', fg = 'black', cor_botao = 'white')
@@ -248,7 +248,7 @@ class sesp_view():
         if terminou_processo:
             mensagem = "O acesso ao GLPI foi verificado com sucesso!\n\nPor favor, teste e nos informe se o problema foi corrigido clicando no botão."
             self.gera_popup_confirmacao(titulo = "Verificação SPDATA", bg = 'green', fg = "black", cor_botao = 'white', mensagem = mensagem, 
-                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-SUCESSO :: Correcao do acesso ao GLPI', comando_botao_2 = '00-FALHA :: Correcao do acesso ao GLPI')
+                        texto_botao_1 = "Funcionou", texto_botao_2 = "Não funcionou", comando_botao_1 = '00-SUCESSO\t:: Correcao do acesso ao GLPI', comando_botao_2 = '00-FALHA\t:: Correcao do acesso ao GLPI')
         else:
             self.acao = threading.Thread(target = lambda: self.controller.corrigir_internet())
             self.acao.start()

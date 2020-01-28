@@ -4,6 +4,7 @@ from time import sleep
 import os
 import subprocess
 import platform
+import configparser
 
 class backend():
     def __init__(self):
@@ -33,12 +34,11 @@ class backend():
             self.conectado = False
 
     def ip_servidor_sesp(self):
-        arq = open('sesp.txt', 'r')
-        info_servidor = arq.readlines()
-        arq.close()
+        config = configparser.ConfigParser()
+        config.read('sesp.cfg')
 
-        ip = info_servidor[0].split('=')[1].strip()
-        porta = int(info_servidor[1].split('=')[1].strip())
+        porta = int(config.get('ConfigServer', 'Porta'))
+        ip = config.get('ConfigServer', 'IpServer')
         
         return ip, porta
 
@@ -46,7 +46,7 @@ class backend():
         info_computador = self.busca_info_computador()
         nome_computador = info_computador['nome']
         sistema_operacional = info_computador['so']
-        log = f'{nome_computador}-{self.cabecalho_etiqueta}\t{self.cabecalho_ip} - {sistema_operacional} - {procedimento}'
+        log = f'{nome_computador}|{self.cabecalho_etiqueta}\t{self.cabecalho_ip} | {sistema_operacional} | {procedimento}'
         print(log)
         return log
 
@@ -69,19 +69,19 @@ class backend():
         return {'nome': nome_pc, 'so': sistema_operacional_pc}
 
     def busca_cabecalho(self):
-        info_cabecalho = open("cabecalho.txt", "r")
-        cabecalho = info_cabecalho.readlines()
-        info_cabecalho.close()
+        config = configparser.ConfigParser()
+        config.read('sesp.cfg')
 
-        self.cabecalho_etiqueta = cabecalho[0].split("=")[1].strip()
-        self.cabecalho_ip = cabecalho[1].split("=")[1].strip()
-        self.cabecalho_excessoes = cabecalho[2].split("=")[1].strip()
-        return cabecalho
+        self.cabecalho_etiqueta = config.get('Cabecalho', 'EtiquetaPC')
+        self.cabecalho_ip = config.get('Cabecalho', 'IpMaquina')
+        self.cabecalho_excessoes = config.get('Cabecalho', 'ExcessõesProxy')
+        
+        return True
 
     def atualiza_cabecalho(self, ip = None, etiqueta = None, ip_secundario = None):
         if ip is not None:
-            cabecalho_antigo = open("cabecalho.txt", "r")
-            linhas_cabecalho_antigo = cabecalho_antigo.readlines()
+            with open('cabecalho.cfg') as cabecalho_antigo:
+                linhas_cabecalho_antigo = cabecalho_antigo.readlines()
             cabecalho_antigo.close()
 
             texto_ip = linhas_cabecalho_antigo[1].split('=')

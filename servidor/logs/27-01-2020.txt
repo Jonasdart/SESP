@@ -1,0 +1,5 @@
+21:51 | Terra-PC-218	192.168.0.69 - Windows-7-6.1.7601-SP1 - FALHA :: Correcao do SPDATA
+22:40 | Terra-PC|218	192.168.0.69 | Windows-7-6.1.7601-SP1 | SUCESSO :: Correcao do SPDATA
+22:42 | Terra-PC|218	192.168.0.69 | Windows-7-6.1.7601-SP1 | FALHA :: Correcao do SPDATA
+22:45 | Terra-PC|218	192.168.0.69 | Windows-7-6.1.7601-SP1 | SUCESSO	:: Correcao do SPDATA
+22:46 | Terra-PC|218	192.168.0.69 | Windows-7-6.1.7601-SP1 | FALHA	:: Correcao do SPDATA

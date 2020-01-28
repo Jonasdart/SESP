@@ -1,4 +1,0 @@
-10-12-2019 | 13:40 ...Computador 003 _ ip 192.168.0.29 _ Realizou com sucesso :: Correcao do SPDATA
-10-12-2019 | 13:40 ...Computador 003 _ ip 192.168.0.29 _ Realizou com sucesso :: Correcao do SPDATA
-10-12-2019 | 13:45 ...Computador 003 _ ip 192.168.0.29 _ Realizou com sucesso :: Correcao do SPDATA
-10-12-2019 | 13:49 ...Computador 003 _ ip 192.168.0.29 _ Realizou com sucesso :: Correcao do SPDATA

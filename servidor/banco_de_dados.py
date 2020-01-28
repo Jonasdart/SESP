@@ -1,4 +1,5 @@
 import MySQLdb as mdb
+import configparser
 from mysql_manager import gera_query
 
 class glpi():
@@ -17,24 +18,25 @@ class glpi():
         else:
             self.cursor = self.banco.cursor()
             self.conectado = True
+
     def credencia(self):
-        try:
-            retorno_credenciais.clear()
-        except:
-            pass
+        """
+        Utiliza as informações presentes no glpi.cfg para\n
+        retorná-las em forma de lista como credenciais
 
-        arquivo_credenciais = open("credenciais.txt", "r")
-        credenciais = arquivo_credenciais.readlines()
-        retorno_credenciais = list()
+        Retorno -> Lista:\n
+        [0] IP banco, [1] Usuario Banco\n
+        [2] Senha Usuario, [3] Nome Banco
+        """
+        config = configparser.ConfigParser()
+        config.read('glpi.cfg')
 
-        for item in credenciais:
-            itens = item.split('=')
-            try:
-                retorno_credenciais.append(itens[1].strip())
-            except:
-                pass
+        caminho_bd = config.get('Banco', 'CaminhoBD')
+        nome_bd = config.get('Banco', 'NomeBD')
+        usuario = config.get('Credenciais', 'Usuario')
+        senha = config.get('Credenciais', 'Senha')
 
-        return retorno_credenciais
+        return [caminho_bd, usuario, senha, nome_bd]
 
     def buscar_info_maquina(self, maquina):
         self.conecta()
