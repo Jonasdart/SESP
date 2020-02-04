@@ -110,8 +110,6 @@ class gera_query(object):
                     if x < len(coluna_verificacao) - 1:
                         self.query += " AND "
 
-                print(self.query)
-
         return self.query
 
     def excluir_dados_da_tabela(self, tabela, where = False, coluna_verificacao = "", valor_where = ""):

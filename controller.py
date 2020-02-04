@@ -6,7 +6,6 @@
 from model import backend
 from time import sleep
 from socket import *
-from selenium import webdriver
 
 class controller():
     def __init__(self):
@@ -230,5 +229,4 @@ class controller():
             self.feedback = 'Não foi possível reiniciar o computador'
 
     def abrir_glpi(self):
-        firefox = webdriver.Firefox(firefox_binary= "C:\Program Files\Mozilla Firefox\geckodriver.exe")
-        firefox.get('aroldotourinho.com.br')
+        pass

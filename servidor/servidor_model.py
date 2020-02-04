@@ -30,19 +30,22 @@ class backend():
         else:
             return "False"
 
-    def busca_info_maquina(self, etiqueta):
+    def buscar_info_maquina(self, numero_inventario):
         try:
-            info = self.glpi.buscar_info_maquina(etiqueta)
+            info = self.glpi.buscar_info_maquina(numero_inventario)
         except:
-            return 'error'
+            raise Exception
         else:
             return info
 
-    def retornar_ip_maquina(self, etiqueta):
-        try:
-            info = self.busca_info_maquina(etiqueta)
-        except:
-            pass
+    def buscar_id_maquina(self, numero_inventario):
+        id = self.buscar_info_maquina(numero_inventario)[0]
+
+        return id[0]
+
+    def retornar_ip_maquina(self, id_maquina):
+
+        info = self.glpi.buscar_ip_maquina(id_maquina)
 
         try:
             info = info[0]

@@ -109,8 +109,13 @@ class controller():
     def verificar_spdata(self):
         return self.backend.status_spdata().encode('utf-8')
 
-    def buscar_ip_maquina(self, etiqueta):
-        return bytes(self.backend.retornar_ip_maquina(etiqueta), 'utf-8')
+    def buscar_ip_maquina(self, numero_inventario):
+        try:
+            id_maquina = self.backend.buscar_id_maquina(numero_inventario)
+        except:
+            raise Exception
+
+        return bytes(self.backend.retornar_ip_maquina(id_maquina), 'utf-8')
 
 import os
 

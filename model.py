@@ -43,10 +43,9 @@ class backend():
         return ip, porta
 
     def gerar_log(self, procedimento):
-        info_computador = self.busca_info_computador()
-        nome_computador = info_computador['nome']
-        sistema_operacional = info_computador['so']
-        log = f'{nome_computador}|{self.cabecalho_etiqueta}\t{self.cabecalho_ip} | {sistema_operacional} | {procedimento}'
+        info_pc = self.busca_cabecalho()
+        nome, etiqueta, ip, so = info_pc
+        log = f'{nome}|{etiqueta}\t{ip} | {so} | {procedimento}'
         print(log)
         return log
 
@@ -66,17 +65,24 @@ class backend():
         nome_pc = platform.node()
         sistema_operacional_pc = platform.platform()
 
-        return {'nome': nome_pc, 'so': sistema_operacional_pc}
+        return {'nome': nome_pc, 
+                'so': sistema_operacional_pc}
 
     def busca_cabecalho(self):
+        nome, sistema_operacional = self.busca_info_computador()
+
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
 
-        self.cabecalho_etiqueta = config.get('Cabecalho', 'EtiquetaPC')
-        self.cabecalho_ip = config.get('Cabecalho', 'IpMaquina')
-        self.cabecalho_excessoes = config.get('Cabecalho', 'ExcessõesProxy')
+        etiqueta = config.get('Cabecalho', 'EtiquetaPC')
+        ip = config.get('Cabecalho', 'IpMaquina')
+        proxy_excessoes = config.get('Cabecalho', 'ExcessoesProxy')
         
-        return True
+        return {'CabecalhoEtiqueta': etiqueta, 
+                'CabecalhoIp' : ip,
+                'CabecalhoExcessoes' : proxy_excessoes,
+                'NomePc' : nome,
+                'SistemaOperaciona' : sistema_operacional}
 
     def atualiza_cabecalho(self, ip = None, etiqueta = None, ip_secundario = None):
         if ip is not None:
@@ -121,20 +127,6 @@ class backend():
             raise
         else:
             return
-
-
-
-    def mapear_impressora(self, ip, impressora):
-        pass
-
-    def buscar_impressora_padrao(self, maquina):
-        pass
-
-    def definir_impressora_padrao(self, impressora):
-        pass
-
-    def criar_atalho_no_desktop(self):
-        pass
 
     def buscar_horario_atual(self):
         try:
@@ -206,6 +198,16 @@ class backend():
 
     def definir_papel_parede(self):
         pass
+
+    def definir_nome_computador(self):
+        nome_atual = self.busca_info_computador()['nome']
+        print(nome_atual)
+        novo_nome = self.busca_cabecalho()['CabecalhoEtiqueta']
+        novo_nome = f'HAT-{novo_nome}'
+        acao = f'wmic computersystem where name="{nome_atual}" rename "{novo_nome}"'
+        print(acao)
+        os.system(acao)
+        print(novo_nome)
             
 if __name__ == "__main__":
     main = backend()

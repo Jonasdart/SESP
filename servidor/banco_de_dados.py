@@ -38,13 +38,20 @@ class glpi():
 
         return [caminho_bd, usuario, senha, nome_bd]
 
-    def buscar_info_maquina(self, maquina):
+    def buscar_info_maquina(self, numero_inventario):
         self.conecta()
-        query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipaddresses", 
-            where = True, coluna_verificacao = ["mainitems_id", "mainitemtype"], valor_where = [maquina, "Computer"])
+        query = self.gerador_de_query.buscar_dados_da_tabela(tabela = 'glpi_computers', 
+            where = True, coluna_verificacao = ['otherserial'], valor_where=[numero_inventario])
 
         return self.commit_com_retorno(query)
-        
+                
+    def buscar_ip_maquina(self, id_maquina):
+        self.conecta()
+        query = self.gerador_de_query.buscar_dados_da_tabela(tabela = "glpi_ipaddresses", 
+            where = True, coluna_verificacao = ["mainitems_id", "mainitemtype"], valor_where = [id_maquina, "Computer"])
+
+        return self.commit_com_retorno(query)
+
     def commit_sem_retorno(self, query):
         if not self.conectado:
             try:
