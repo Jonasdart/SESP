@@ -4,6 +4,7 @@
 #dev by Jonas Duarte - Duzz System
 import threading
 from tkinter import *
+
 from time import sleep
 from model import backend
 from controller import controller
@@ -331,7 +332,7 @@ class sesp_view():
             botao_2.place(x = largura/1.772, y = altura/1.3)
         
     def gera_popup_informacoes(self, ativo = False, popup = None):
-        self.backend.busca_cabecalho()
+        cabecalho = self.backend.busca_cabecalho()
         if not ativo:
             
             altura = int((self.altura - 100) / 2)
@@ -351,8 +352,11 @@ class sesp_view():
             self.botao_meu_computador["relief"] = "sunken"
             self.botao_meu_computador["bg"] = "#193E4D"
 
-            string = f'COMPUTADOR = {self.backend.cabecalho_etiqueta}\n\n'
-            string+= f'ACESSO REMOTO = {self.backend.cabecalho_ip}\n\n'
+            etiqueta = cabecalho.get('CabecalhoEtiqueta')
+            ip = cabecalho.get('CabecalhoIp')
+
+            string = f'COMPUTADOR = {etiqueta}\n\n'
+            string+= f'ACESSO REMOTO = {ip}\n\n'
             string+= f'SE O PROBLEMA NÃO FOR RESOLVIDO\nABRA UM CHAMADO COM O GLPI'
 
             label = Label(self.popup, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")

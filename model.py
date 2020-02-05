@@ -178,7 +178,7 @@ class backend():
                 self.atualiza_cabecalho(ip = ip)
                 return ip
             else:
-                raise
+                raise Exception('IP Inválido')
 
     def atualizar_ip(self, ip):
         try:
@@ -201,13 +201,9 @@ class backend():
 
     def definir_nome_computador(self):
         nome_atual = self.busca_info_computador()['nome']
-        print(nome_atual)
         novo_nome = self.busca_cabecalho()['CabecalhoEtiqueta']
         novo_nome = f'HAT-{novo_nome}'
-        acao = f'wmic computersystem where name="{nome_atual}" rename "{novo_nome}"'
-        print(acao)
-        os.system(acao)
-        print(novo_nome)
+        os.system(f'wmic computersystem where name="{nome_atual}" rename "{novo_nome}"')
             
 if __name__ == "__main__":
     main = backend()

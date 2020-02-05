@@ -3,15 +3,29 @@
 
 #dev by Jonas Duarte - Duzz System
 
+from os import system
 from model import backend
 from time import sleep
 from socket import *
+from configparser import ConfigParser
 
 class controller():
     def __init__(self):
         self.backend = backend()
         self.feedback = ''
         self.feedback_fixo = ''
+
+    def inicio(self):
+        conf = ConfigParser()
+        conf.read('init.ini')
+
+        tipo_inicio = conf.get('inicio', 'tipoinicio')
+
+        if tipo_inicio is 'reboot':
+            system('python view_controller.py -i reboot')
+            
+        else:
+            system('python view_controller.py')
 
     def restaura_mensagem_feedback(self):
         self.feedback = ''
@@ -28,16 +42,16 @@ class controller():
                     self.conecta_ao_servidor(cont = cont-1)
                 else:
                     self.backend.conectado = False
-                    self.feedback_fixo = "Não foi possível acessar o servidor SESP"
-                    self.feedback = "Favor entrar em contato com o Administrador"
+                    self.feedback_fixo = 'Não foi possível acessar o servidor SESP'
+                    self.feedback = 'Favor entrar em contato com o Administrador'
                     raise
             else:
                 if self.backend.conectado:
                     return True
                 else:
-                    self.feedback_fixo = "Não foi possível acessar o servidor SESP"
-                    self.feedback = "Favor entrar em contato com o Administrador"
-                    raise
+                    self.feedback_fixo = 'Não foi possível acessar o servidor SESP'
+                    self.feedback = 'Favor entrar em contato com o Administrador'
+                    raise Exception('Não foi possível acessar o servidor SESP')
         else:
             self.feedback = 'Conectado ao SESP'
 
@@ -95,12 +109,13 @@ class controller():
             self.conecta_ao_servidor()
         except:
             raise
-        self.backend.busca_cabecalho()
+        cabecalho = self.backend.busca_cabecalho()
+        etiqueta = cabecalho.get('CabecalhoEtiqueta')
         try:
             self.feedback = 'Buscando o endereço de IP...'
             ip = self.backend.buscar_ip(self.backend.cabecalho_etiqueta)
         except:
-            self.feedback = f'Não foi possível encontrar o IP da máquina {self.backend.cabecalho_etiqueta}'
+            self.feedback = f'Não foi possível encontrar o IP da máquina {etiqueta}'
         else:
             if len(ip) is not 0:
                 try:
@@ -112,17 +127,6 @@ class controller():
                         self.backend.atualiza_cabecalho(ip = ip)
                     except:
                         self.feedback = f'Não foi possível atualizar o cabeçalho'
-
-    def restaurar_ip(self, ip = None):
-        if ip is None:
-            ip = self.backend.cabecalho_ip
-
-        self.feedback = "Voltando ao IP cadastrado"
-
-        try:
-            self.backend.atualizar_ip(ip)
-        except:
-            self.feedback = 'Não foi possível voltar ao IP cadastrado'
 
     def corrigir_internet(self):
         self.feedback_fixo = 'Corrigindo conexão à internet'
@@ -230,3 +234,7 @@ class controller():
 
     def abrir_glpi(self):
         pass
+
+if __name__ == "__main__":
+    main = controller()
+    main.inicio()
