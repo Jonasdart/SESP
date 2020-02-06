@@ -359,7 +359,7 @@ class sesp_view():
             string+= f'ACESSO REMOTO = {ip}\n\n'
             string+= f'SE O PROBLEMA NÃO FOR RESOLVIDO\nABRA UM CHAMADO COM O GLPI'
 
-            label = Label(self.popup, justify = "left", text = string, font = ("Verdana", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
+            label = Label(self.popup, justify = "left", text = string, font = ("Sanserif", "22", "bold"), fg = "#BADAE8", bg = "#091A1B", relief = "flat")
             label.pack(expand = True)
         else:
             self.botao_meu_computador["command"] = lambda: self.gera_popup_informacoes()

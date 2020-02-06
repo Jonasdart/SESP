@@ -37,15 +37,20 @@ class backend():
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
 
-        porta = int(config.get('ConfigServer', 'Porta'))
-        ip = config.get('ConfigServer', 'IpServer')
+        porta = int(config.get('config_server', 'porta'))
+        ip = config.get('config_server', 'ip_server')
         
         return ip, porta
 
     def gerar_log(self, procedimento):
         info_pc = self.busca_cabecalho()
-        nome, etiqueta, ip, so = info_pc
-        log = f'{nome}|{etiqueta}\t{ip} | {so} | {procedimento}'
+        
+        nome = info_pc.get('NomePc')
+        etiqueta = info_pc.get('CabecalhoEtiqueta')
+        ip = info_pc.get('CabecalhoIp')
+        sistema_operacional = info_pc.get('SistemaOperacional')
+        
+        log = f'{nome}|{etiqueta}\t{ip} | {sistema_operacional} | {procedimento}'
         print(log)
         return log
 
@@ -69,39 +74,33 @@ class backend():
                 'so': sistema_operacional_pc}
 
     def busca_cabecalho(self):
-        nome, sistema_operacional = self.busca_info_computador()
+        nome = self.busca_info_computador()['nome'] 
+        sistema_operacional = self.busca_info_computador()['so']
 
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
 
-        etiqueta = config.get('Cabecalho', 'EtiquetaPC')
-        ip = config.get('Cabecalho', 'IpMaquina')
-        proxy_excessoes = config.get('Cabecalho', 'ExcessoesProxy')
+        etiqueta = config.get('cabecalho', 'etiqueta_pc')
+        ip = config.get('cabecalho', 'ip_maquina')
+        excessoes_proxy = config.get('cabecalho', 'excessoes_proxy')
         
         return {'CabecalhoEtiqueta': etiqueta, 
                 'CabecalhoIp' : ip,
-                'CabecalhoExcessoes' : proxy_excessoes,
+                'ExcessoesProxy' : excessoes_proxy,
                 'NomePc' : nome,
-                'SistemaOperaciona' : sistema_operacional}
+                'SistemaOperacional' : sistema_operacional}
 
-    def atualiza_cabecalho(self, ip = None, etiqueta = None, ip_secundario = None):
+    def atualiza_cabecalho(self, ip = None, etiqueta = None):
+        parser = configparser.ConfigParser()
+        parser.read('sesp.cfg')
         if ip is not None:
-            with open('cabecalho.cfg') as cabecalho_antigo:
-                linhas_cabecalho_antigo = cabecalho_antigo.readlines()
-            cabecalho_antigo.close()
-
-            texto_ip = linhas_cabecalho_antigo[1].split('=')
-
-            novo_cabecalho = open("cabecalho.txt", "w")
-            contador = 0
-
-            for linha in linhas_cabecalho_antigo:
-                if contador is not 1:
-                    novo_cabecalho.write(linha)
-                else:
-                    novo_cabecalho.write(f'{texto_ip[0]}= {ip}\n')
-                contador += 1
-            novo_cabecalho.close()
+            parser.set('cabecalho', 'ip', ip)
+        
+        if etiqueta is not None:
+            parser.set('cabecalho', 'etiqueta', etiqueta)
+                
+        with open('cabecalho.cfg', 'w') as cfg:
+            parser.write(cfg)
 
     def verificar_spdata(self):
         try:
@@ -143,6 +142,9 @@ class backend():
             return horario_atual
 
     def atualizar_horario(self, horario):
+        """
+        Recebe um horário → data | hora
+        """
         data, hora = horario.split("|")
         try:
             os.system(f"date {data}")
@@ -150,10 +152,18 @@ class backend():
         except:
             pass
 
-    def realizar_correcao_de_disco(self):
+    def agendar_correcao_de_disco(self):
+        """
+        Envia comando ao prompt de comando para agendar checagem de disco
+        após o próximo reinício
+        """
         pass
 
     def reiniciar_maquina(self):
+        """
+        Envia comando ao prompt de comando do computador 
+        para agendar o reinício do mesmo para após um minuto.
+        """
         try:
             os.system("shutdown /r")
         except:
@@ -162,6 +172,10 @@ class backend():
             return True
 
     def buscar_ip(self, maquina):
+        """
+        Recebe a etiqueta (Número de inventário) do computador.
+        Retorna o endereço de IP da mesma, após solicitar ao servidor
+        """
         try:
             requisicao = f'03;{maquina}'
             self.servidor.send(bytes(requisicao, 'utf-8'))
@@ -181,6 +195,11 @@ class backend():
                 raise Exception('IP Inválido')
 
     def atualizar_ip(self, ip):
+        """
+        Recebe um endereço de IP.
+        Configura o IP utilizando o recebido.
+        Configura o DNS e WINS utilizando o do google.
+        """
         try:
             os.system(f'netsh int ip set address name="Conexão local" source=static {ip} 255.255.255.0 192.168.0.1 1')
             os.system('netsh int ip set dns "Conexão Local" static 8.8.8.8')
@@ -189,6 +208,13 @@ class backend():
             raise
 
     def definir_proxy(self):
+        """
+        Define as excessões de proxy, que podem ser configuradas
+        no sesp.cfg entre aspas '' e separadas por ';'
+        """
+        excessoes = self.busca_cabecalho()['ExcessoesProxy']
+        excessoes = excessoes.split('"')[1]
+
         try:
             os.system('REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f')
             os.system('REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d 192.168.0.1:8080 /f')
@@ -196,14 +222,43 @@ class backend():
         except:
             pass
 
-    def definir_papel_parede(self):
+    def buscar_papel_parede_por_grupo(self, grupo):
+        """
+        Recebe um grupo, padrão GLPI
+        Retorna um diretório de imagem
+        """
+        pass
+
+    def definir_papel_parede(self, caminho_imagem):
+        """
+        Recebe o caminho de diretório de alguma imagem
+        e a define como papel de parede.
+        """
         pass
 
     def definir_nome_computador(self):
+        """
+        Define o nome do computador para a etiqueta do computador, 
+        sendo necessário ter um prefixo
+        que é definido no [parametros] do config.cfg
+        """
+        parser = configparser.ConfigParser()
+        parser.read('config.cfg')
+
+        prefixo_nome = parser.get('parametros', 'prefixo_nome')
+    
         nome_atual = self.busca_info_computador()['nome']
         novo_nome = self.busca_cabecalho()['CabecalhoEtiqueta']
-        novo_nome = f'HAT-{novo_nome}'
-        os.system(f'wmic computersystem where name="{nome_atual}" rename "{novo_nome}"')
+        novo_nome = f'{prefixo_nome}-{novo_nome}'
+        acao = f'wmic computersystem where name="{nome_atual}" rename "{novo_nome}"'
+
+        os.system(acao)
+
+    def clear(self):
+        """
+        Utilizado para melhor experiência nos testes
+        """
+        os.system('cls')
             
 if __name__ == "__main__":
     main = backend()
