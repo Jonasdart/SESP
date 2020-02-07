@@ -12,6 +12,10 @@ class backend():
         self.conectado = False
 
     def conecta_ao_servidor(self):
+        """
+        Faz conexão com o servidor SESP
+        Retorna Erro ou True
+        """
         ip, porta = self.ip_servidor_sesp()
         if not self.conectado:
             self.encerrar_conexao()
@@ -26,6 +30,9 @@ class backend():
             return True
 
     def encerrar_conexao(self):
+        """
+        Encerra a conexão com o servidor SESP
+        """
         try:
             self.servidor.close()
         except:
@@ -34,6 +41,10 @@ class backend():
             self.conectado = False
 
     def ip_servidor_sesp(self):
+        """
+        Busca e retorna as configurações de conexão do servidor SESP
+        retorno = [ip, porta]
+        """
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
 
@@ -43,6 +54,12 @@ class backend():
         return ip, porta
 
     def gerar_log(self, procedimento):
+        """
+        Gera um texto de log padronizado por:
+        Nome PC|Num.Inventario IP | Sistema Operacional | Sucesso/falha :: Procedimento
+
+        retorna o log gerado
+        """
         info_pc = self.busca_cabecalho()
         
         nome = info_pc.get('NomePc')
@@ -55,6 +72,9 @@ class backend():
         return log
 
     def enviar_log(self, log):
+        """
+        Recebe um texto de log e o envia ao servidor para ser guardado no diretório de log
+        """
         try:
             log = f'00;{log}'
             self.servidor.send(bytes(log, 'utf-8'))
@@ -64,9 +84,15 @@ class backend():
             try:
                 self.encerrar_conexao()
             except:
-                pass
+                raise Exception('Falha ao enviar o LOG ao servidor')
 
     def busca_info_computador(self):
+        """
+        Retorna as informações do computador em um dicionário
+
+        'nome' = Nome do computador,
+        'so' = Sistema Operacional do Computador
+        """
         nome_pc = platform.node()
         sistema_operacional_pc = platform.platform()
 
@@ -74,6 +100,15 @@ class backend():
                 'so': sistema_operacional_pc}
 
     def busca_cabecalho(self):
+        """
+        Busca o cabeçalho do computador no arquivo de configuração sesp.cfg
+        Retorna o cabeçalho, em um dicionário:
+        'CabecalhoEtiqueta' : Etiqueta do Computador
+        'NomePc' : Nome do Computador
+        'Sistema Operacional' : Sistema Operacional do Computador
+        'CabecalhoIp' : IP do Computador
+        'ExcessoesProxy' : Excessões do proxy do computador
+        """
         nome = self.busca_info_computador()['nome'] 
         sistema_operacional = self.busca_info_computador()['so']
 
@@ -84,13 +119,18 @@ class backend():
         ip = config.get('cabecalho', 'ip_maquina')
         excessoes_proxy = config.get('cabecalho', 'excessoes_proxy')
         
-        return {'CabecalhoEtiqueta': etiqueta, 
-                'CabecalhoIp' : ip,
-                'ExcessoesProxy' : excessoes_proxy,
+        return {'CabecalhoEtiqueta': etiqueta,
                 'NomePc' : nome,
-                'SistemaOperacional' : sistema_operacional}
+                'SistemaOperacional' : sistema_operacional,
+                'CabecalhoIp' : ip,
+                'ExcessoesProxy' : excessoes_proxy
+                }
 
     def atualiza_cabecalho(self, ip = None, etiqueta = None):
+        """
+        Atualiza o cabeçalho no arquivo de configuração conforme informações recebidas como argumentos.
+        Podendo receber o novo IP e/ou nova etiqueta
+        """
         parser = configparser.ConfigParser()
         parser.read('sesp.cfg')
         if ip is not None:
@@ -103,6 +143,9 @@ class backend():
             parser.write(cfg)
 
     def verificar_spdata(self):
+        """
+        Envia comando ao Servidor SESP, recebe e retorna status de funcionamento do SPDATA
+        """
         try:
             self.servidor.send(b'02')
         except:
@@ -116,6 +159,9 @@ class backend():
             return status
 
     def mapear_spdata(self):
+        """
+        Envia comando ao CMD para que mapeie a pasta do SPDATA
+        """
         try:
             os.system("net use I: /delete >nul")
         except:
@@ -128,13 +174,16 @@ class backend():
             return
 
     def buscar_horario_atual(self):
+        """
+        Padroniza o horário;
+        Envia comando ao servidor SESP, recebe e retorna data e hora atuais do servidor.
+        """
         try:
             self.servidor.send(b'01')
         except:
             raise
         else:
             horario_atual = self.servidor.recv(1024)
-            print(horario_atual)
             try:
                 self.encerrar_conexao()
             except:
@@ -144,6 +193,7 @@ class backend():
     def atualizar_horario(self, horario):
         """
         Recebe um horário → data | hora
+        Envia comando ao CMD que define o horário para o recebido
         """
         data, hora = horario.split("|")
         try:

@@ -8,6 +8,7 @@ from tkinter import *
 from time import sleep
 from model import backend
 from controller import controller
+import configparser
 
 class sesp_view():
     def __init__(self):
@@ -23,6 +24,21 @@ class sesp_view():
 
         self.tela_inicial()
 
+    def estilo(self):
+        """
+        Retorna o estilo configurado no config.cfg
+        """
+        config = configparser.ConfigParser()
+        config.read('config.cfg')
+
+        fonte = config.get('view', 'fonte')
+        fonte_2 = config.get('view', 'fonte2')
+
+        return {
+            'Fonte' : fonte,
+            'Fonte2': fonte_2
+        }
+
     def tela_inicial(self):
         self.tela = Tk()
 
@@ -36,10 +52,12 @@ class sesp_view():
         self.tela.geometry(f"{self.largura}x{self.altura}+0+0")
         self.tela["bg"] = "#193E4D"
 
-        self.label_feedback_fixo = Label(self.tela, text = self.feedback, font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        fonte = self.estilo()['Fonte']
+
+        self.label_feedback_fixo = Label(self.tela, text = self.feedback, font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             height = "2", bd = "1", relief = "flat")
         self.label_feedback_fixo.pack()#place(x = f'{self.largura/2.6}', y = f'{self.altura/5}')
-        self.label_feedback = Label(self.tela, text = self.feedback, font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        self.label_feedback = Label(self.tela, text = self.feedback, font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             height = "2", bd = "1", relief = "flat")
         self.label_feedback.pack()#place(x = f'{self.largura/2.4}', y = f'{self.altura/4}')
  
@@ -88,19 +106,21 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        verificar_internet = Button(tela, text = "CORRIGIR INTERNET", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        fonte = self.estilo()['Fonte']
+
+        verificar_internet = Button(tela, text = "CORRIGIR INTERNET", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        corrigir_spdata = Button(tela, text = "CORRIGIR SPDATA", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        corrigir_spdata = Button(tela, text = "CORRIGIR SPDATA", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_glpi = Button(tela, text = "GLPI SEM ACESSO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        verificar_glpi = Button(tela, text = "GLPI SEM ACESSO", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_computador = Button(tela, text = "COMPUTADOR TRAVANDO", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        verificar_computador = Button(tela, text = "COMPUTADOR TRAVANDO", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
-        verificar_impressora = Button(tela, text = "NÃO CONSIGO IMPRIMIR", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        verificar_impressora = Button(tela, text = "NÃO CONSIGO IMPRIMIR", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "22", 
             bd = "1", relief = "flat", overrelief = "sunken")
 
@@ -121,10 +141,12 @@ class sesp_view():
         if tela is None:
             tela = self.tela
 
-        self.botao_meu_computador = Button(tela, text = "Meu Computador", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}"), fg = "white", 
+        fonte = self.estilo()['Fonte']
+
+        self.botao_meu_computador = Button(tela, text = "Meu Computador", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "2", width = "20", 
             bd = "1", relief = "flat", overrelief = "sunken", command = self.backend.busca_cabecalho)
-        self.botao_lateral = Button(tela, justify = "left", text = ">", bg = "#0B1F22", font = ("Verdana", f"{self.tamanho_fonte_botoes}", "bold"), fg = "white", 
+        self.botao_lateral = Button(tela, justify = "left", text = ">", bg = "#0B1F22", font = (fonte, f"{self.tamanho_fonte_botoes}", "bold"), fg = "white", 
             highlightcolor = "white", activebackground = "#193E4D", activeforeground = "white", height = "40", width = "2", 
             bd = "1", relief = "flat", overrelief = "sunken")
 
@@ -290,7 +312,9 @@ class sesp_view():
         self.popup.resizable(0,0)
         self.popup["bg"] = bg
 
-        label_mensagem = Label(self.popup, text = mensagem, font = ("Verdana", "15", "bold"), bg = bg, fg = fg)
+        fonte = self.estilo()['Fonte']
+
+        label_mensagem = Label(self.popup, text = mensagem, font = (fonte, "15", "bold"), bg = bg, fg = fg)
         label_mensagem.pack(expand = True)
         label_borda = Label(self.popup, bg = bg, width = f'{largura}', height = "5")
         label_borda.pack()
