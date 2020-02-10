@@ -1,10 +1,31 @@
 from datetime import datetime
 from banco_de_dados import glpi
+import configparser
+from os import system
+from socket import *
 
 class backend():
     def __init__(self):
-        pass
         self.glpi = glpi()
+
+    def ip_servidor_sesp(self):
+        config = configparser.ConfigParser()
+        config.read('sesp.cfg')
+
+        porta = int(config.get('config_server', 'porta'))
+        ip = config.get('config_server', 'ip_server')
+        
+        return ip, porta
+
+    def iniciar_servidor(self):
+        self.endereco, self.porta = self.ip_servidor_sesp()
+
+        self.servidor = socket(AF_INET, SOCK_STREAM)
+        self.servidor.bind((f'{self.endereco}', self.porta))
+
+        self.servidor.listen(1000)
+
+        return self.endereco
 
     def busca_hora_atual(self):
         hora = datetime.now().strftime('%H:%M')
@@ -57,6 +78,8 @@ class backend():
             return 'error'
         else:
             return ip
+
+    
 
     def salvar_log(self, log):
         try:
