@@ -11,48 +11,6 @@ class backend():
         self.busca_cabecalho()
         self.conectado = False
 
-    def conecta_ao_servidor(self):
-        """
-        Faz conexão com o servidor SESP
-        Retorna Erro ou True
-        """
-        ip, porta = self.ip_servidor_sesp()
-        if not self.conectado:
-            self.encerrar_conexao()
-            try:
-                self.servidor = socket(AF_INET, SOCK_STREAM)
-                self.servidor.connect((f'{ip}', porta))
-            except:
-                raise
-            else:
-                return True
-        else:
-            return True
-
-    def encerrar_conexao(self):
-        """
-        Encerra a conexão com o servidor SESP
-        """
-        try:
-            self.servidor.close()
-        except:
-            pass
-        else:
-            self.conectado = False
-
-    def ip_servidor_sesp(self):
-        """
-        Busca e retorna as configurações de conexão do servidor SESP
-        retorno = [ip, porta]
-        """
-        config = configparser.ConfigParser()
-        config.read('sesp.cfg')
-
-        porta = int(config.get('config_server', 'porta'))
-        ip = config.get('config_server', 'ip_server')
-        
-        return ip, porta
-
     def gerar_log(self, procedimento):
         """
         Gera um texto de log padronizado por:

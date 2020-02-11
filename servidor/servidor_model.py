@@ -17,16 +17,6 @@ class backend():
         
         return ip, porta
 
-    def iniciar_servidor(self):
-        self.endereco, self.porta = self.ip_servidor_sesp()
-
-        self.servidor = socket(AF_INET, SOCK_STREAM)
-        self.servidor.bind((f'{self.endereco}', self.porta))
-
-        self.servidor.listen(1000)
-
-        return self.endereco
-
     def busca_hora_atual(self):
         hora = datetime.now().strftime('%H:%M')
 

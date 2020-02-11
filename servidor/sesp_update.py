@@ -3,8 +3,9 @@ import servidor_model
 import os
 
 class update():
-    #def __init__(self, conexao):
-     #   self.conexao = conexao
+    def __init__(self, conexao):
+        print('update')
+        self.conexao = conexao
 
     def retornar_versao_vigente(self):
         """
@@ -19,19 +20,12 @@ class update():
 
         return versao_atual
 
-    def listar_arquivos_atualizados(self):
+    def buscar_path_atualizacao(self):
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
-        pasta = config.get('version_sesp', 'path_atualizacao')
+        path = config.get('version_sesp', 'path_atualizacao')
 
-        caminhos = [os.path.join(pasta, nome) for nome in os.listdir(pasta)]
-        itens_pasta = [arq for arq in caminhos]
-        arquivos = []
-
-        for item in itens_pasta:
-            arquivos.append(self.trata_caminho_arquivo(item))
-
-        return arquivos
+        return path
 
     def trata_caminho_arquivo(self, caminho):
         split_caminho = caminho.split('\\')
@@ -39,25 +33,59 @@ class update():
 
         return caminho
     
-    def gera_nome_arquivo(self, arquivo):
-        print(arquivo)
-        split_nome_arq = arquivo.split('Update/')
-        print(split_nome_arq)
-        nome_arq = split_nome_arq[1]
+    def gera_nome_arquivo(self, path):
 
-        return nome_arq
+        pastas = [path]
+        caminhos = []
+        subpastas = []
+        arquivos = []
+        for pasta in pastas:
+            
+            for nome in os.listdir(pasta):
+                caminhos.append(os.path.join(pasta, nome))
+            
+            for caminho in caminhos:
+                
+                if os.path.isfile(caminho):
+                    if caminho not in arquivos:
+                        arquivos.append(caminho)
+                else:
+                    if caminho in pastas:
+                        continue
+                    else:
+                        subpastas.append(caminho)
+            
+            for pasta in subpastas:
+                pasta = pasta.split('\\')[0] + '/' + pasta.split('\\')[1]
+                if pasta in pastas:
+                    continue
+                else:
+                    pastas.append(pasta)
+
+        return arquivos
         
     def retornar_arquivos(self, arquivos):
         for arquivo in arquivos:
-            print(arquivo)
-            print(self.gera_nome_arquivo(arquivo))
-            #b_arquivo = bytes(arquivo, 'utf-8')
+            print(bytes(arquivo, 'utf-8'))
+            b_arquivo = bytes(arquivo, 'utf-8')
+            envio = f'N-{b_arquivo}'
+            
+            self.conexao.send(bytes(envio, 'utf-8'))
 
-            #self.conexao.send(f'N-{b_arquivo}')
+            path_arquivo = self.trata_caminho_arquivo(arquivo)
 
-            #with open(arquivo, 'rb') as arq:
-                #bytes_executavel = arq.read()
+            with open(path_arquivo, 'rb') as arq:
+                bytes_executavel = arq.read()
 
-            #self.conexao.send(bytes_executavel)
+            self.conexao.send(bytes_executavel)
             
         return True
+
+    def controller(self, requisicao):
+        if requisicao == '00':
+            return self.retornar_versao_vigente()
+        else:
+            path = self.buscar_path_atualizacao()
+            lista_arquivos  = self.gera_nome_arquivo(path)
+            
+            return self.retornar_arquivos(lista_arquivos) 

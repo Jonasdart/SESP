@@ -88,7 +88,7 @@ class update():
         else:
             return True
 
-    def busca_novos_arquivos(self):
+    def solicita_novos_arquivos(self):
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
 
@@ -100,10 +100,10 @@ class update():
         except:
             raise Exception('Não foi possível enviar requisição ao servidor SESP')
         else:
-            bytes_arquivo = self.servidor.recv(int(tam_max))
+            self.recebe_novos_arquivos()
 
-        print(len(bytes_arquivo))
-        return bytes_arquivo
+    def recebe_novos_arquivos(self):
+        
 
     def salva_novos_arquivos(self, bytes_arquivo):
         with open('sesp.exe', 'wb') as sesp:

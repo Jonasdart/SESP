@@ -1,18 +1,32 @@
 #dev by Jonas Duarte - Duzz System
 
 import configparser
-from sesp_update import update
 from servidor_model import backend
 from socket import *
 from time import sleep
+from sesp_update import update
 
 class controller():
     def __init__(self):
         self.backend = backend()
         
-    def iniciar_servidor(self):
-        self.servidor = self.backend.iniciar_servidor()
+    def ip_servidor_sesp(self):
+        config = configparser.ConfigParser()
+        config.read('sesp.cfg')
+
+        porta = int(config.get('config_server', 'porta'))
+        ip = config.get('config_server', 'ip_server')
         
+        return ip, porta
+
+    def iniciar_servidor(self):
+        self.endereco, self.porta = self.ip_servidor_sesp()
+
+        self.servidor = socket(AF_INET, SOCK_STREAM)
+        self.servidor.bind((f'{self.endereco}', self.porta))
+
+        self.servidor.listen(1000)
+
         self.espera_requisicao()
 
     def reiniciar_servidor(self):
@@ -69,10 +83,9 @@ class controller():
 
     def armador(self, requisicao):
         if requisicao[0] == 'update':
-            retorno = bytes(True, 'utf-8')
-            retorno = self.retornar_novo_executavel()
+            retorno = bytes(update(None).controller('update'), 'utf-8')
         elif requisicao[0] == '000':
-            retorno = self.retornar_versao_vigente()
+            self.retornar_versao_vigente()
         elif requisicao[0] == '00':
             retorno = self.salvar_log(requisicao[1])
         elif requisicao[0] == '01':
@@ -101,13 +114,6 @@ class controller():
     def verificar_spdata(self):
         return self.backend.status_spdata().encode('utf-8')
 
-    def retornar_versao_vigente(self):
-        return self.backend.retornar_versao_vigente().encode('utf-8')
-
-    def retornar_novo_executavel(self):
-        print('Enviando executável pela conexão')
-        return self.backend.retornar_executavel()
-
     def buscar_ip_maquina(self, numero_inventario):
         try:
             id_maquina = self.backend.buscar_id_maquina(numero_inventario)
@@ -116,7 +122,8 @@ class controller():
 
         return bytes(self.backend.retornar_ip_maquina(id_maquina), 'utf-8')
 
-import os
+    def retornar_versao_vigente(self):
+        return update(self.conexao).controller('00')
 
 if __name__ == "__main__":
     main = controller()
@@ -124,5 +131,4 @@ if __name__ == "__main__":
         main.iniciar_servidor()
     except:
         raise
-
 
