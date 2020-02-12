@@ -5,7 +5,7 @@ from os import system
 
 class update():
     def __init__(self):
-        self.conectado = False
+        self.conectado = bool()
 
     def ip_servidor_sesp(self):
         """
@@ -34,8 +34,10 @@ class update():
             except:
                 raise
             else:
+                self.conectado = True
                 return True
         else:
+            self.conectado = True
             return True
 
     def encerrar_conexao(self):
@@ -48,6 +50,8 @@ class update():
             pass
         else:
             self.conectado = False
+        
+        return True
 
     def identificar_versao_atual(self):
         """
@@ -67,11 +71,11 @@ class update():
         Identifica a versão atual do sistema
         retorna a identificação da mesma
         """
-        self.conecta_ao_servidor()
+        self.conectado = self.conecta_ao_servidor()
         try:
             self.servidor.send(b'000')
         except:
-            raise Exception('Não foi possível enviar requisição ao servidor SESP')
+            raise #Exception('Não foi possível enviar requisição ao servidor SESP')
         else:
             versao_vigente = self.servidor.recv(1024)
 
@@ -84,33 +88,52 @@ class update():
         print(versao_vigente)
 
         if versao_atual is not versao_vigente:
-            self.salva_novos_arquivos(self.busca_novos_arquivos())
+            self.solicita_novos_arquivos()
         else:
             return True
 
-    def solicita_novos_arquivos(self):
-        config = configparser.ConfigParser()
-        config.read('sesp.cfg')
-
-        tam_max = config.get('config_server', 'tam_max')
-
-        self.conecta_ao_servidor()
+    def verifica_tamanho_atualizacao(self):
+        self.conectado = self.conecta_ao_servidor()
         try:
-            self.servidor.send(b'update')
+            self.servidor.send(b'len')
         except:
             raise Exception('Não foi possível enviar requisição ao servidor SESP')
         else:
-            self.recebe_novos_arquivos()
+            tamanho_att = self.servidor.recv(1024)
 
-    def recebe_novos_arquivos(self):
-        
+        return int(tamanho_att.decode('utf-8'))
 
-    def salva_novos_arquivos(self, bytes_arquivo):
-        with open('sesp.exe', 'wb') as sesp:
-            sesp.write(bytes_arquivo)
+    def recebe_novos_arquivos(self, tamanho_maximo):
+        config = configparser.ConfigParser()
+        config.read('sesp.cfg')
 
-        return True
+        tamanho_maximo = config.get('config_server', 'tam_max')
+        tamanho_maximo = int(tamanho_maximo)
+
+        tamanho_att = self.verifica_tamanho_atualizacao()
+        self.conectado = self.conecta_ao_servidor()
+        for i in range(tamanho_att):
+            print(i)
+            try:
+                texto_requisicao = f'update;{i}'
+                print(texto_requisicao)
+                self.servidor.send(bytes(texto_requisicao, 'utf-8'))
+            except:
+                raise
+                raise Exception('Não foi possível enviar requisição ao servidor SESP')
+            else:
+                return self.salva_novos_arquivos(tamanho_maximo)
+
+    def salva_novos_arquivos(self, tamanho_maximo):
+        arquivo = self.servidor.recv(tamanho_maximo)
+        self.trata_nome_arquivo(arquivo)
+
     
+    def trata_nome_arquivo(self, arquivo):
+        nome_arquivo = arquivo.split(b'-*-*-')
+        print(nome_arquivo)
+        return nome_arquivo
+
     def clear(self):
         system('cls')
         system('clear')

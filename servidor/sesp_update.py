@@ -4,8 +4,10 @@ import os
 
 class update():
     def __init__(self, conexao):
-        print('update')
         self.conexao = conexao
+        self.retorno = []
+        self.bytes_gerados = False
+        self.gerado = False
 
     def retornar_versao_vigente(self):
         """
@@ -18,7 +20,7 @@ class update():
 
         versao_atual = config.get('version_sesp', 'version')
 
-        return versao_atual
+        return str(versao_atual)
 
     def buscar_path_atualizacao(self):
         config = configparser.ConfigParser()
@@ -34,58 +36,66 @@ class update():
         return caminho
     
     def gera_nome_arquivo(self, path):
-
         pastas = [path]
         caminhos = []
-        subpastas = []
-        arquivos = []
+        self.arquivos = []
         for pasta in pastas:
-            
             for nome in os.listdir(pasta):
                 caminhos.append(os.path.join(pasta, nome))
             
             for caminho in caminhos:
-                
                 if os.path.isfile(caminho):
-                    if caminho not in arquivos:
-                        arquivos.append(caminho)
+                    if caminho not in self.arquivos:
+                        self.arquivos.append(caminho)
                 else:
-                    if caminho in pastas:
-                        continue
-                    else:
-                        subpastas.append(caminho)
-            
-            for pasta in subpastas:
-                pasta = pasta.split('\\')[0] + '/' + pasta.split('\\')[1]
-                if pasta in pastas:
-                    continue
-                else:
-                    pastas.append(pasta)
-
-        return arquivos
+                    pasta = caminho.split('\\')[0] + '/' + caminho.split('\\')[1]
+                    if pasta not in pastas:
+                        pastas.append(pasta)
+        self.gerado = True
+        return self.arquivos
         
-    def retornar_arquivos(self, arquivos):
+    def organizar_arquivos(self, arquivos):
+        
         for arquivo in arquivos:
-            print(bytes(arquivo, 'utf-8'))
             b_arquivo = bytes(arquivo, 'utf-8')
-            envio = f'N-{b_arquivo}'
+            envio = bytes(f'-*-*-{b_arquivo}-*-*-', 'utf-8')
             
-            self.conexao.send(bytes(envio, 'utf-8'))
-
             path_arquivo = self.trata_caminho_arquivo(arquivo)
 
             with open(path_arquivo, 'rb') as arq:
                 bytes_executavel = arq.read()
 
-            self.conexao.send(bytes_executavel)
-            
-        return True
+            self.retorno.append(envio + bytes_executavel)
 
-    def controller(self, requisicao):
-        if requisicao == '00':
-            return self.retornar_versao_vigente()
-        else:
-            path = self.buscar_path_atualizacao()
-            lista_arquivos  = self.gera_nome_arquivo(path)
+        self.bytes_gerados = True
+        return self.retorno
+        
+    def envia_item_por_item(self, indice):
+        indice = int(indice)
+
+        self.conexao.send(self.retorno[indice])
             
-            return self.retornar_arquivos(lista_arquivos) 
+        return 'True'
+
+    def controller(self, requisicao, item = None):
+        if requisicao == '00':
+            return bytes(self.retornar_versao_vigente(), 'utf-8')
+        elif requisicao == 'len':
+            if not self.gerado:
+                path = self.buscar_path_atualizacao()
+                lista_arquivos  = self.gera_nome_arquivo(path)
+            else:
+                lista_arquivos = self.arquivos
+            
+            return bytes(str(len(lista_arquivos)), 'utf-8')
+
+        else:
+            if not self.gerado:
+                path = self.buscar_path_atualizacao()
+                lista_arquivos  = self.gera_nome_arquivo(path)
+            else:
+                lista_arquivos = self.arquivos
+                if not self.bytes_gerados:
+                    self.organizar_arquivos(lista_arquivos)
+            
+            return bytes(self.envia_item_por_item(item), 'utf-8')

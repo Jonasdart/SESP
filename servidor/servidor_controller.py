@@ -10,6 +10,7 @@ class controller():
     def __init__(self):
         self.backend = backend()
         
+        
     def ip_servidor_sesp(self):
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
@@ -52,6 +53,7 @@ class controller():
                 self.conexao, id_conexao = self.servidor.accept()
 
                 print(f"Nova Conexão de {id_conexao}")
+                self.update = update(self.conexao)
 
                 while True:
                     requisicao = self.conexao.recv(1024)
@@ -63,6 +65,7 @@ class controller():
                         raise
             self.fechar_conexao()
         except:
+            raise
             self.reiniciar_servidor()
 
     def trata_requisicao(self, requisicao):
@@ -83,9 +86,11 @@ class controller():
 
     def armador(self, requisicao):
         if requisicao[0] == 'update':
-            retorno = bytes(update(None).controller('update'), 'utf-8')
+            retorno = self.update.controller('update', item = requisicao[1])
+        elif requisicao[0] == 'len':
+            retorno = self.update.controller('len')
         elif requisicao[0] == '000':
-            self.retornar_versao_vigente()
+            retorno = self.retornar_versao_vigente()
         elif requisicao[0] == '00':
             retorno = self.salvar_log(requisicao[1])
         elif requisicao[0] == '01':
@@ -123,7 +128,7 @@ class controller():
         return bytes(self.backend.retornar_ip_maquina(id_maquina), 'utf-8')
 
     def retornar_versao_vigente(self):
-        return update(self.conexao).controller('00')
+        return update(None).controller('00')
 
 if __name__ == "__main__":
     main = controller()
