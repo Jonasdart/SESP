@@ -1,0 +1,5 @@
+# pack-refs with: peeled fully-peeled sorted 
+004c3acbbaee0fc17c3812b23690207ad9191bdc refs/remotes/origin/SESP-v0.1-dev]
+b6f36bc33c2368cdd188f1c989c3b24247569cb7 refs/remotes/origin/alt
+004c3acbbaee0fc17c3812b23690207ad9191bdc refs/remotes/origin/master
+True

@@ -450,4 +450,3 @@ antes de iniciar, o controller verifica no arquivo txt consta o valor True ou Fa
 Caso contrário, o sesp abrirá a página do glpi, induzindo o colaborador a abrir chamado para o T.I.
 
 """
-True

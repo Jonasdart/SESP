@@ -61,6 +61,7 @@ class update():
             envio = bytes(f'-*-*-{b_arquivo}-*-*-', 'utf-8')
             
             path_arquivo = self.trata_caminho_arquivo(arquivo)
+            print('Copiando ' + path_arquivo)
 
             with open(path_arquivo, 'rb') as arq:
                 bytes_executavel = arq.read()
@@ -75,27 +76,28 @@ class update():
 
         self.conexao.send(self.retorno[indice])
             
-        return 'True'
+        return ''
+
+    def prepara_arquivos(self):
+        if not self.gerado:
+            path = self.buscar_path_atualizacao()
+            lista_arquivos = self.gera_nome_arquivo(path)
+        else:
+            lista_arquivos = self.arquivos
+
+        return lista_arquivos
 
     def controller(self, requisicao, item = None):
         if requisicao == '00':
             return bytes(self.retornar_versao_vigente(), 'utf-8')
         elif requisicao == 'len':
-            if not self.gerado:
-                path = self.buscar_path_atualizacao()
-                lista_arquivos  = self.gera_nome_arquivo(path)
-            else:
-                lista_arquivos = self.arquivos
-            
-            return bytes(str(len(lista_arquivos)), 'utf-8')
+                        
+            return bytes(str(len(self.prepara_arquivos())), 'utf-8')
 
         else:
-            if not self.gerado:
-                path = self.buscar_path_atualizacao()
-                lista_arquivos  = self.gera_nome_arquivo(path)
-            else:
-                lista_arquivos = self.arquivos
-                if not self.bytes_gerados:
-                    self.organizar_arquivos(lista_arquivos)
-            
+            print('Atualizando')
+            lista_arquivos = self.prepara_arquivos()
+            if not self.bytes_gerados:
+                self.organizar_arquivos(lista_arquivos)
+                
             return bytes(self.envia_item_por_item(item), 'utf-8')

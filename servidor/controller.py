@@ -1,15 +1,14 @@
 #dev by Jonas Duarte - Duzz System
 
 import configparser
-from servidor_model import backend
+from model import Backend
 from socket import *
 from time import sleep
 from sesp_update import update
 
 class controller():
     def __init__(self):
-        self.backend = backend()
-        
+        self.backend = Backend()
         
     def ip_servidor_sesp(self):
         config = configparser.ConfigParser()

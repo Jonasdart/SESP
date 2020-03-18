@@ -83,12 +83,13 @@ class update():
 
     def atualiza(self):
         versao_atual = self.identificar_versao_atual()
-        versao_vigente = self.identificar_versao_vigente().decode()
+        versao_vigente = self.identificar_versao_vigente().decode('utf-8')
+
         print(versao_atual)
         print(versao_vigente)
 
         if versao_atual is not versao_vigente:
-            self.solicita_novos_arquivos()
+            self.recebe_novos_arquivos()
         else:
             return True
 
@@ -103,7 +104,7 @@ class update():
 
         return int(tamanho_att.decode('utf-8'))
 
-    def recebe_novos_arquivos(self, tamanho_maximo):
+    def recebe_novos_arquivos(self):
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
 
@@ -111,29 +112,57 @@ class update():
         tamanho_maximo = int(tamanho_maximo)
 
         tamanho_att = self.verifica_tamanho_atualizacao()
+
         self.conectado = self.conecta_ao_servidor()
+
         for i in range(tamanho_att):
-            print(i)
             try:
                 texto_requisicao = f'update;{i}'
-                print(texto_requisicao)
                 self.servidor.send(bytes(texto_requisicao, 'utf-8'))
             except:
                 raise
-                raise Exception('Não foi possível enviar requisição ao servidor SESP')
+                #raise Exception('Não foi possível enviar requisição ao servidor SESP')
             else:
-                return self.salva_novos_arquivos(tamanho_maximo)
+                self.salva_novos_arquivos(tamanho_maximo)
 
     def salva_novos_arquivos(self, tamanho_maximo):
         arquivo = self.servidor.recv(tamanho_maximo)
-        self.trata_nome_arquivo(arquivo)
+        arquivo = self.trata_arquivo(arquivo)
 
+        with open(arquivo.get('Diretorio'), 'wb') as arq:
+            arq.write(arquivo.get('Dados'))
+
+        return True
     
-    def trata_nome_arquivo(self, arquivo):
-        nome_arquivo = arquivo.split(b'-*-*-')
+    def trata_arquivo(self, arquivo):
+        
+        cabecalho_arquivo = arquivo.split(b'-*-*-')
+        cabecalho_arquivo_decoded = cabecalho_arquivo[1].decode('utf-8').split("'")[1]
+        print(cabecalho_arquivo_decoded)
+
+        nome_arquivo, pasta_arquivo = cabecalho_arquivo_decoded.split('\\\\')[1], cabecalho_arquivo_decoded.split('/')
+        print(f'EU SOU A PASTA ARQUIVO {pasta_arquivo}')
+        pasta_arquivo = pasta_arquivo[len(pasta_arquivo)-1].split('\\\\')[0]
         print(nome_arquivo)
-        return nome_arquivo
+        print(pasta_arquivo)
+        
+        if pasta_arquivo[len(pasta_arquivo)-2] is b'SESP':
+            print(pasta_arquivo[len(pasta_arquivo)-2])
+            pasta_arquivo = 'SESP/' + pasta_arquivo[len(pasta_arquivo)-1]
+
+        else:
+            pasta_arquivo = ''
+
+        arquivo = {
+            'Pasta': pasta_arquivo,
+            'Nome' : nome_arquivo,
+            'Diretorio' : pasta_arquivo + nome_arquivo,
+            'Dados' : cabecalho_arquivo[2]
+        }
+
+        print(arquivo)
+
+        return arquivo
 
     def clear(self):
         system('cls')
-        system('clear')

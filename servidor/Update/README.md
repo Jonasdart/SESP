@@ -78,4 +78,3 @@ Sistema de Eficácia na Solução de Problemas, tem o intúito de ser uma plataf
     - Configuração Proxy 
     - Mapeamento SPDATA
 
-True
