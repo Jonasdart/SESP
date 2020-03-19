@@ -1,15 +1,15 @@
 import configparser
-import servidor_model
+import model
 import os
 
-class update():
-    def __init__(self, conexao):
-        self.conexao = conexao
+class Update():
+    def __init__(self):
         self.retorno = []
         self.bytes_gerados = False
         self.gerado = False
 
     def retornar_versao_vigente(self):
+        print(self.gerado)
         """
         Busca a versão atual do SESP presente no arquivo de configuração sesp.cfg
         retorno = Versão 
@@ -19,7 +19,7 @@ class update():
         config.read('sesp.cfg')
 
         versao_atual = config.get('version_sesp', 'version')
-
+        
         return str(versao_atual)
 
     def buscar_path_atualizacao(self):
@@ -71,10 +71,10 @@ class update():
         self.bytes_gerados = True
         return self.retorno
         
-    def envia_item_por_item(self, indice):
+    def envia_item_por_item(self, indice, connection):
         indice = int(indice)
 
-        self.conexao.send(self.retorno[indice])
+        connection.send(self.retorno[indice])
             
         return ''
 
@@ -86,18 +86,3 @@ class update():
             lista_arquivos = self.arquivos
 
         return lista_arquivos
-
-    def controller(self, requisicao, item = None):
-        if requisicao == '00':
-            return bytes(self.retornar_versao_vigente(), 'utf-8')
-        elif requisicao == 'len':
-                        
-            return bytes(str(len(self.prepara_arquivos())), 'utf-8')
-
-        else:
-            print('Atualizando')
-            lista_arquivos = self.prepara_arquivos()
-            if not self.bytes_gerados:
-                self.organizar_arquivos(lista_arquivos)
-                
-            return bytes(self.envia_item_por_item(item), 'utf-8')

@@ -1,6 +1,6 @@
 from socket import *
 import configparser
-from os import system
+from os import system, mkdir
 
 
 class update():
@@ -129,26 +129,31 @@ class update():
         arquivo = self.servidor.recv(tamanho_maximo)
         arquivo = self.trata_arquivo(arquivo)
 
+        pasta = arquivo.get('Pasta')
+        if pasta != '':
+            try:
+                    mkdir(arquivo.get('Pasta'))
+            except:
+                print(f'Pasta Existente')
+
         with open(arquivo.get('Diretorio'), 'wb') as arq:
             arq.write(arquivo.get('Dados'))
 
+        arquivo = arquivo.get('Nome')
+        print(f'Arquivo {arquivo} criado')
         return True
     
     def trata_arquivo(self, arquivo):
         
         cabecalho_arquivo = arquivo.split(b'-*-*-')
         cabecalho_arquivo_decoded = cabecalho_arquivo[1].decode('utf-8').split("'")[1]
-        print(cabecalho_arquivo_decoded)
 
         nome_arquivo, pasta_arquivo = cabecalho_arquivo_decoded.split('\\\\')[1], cabecalho_arquivo_decoded.split('/')
-        print(f'EU SOU A PASTA ARQUIVO {pasta_arquivo}')
-        pasta_arquivo = pasta_arquivo[len(pasta_arquivo)-1].split('\\\\')[0]
-        print(nome_arquivo)
-        print(pasta_arquivo)
         
-        if pasta_arquivo[len(pasta_arquivo)-2] is b'SESP':
-            print(pasta_arquivo[len(pasta_arquivo)-2])
-            pasta_arquivo = 'SESP/' + pasta_arquivo[len(pasta_arquivo)-1]
+        pasta_arquivo = pasta_arquivo[len(pasta_arquivo)-1].split('\\\\')[0]       
+
+        if pasta_arquivo != 'SESP':
+            pasta_arquivo = './' + pasta_arquivo + '/'
 
         else:
             pasta_arquivo = ''
@@ -160,9 +165,10 @@ class update():
             'Dados' : cabecalho_arquivo[2]
         }
 
-        print(arquivo)
-
         return arquivo
 
     def clear(self):
         system('cls')
+
+if __name__ == "__main__":
+    update().atualiza()

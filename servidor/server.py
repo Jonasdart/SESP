@@ -1,17 +1,14 @@
 import socketserver
 import configparser
 import model
+import controller
 
-class Backends():
-    def __init__(self):
-        backend = model.Backend()
-        self.returned(backend)
-    def returned(self, backend):
-        return backend
+def Backend():
+    return model.Backend()
  
 def bind_server():
     config = configparser.ConfigParser()
-    config.read('conf.cfg')
+    config.read('sesp.cfg')
 
     port = int(config.get('config_server', 'porta'))
     ip = config.get('config_server', 'ip_server')
@@ -25,7 +22,9 @@ def bind_server():
  
 class Controller(socketserver.BaseRequestHandler):
 
-    def __init__(self, request, client_address, server, backend):
+    def __init__(self, request, client_address, server):
+        self.backends = Backend()
+        self.controller = controller.Controller()
         self.request = request
         self.client_address = client_address
         self.server = server
@@ -40,12 +39,14 @@ class Controller(socketserver.BaseRequestHandler):
             # Recebe data do cliente
             lenght_of_data_received = int.from_bytes(self.request.recv(2), byteorder='big')
             data_received = self.request.recv(lenght_of_data_received)
+            
             if not data_received: break
- 
-            server_response = self.rigger(self.treat_request)
+
+            server_response = self.rigger(self.treat_request(data_received))
             length_of_response = len(server_response).to_bytes(2, byteorder='big')
+
             self.request.send(length_of_response)
-            self.request.send(server_response.encode())
+            self.request.send(server_response)
  
         self.request.close()
 
@@ -56,26 +57,49 @@ class Controller(socketserver.BaseRequestHandler):
         a devida info ao backend
         """
 
-        if request[0] == 'update':
-            return self.update.controller('update', item = requisicao[1])
+        if request[0] == 'version':
+            """
+            Retornar a versão vigente
+            """
+            return self.controller.control_update('version')
         elif request[0] == 'len':
-            return self.update.controller('len')
-        elif request[0] == '000':
-            return self.retornar_versao_vigente()
+            """
+            Retorna o tamanho da atualização
+            """
+            return self.controller.control_update('len')
+        elif request[0] == 'update':
+            """
+            Retorna os dados dos arquivos para serem salvos
+            """
+            return self.controller.control_update('update', item = request[1], connection=self.request)
         elif request[0] == '00':
-            return self.salvar_log(requisicao[1])
+            """
+            Salva o log de ação do servidor
+            """
+            return self.controller.salvar_log(request[1])
         elif request[0] == '01':
-            return self.data_e_hora_atuais()
+            """
+            Retorna a data e hora atual
+            """
+            return self.controller.data_e_hora_atuais()
         elif request[0] == '02':
-            return self.verificar_spdata()
+            """
+            Verifica se há backup ocorrendo no spdata
+            """
+            return self.controller.verificar_spdata()
         elif request[0] == '03':
-            return self.buscar_ip_maquina(requisicao[1])
+            """
+            Retorna o IP do computador
+            """
+            return self.controller.buscar_ip_maquina(request[1])
         elif request[0] == '04':
             #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
             pass
         elif request[0] == '05':
             pass
             #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
+        else:
+            raise Exception('requisition parameters are incorrect')
             
 
     def treat_request(self, request):
@@ -101,20 +125,11 @@ class Controller(socketserver.BaseRequestHandler):
             Exception('The request contains only one parameter or has none')
         
         return request
-    
-    def paretto_x_date(self, date):
-        df = self.backends.dFrame_total_refugos(date=date)
-        response = self.backends.gera_paretto_total_refugo(df)
-
-        return response
-
  
 bind_server = bind_server()
 
 ip = bind_server.get('ip_address')
 port = bind_server.get('server_port')
 
-backends = Backends()
-
-server = socketserver.ThreadingTCPServer((ip, port, backends), backends, Controller)
+server = socketserver.ThreadingTCPServer((ip, port), Controller)
 server.serve_forever()

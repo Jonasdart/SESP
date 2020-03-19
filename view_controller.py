@@ -17,10 +17,10 @@ class sesp_view():
         self.feedback_fixo = ''
         self.feedback = ''
 
-        self.botoes_menu_x = list()
-        self.botoes_menu_y = list()
-        self.botoes_controle_x = list()
-        self.botoes_controle_y = list()
+        self.botoes_menu_x = []
+        self.botoes_menu_y = []
+        self.botoes_controle_x = []
+        self.botoes_controle_y = []
 
         self.tela_inicial()
 
@@ -450,4 +450,3 @@ antes de iniciar, o controller verifica no arquivo txt consta o valor True ou Fa
 Caso contrário, o sesp abrirá a página do glpi, induzindo o colaborador a abrir chamado para o T.I.
 
 """
-True

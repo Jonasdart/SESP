@@ -237,4 +237,4 @@ class controller():
 
 if __name__ == "__main__":
     main = controller()
-    main.inicio()True
+    main.inicio()

@@ -4,77 +4,14 @@ import configparser
 from model import Backend
 from socket import *
 from time import sleep
-from sesp_update import update
+from sesp_update import Update
 
-class controller():
+class Controller():
     def __init__(self):
         self.backend = Backend()
+        self.update = Update()
         
-    def ip_servidor_sesp(self):
-        config = configparser.ConfigParser()
-        config.read('sesp.cfg')
-
-        porta = int(config.get('config_server', 'porta'))
-        ip = config.get('config_server', 'ip_server')
         
-        return ip, porta
-
-    def iniciar_servidor(self):
-        self.endereco, self.porta = self.ip_servidor_sesp()
-
-        self.servidor = socket(AF_INET, SOCK_STREAM)
-        self.servidor.bind((f'{self.endereco}', self.porta))
-
-        self.servidor.listen(1000)
-
-        self.espera_requisicao()
-
-    def reiniciar_servidor(self):
-        try:
-            print('Reiniciando o servidor SESP')
-            self.servidor.close()
-        except:
-            pass
-
-        self.iniciar_servidor()
-
-    def fechar_conexao(self):
-        try:
-            self.conexao.close()
-        except:
-            pass
-            
-        self.espera_requisicao()
-
-    def espera_requisicao(self):
-        try:
-            while True:
-                self.conexao, id_conexao = self.servidor.accept()
-
-                print(f"Nova Conexão de {id_conexao}")
-                self.update = update(self.conexao)
-
-                while True:
-                    requisicao = self.conexao.recv(1024)
-                    if not requisicao: 
-                        break
-                    try:
-                        self.conexao.send(self.trata_requisicao(requisicao))
-                    except:
-                        raise
-            self.fechar_conexao()
-        except:
-            raise
-            self.reiniciar_servidor()
-
-    def trata_requisicao(self, requisicao):
-        requisicao = requisicao.decode('utf-8')
-        try:
-            requisicao = requisicao.split(';')
-        except:
-            raise
-        return self.armador(requisicao)
-
     def salvar_log(self, log):
         try:
             self.backend.salvar_log(log)
@@ -82,30 +19,6 @@ class controller():
             raise
         else:
             return bytes('OK', 'utf-8')
-
-    def armador(self, requisicao):
-        if requisicao[0] == 'update':
-            retorno = self.update.controller('update', item = requisicao[1])
-        elif requisicao[0] == 'len':
-            retorno = self.update.controller('len')
-        elif requisicao[0] == '000':
-            retorno = self.retornar_versao_vigente()
-        elif requisicao[0] == '00':
-            retorno = self.salvar_log(requisicao[1])
-        elif requisicao[0] == '01':
-            retorno = self.data_e_hora_atuais()
-        elif requisicao[0] == '02':
-            retorno = self.verificar_spdata()
-        elif requisicao[0] == '03':
-            retorno = self.buscar_ip_maquina(requisicao[1])
-        elif requisicao[0] == '04':
-            #RETORNAR A IMPRESSORA EM REDE DE ACORDO COM A ETIQUETA E IP DO SERVIDOR
-            pass
-        elif requisicao[0] == '05':
-            pass
-            #RETORNAR A IMPRESSORA PADRÃO DE ACORDO COM A ETIQUETA DA MAQUINA
-            
-        return retorno
 
     def data_e_hora_atuais(self):
         hora = self.backend.busca_hora_atual()
@@ -127,10 +40,28 @@ class controller():
         return bytes(self.backend.retornar_ip_maquina(id_maquina), 'utf-8')
 
     def retornar_versao_vigente(self):
-        return update(None).controller('00')
+        return self.update.retornar_versao_vigente()
+
+    def control_update(self, requisicao, item = None, connection = None):
+        if requisicao == 'version':
+            return bytes(self.update.retornar_versao_vigente(), 'utf-8')
+        elif requisicao == 'len':
+            return bytes(str(len(self.update.prepara_arquivos())), 'utf-8')
+
+        else:
+            if connection is not None:
+                print('Atualizando')
+                lista_arquivos = self.update.prepara_arquivos()
+                if not self.update.bytes_gerados:
+                    self.update.organizar_arquivos(lista_arquivos)
+                    
+                return bytes(self.update.envia_item_por_item(item, connection), 'utf-8')
+            else:
+                raise Exception('Connection is None')
+
 
 if __name__ == "__main__":
-    main = controller()
+    main = Controller()
     try:
         main.iniciar_servidor()
     except:
