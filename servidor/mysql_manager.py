@@ -7,11 +7,13 @@ class gera_query(object):
     def __init__(self):
         self.query = ""
 
+
     def nova_tabela(self, banco_de_dados, nova_tabela):
         self.query =  f"CREATE TABLE `{banco_de_dados}`"
         self.query += f".`{nova_tabela}` ENGINE = InnoDB;"
 
         return self.query
+
 
     def renomear_tabela(self, banco_de_dados, nome_atual, novo_nome):
         self.query =  f"RENAME TABLE `{banco_de_dados}`"
@@ -20,10 +22,12 @@ class gera_query(object):
 
         return self.query
 
+
     def excluir_tabela(self, tabela):
         self.query = f"DROP TABLE `{tabela}`"
 
         return self.query
+
 
     def listar_tabelas(self):
         self.query = "SHOW TABLES"
@@ -39,6 +43,7 @@ class gera_query(object):
             self.query += f"= '{valor_where}'"
 
         return self.query
+
 
     def listar_colunas(self, tabela):
         self.query = f"DESCRIBE `{tabela}`"
@@ -76,6 +81,7 @@ class gera_query(object):
 
         return self.query
 
+
     def alterar_dados_da_tabela(self, tabela, colunas, dados, where = False, coluna_verificacao = "", valor_where = "", string = True):
         """
         string é um booleano, que
@@ -95,6 +101,7 @@ class gera_query(object):
         self.query += ";"
         return self.query
 
+
     def buscar_dados_da_tabela(self, tabela, where = False, coluna_verificacao = "", valor_where = ""):
         self.query = f"SELECT * FROM `{tabela}` "
         if where:
@@ -112,6 +119,7 @@ class gera_query(object):
 
         return self.query
 
+
     def excluir_dados_da_tabela(self, tabela, where = False, coluna_verificacao = "", valor_where = ""):
         self.query = f"DELETE FROM `{tabela}` WHERE "
         if where:
@@ -120,8 +128,3 @@ class gera_query(object):
             self.query += "0"
 
         return self.query
-
-
-
-
-

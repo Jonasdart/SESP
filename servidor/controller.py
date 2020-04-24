@@ -20,6 +20,7 @@ class Controller():
         else:
             return bytes('OK', 'utf-8')
 
+
     def data_e_hora_atuais(self):
         hora = self.backend.busca_hora_atual()
         data = self.backend.busca_data_atual()
@@ -28,8 +29,10 @@ class Controller():
 
         return bytes(data_e_hora, 'utf-8')
 
+
     def verificar_spdata(self):
         return self.backend.status_spdata().encode('utf-8')
+
 
     def buscar_ip_maquina(self, numero_inventario):
         try:
@@ -39,8 +42,10 @@ class Controller():
 
         return bytes(self.backend.retornar_ip_maquina(id_maquina), 'utf-8')
 
+
     def retornar_versao_vigente(self):
         return self.update.retornar_versao_vigente()
+
 
     def control_update(self, requisicao, item = None, connection = None):
         if requisicao == 'version':

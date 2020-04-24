@@ -6,6 +6,7 @@ import controller
 def Backend():
     return model.Backend()
  
+
 def bind_server():
     config = configparser.ConfigParser()
     config.read('sesp.cfg')
@@ -20,6 +21,7 @@ def bind_server():
     
     return server
  
+
 class Controller(socketserver.BaseRequestHandler):
 
     def __init__(self, request, client_address, server):
@@ -33,6 +35,7 @@ class Controller(socketserver.BaseRequestHandler):
             self.handle()
         finally:
             self.finish()
+
 
     def handle(self):
         while True:
@@ -49,6 +52,7 @@ class Controller(socketserver.BaseRequestHandler):
             self.request.send(server_response)
  
         self.request.close()
+
 
     def rigger(self, request):
         """
@@ -125,6 +129,7 @@ class Controller(socketserver.BaseRequestHandler):
             Exception('The request contains only one parameter or has none')
         
         return request
+ 
  
 bind_server = bind_server()
 

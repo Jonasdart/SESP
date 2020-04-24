@@ -2,11 +2,12 @@ from datetime import datetime
 from banco_de_dados import glpi
 import configparser
 from os import system
-from socket import *
+
 
 class Backend():
     def __init__(self):
         self.glpi = glpi()
+
 
     def ip_servidor_sesp(self):
         config = configparser.ConfigParser()
@@ -17,15 +18,18 @@ class Backend():
         
         return ip, porta
 
+
     def busca_hora_atual(self):
         hora = datetime.now().strftime('%H:%M')
 
         return hora
 
+
     def busca_data_atual(self):
         data = datetime.now().strftime('%d-%m-%Y')
 
         return data
+
 
     def status_spdata(self):
         arquivo_status = open("status_spdata.txt", "r")
@@ -41,6 +45,7 @@ class Backend():
         else:
             return "False"
 
+
     def buscar_info_maquina(self, numero_inventario):
         try:
             info = self.glpi.buscar_info_maquina(numero_inventario)
@@ -49,10 +54,12 @@ class Backend():
         else:
             return info
 
+
     def buscar_id_maquina(self, numero_inventario):
         id = self.buscar_info_maquina(numero_inventario)[0]
 
         return id[0]
+
 
     def retornar_ip_maquina(self, id_maquina):
 
@@ -70,7 +77,6 @@ class Backend():
             return ip
 
     
-
     def salvar_log(self, log):
         try:
             hora = self.busca_hora_atual()

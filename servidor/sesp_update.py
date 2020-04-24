@@ -8,6 +8,7 @@ class Update():
         self.bytes_gerados = False
         self.gerado = False
 
+
     def retornar_versao_vigente(self):
         print(self.gerado)
         """
@@ -22,6 +23,7 @@ class Update():
         
         return str(versao_atual)
 
+
     def buscar_path_atualizacao(self):
         config = configparser.ConfigParser()
         config.read('sesp.cfg')
@@ -29,12 +31,14 @@ class Update():
 
         return path
 
+
     def trata_caminho_arquivo(self, caminho):
         split_caminho = caminho.split('\\')
         caminho = split_caminho[0] + '/' + split_caminho[1]
 
         return caminho
     
+
     def gera_nome_arquivo(self, path):
         pastas = [path]
         caminhos = []
@@ -54,6 +58,7 @@ class Update():
         self.gerado = True
         return self.arquivos
         
+
     def organizar_arquivos(self, arquivos):
         
         for arquivo in arquivos:
@@ -71,12 +76,14 @@ class Update():
         self.bytes_gerados = True
         return self.retorno
         
+
     def envia_item_por_item(self, indice, connection):
         indice = int(indice)
 
         connection.send(self.retorno[indice])
             
         return ''
+
 
     def prepara_arquivos(self):
         if not self.gerado:
