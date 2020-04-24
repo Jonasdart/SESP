@@ -4,7 +4,7 @@ import configparser
 from os import system
 from socket import *
 
-class backend():
+class Backend():
     def __init__(self):
         self.glpi = glpi()
 

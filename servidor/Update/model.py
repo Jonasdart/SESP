@@ -71,11 +71,11 @@ class backend():
         sistema_operacional = self.busca_info_computador()['so']
 
         config = configparser.ConfigParser()
-        config.read('cabecalho.cfg')
+        config.read('sesp.cfg')
 
-        etiqueta = config.get('info_pc', 'etiqueta')
-        ip = config.get('info_pc', 'ip')
-        excessoes_proxy = config.get('info_pc', 'excessoes_proxy')
+        etiqueta = config.get('cabecalho', 'etiqueta_pc')
+        ip = config.get('cabecalho', 'ip_maquina')
+        excessoes_proxy = config.get('cabecalho', 'excessoes_proxy')
         
         return {'CabecalhoEtiqueta': etiqueta,
                 'NomePc' : nome,
@@ -90,12 +90,12 @@ class backend():
         Podendo receber o novo IP e/ou nova etiqueta
         """
         parser = configparser.ConfigParser()
-        parser.read('cabecalho.cfg')
+        parser.read('sesp.cfg')
         if ip is not None:
-            parser.set('info_pc', 'ip', ip)
+            parser.set('cabecalho', 'ip', ip)
         
         if etiqueta is not None:
-            parser.set('info_pc', 'etiqueta', etiqueta)
+            parser.set('cabecalho', 'etiqueta', etiqueta)
                 
         with open('cabecalho.cfg', 'w') as cfg:
             parser.write(cfg)

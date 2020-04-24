@@ -17,10 +17,10 @@ class sesp_view():
         self.feedback_fixo = ''
         self.feedback = ''
 
-        self.botoes_menu_x = []
-        self.botoes_menu_y = []
-        self.botoes_controle_x = []
-        self.botoes_controle_y = []
+        self.botoes_menu_x = list()
+        self.botoes_menu_y = list()
+        self.botoes_controle_x = list()
+        self.botoes_controle_y = list()
 
         self.tela_inicial()
 
