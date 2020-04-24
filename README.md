@@ -8,3 +8,7 @@ _Tem o intúito de ser uma plataforma que auxiliará os colaboradores de uma emp
     Cadastro de tutoriais à base de conhecimento, 
     para aqueles problemas que não podem ser resolvidos automaticamente via scripts
 
+    Integração com GLPI
+
+    Inventário de máquinas via banco próprio ou banco GLPI
+
