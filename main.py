@@ -9,12 +9,13 @@ class Update():
 
         version = self.get_version(binds)
         need_to_update = self.need_to_update(version)
+        
+        print(need_to_update['Message'])
 
-        if need_to_update['Message']:
+        if need_to_update['Message'] == True:
             self.get_archives(binds)
             self.save_archives()
-            
-        print(self.r)
+
 
     def get_binds(self):
         try:
@@ -81,8 +82,7 @@ class Update():
             conf.read(f'{dir_path}\conf.cfg')
 
             current_version = conf.get('current_version', 'version')
-
-            if current_version == version['CurrentVersion']:
+            if current_version != version['CurrentVersion']:
                 self.r = {
                     'Message' : True
                 }
