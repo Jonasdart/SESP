@@ -1,11 +1,20 @@
 import configparser
 import os
+import subprocess
 
 
 class Update():
     def __init__(self):
-        pass
+        binds = self.get_binds()
 
+        version = self.get_version(binds)
+        need_to_update = self.need_to_update(version)
+
+        if need_to_update['Message']:
+            self.get_archives(binds)
+            self.save_archives()
+            
+        print(self.r)
 
     def get_binds(self):
         try:
@@ -34,11 +43,14 @@ class Update():
 
 
     def get_version(self, binds):
+        binds = binds['Message']
         try:
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            os.system(f'git pull {remote} {branch_version}')
+            response = subprocess.run(["git", "pull", remote, branch_version], shell=True)
+            if response.returncode == 1:
+                raise Exception('Não foi possível utilizar o git pull')
 
             conf = configparser.ConfigParser()
             conf.read('conf.cfg')
@@ -60,6 +72,7 @@ class Update():
 
 
     def need_to_update(self, version):
+        version = version['Message']
         try:
             dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizações')[0]
             dir_path = dir_path.replace('\\', '\\\\')
@@ -89,10 +102,14 @@ class Update():
         pass
 
 
-    def get_archives(self, bind):
+    def get_archives(self, binds):
+        binds = binds['Message']
         try:
-            server = bind['Server']
-            os.system(f'git clone {server}')
+            server = binds['Server']
+
+            response = subprocess.run(['git', 'clone', server], shell=True)
+            if response.returncode == 1:
+                raise Exception('Não foi possível utilizar o git clone')
 
             self.r = {
                 'Message' : 'OK'
@@ -115,10 +132,14 @@ class Update():
             dir_path = dir_path.replace('\\', '\\\\')
             app_path = app_path.replace('\\', '\\\\')
             
+            response = subprocess.run(['copy', f'{dir_path}\\SESP\\*', app_path], shell=True)
+            if response.returncode == 1:
+                raise Exception('Não foi possível fazer a cópia da pasta atualizada')
             
-            os.system(f'copy {dir_path}\\SESP\\* {app_path}')
-            os.system(f'del {dir_path}\\SESP')
-            
+            response = subprocess.run(['rmdir', '/Q', '/S', f'{dir_path}\\SESP'], shell=True)
+            if response.returncode == 1:
+                raise Exception('Não foi possível deletar a pasta de atualização')
+
             self.r = {
                 'Message' : 'OK'
             }
@@ -130,3 +151,6 @@ class Update():
                 }
             }
         return self.r
+
+if __name__ == "__main__":
+     Update()
