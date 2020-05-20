@@ -1,9 +1,0 @@
-Correção acesso ao GLPI - 
-
- nano /etc/mysql/mariadb.conf.d/50-server.cnf
-
- 			descomentar a linha sobre a porta 3306:
- 			#port  =  3306
-
- 			Comentar a linha sobre o endereçamento 127.0.0.1
- 			bind-adress  =  127.0.0.1
