@@ -79,7 +79,7 @@ class Update():
             dir_path = dir_path.replace('\\', '\\\\')
             
             conf = configparser.ConfigParser()
-            conf.read(f'{dir_path}\conf.cfg')
+            conf.read(f'{dir_path}\\conf.cfg')
 
             current_version = conf.get('current_version', 'version')
             if current_version != version['CurrentVersion']:
