@@ -5,7 +5,7 @@ Iremos disponibilizar aplicação com comandos simples para resolverem caso espe
 porém, com possibilidade de fácil atualização para futuras implementações.
 `
 
-- [ ] Gerenciador de atualização
-  - [ ] Configuração atualização GIT
+- [x] Gerenciador de atualização
+  - [x] Configuração atualização GIT
 - [ ] Alterar nome do computador
 - [ ] Alterar data e hora
