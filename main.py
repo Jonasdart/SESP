@@ -50,7 +50,7 @@ class Update():
             branch_version = binds['BranchVersion']
 
             response = subprocess.run(["git", "pull", remote, branch_version], shell=True)
-            if response.returncode == 1:
+            if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git pull')
 
             conf = configparser.ConfigParser()
@@ -108,7 +108,7 @@ class Update():
             server = binds['Server']
 
             response = subprocess.run(['git', 'clone', server], shell=True)
-            if response.returncode == 1:
+            if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git clone')
 
             self.r = {
@@ -133,11 +133,11 @@ class Update():
             app_path = app_path.replace('\\', '\\\\')
             
             response = subprocess.run(['copy', f'{dir_path}\\SESP\\*', app_path], shell=True)
-            if response.returncode == 1:
+            if response.returncode != 0:
                 raise Exception('Não foi possível fazer a cópia da pasta atualizada')
             
             response = subprocess.run(['rmdir', '/Q', '/S', f'{dir_path}\\SESP'], shell=True)
-            if response.returncode == 1:
+            if response.returncode != 0:
                 raise Exception('Não foi possível deletar a pasta de atualização')
 
             self.r = {
