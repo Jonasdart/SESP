@@ -13,3 +13,5 @@ A gestão de T.I. cadastra os problemas recorrentes, ou os que deseja disponibil
 
 
 ---
+
+__Author__ = [Jonas Duarte](https://github.com/duzzsys)
