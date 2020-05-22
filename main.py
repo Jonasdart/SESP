@@ -9,17 +9,12 @@ from os import system
 class Backend():
     def __init__(self):
         self.base_url = self.get_api_server()
-
-    def teste(self):
-        try:
-            computer_info = self.get_computer()
-
-            self.base_url = self.get_api_server()
-
-            inventory_number = computer_info['InventoryNumber']
-            self.rename_computer(inventory_number)
-        except Exception as e:
-            print(e)
+        
+        computer_info = self.get_computer()
+        inventory_number = computer_info['InventoryNumber']
+        
+        computer_data = self.get_computer_from_server(inventory_number)
+        self.rename_computer(computer_data)
 
 
     def get_api_server(self):
@@ -59,7 +54,14 @@ class Backend():
             "Database" : "GLPI"
         })
 
-        requests.post(url=url, json=data)
+        response = requests.post(url=url, json=data)
+        if response.status_code < 400:
+            response_json = json.loads(response.content.decode())
+        else:
+            response_json = json.loads(response.content.decode())
+            raise Exception(response_json['Message']['Error'])
+
+        return response_json
 
 
     def force_four_digits(self, inventory_number):
@@ -69,17 +71,25 @@ class Backend():
         return inventory_number
 
     
-    def rename_computer(self, inventory_number):
-        new_name = 'HAT'+self.force_four_digits(inventory_number)
+    def rename_computer(self, data):
+        try:
+            computer_name = data['Message']['1']['Name']
+        except:
+            raise Exception('Return incorrect')
+
+        new_name = computer_name
         old_name = node()
 
-        system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
+        if old_name != new_name:
+            alterar = input(f'Deseja alterar o nome do computador para "{new_name}" ?(S/n): ').upper()
+            if alterar == 'S':
+                system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
+                reiniciar = input('Reiniciar agora?(S/n): ').upper()
+                if reiniciar == 'S':
+                    subprocess.run(['shutdown', '-r', '-t', '1'])
+        else:
+            print('Name is already the same as the glpi')
 
-        reiniciar = input('Reiniciar agora?(S/n): ').upper()
-        if reiniciar == 'S':
-            subprocess.run(['shutdown', '-r', '-t', '1'])
 
-'''
 if __name__ == "__main__":
     Backend()
-'''
