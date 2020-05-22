@@ -6,15 +6,9 @@ from platform import node
 from os import system
 
 
-class Backend():
+class GetInfo():
     def __init__(self):
         self.base_url = self.get_api_server()
-        
-        computer_info = self.get_computer()
-        inventory_number = computer_info['InventoryNumber']
-        
-        computer_data = self.get_computer_from_server(inventory_number)
-        self.rename_computer(computer_data)
 
 
     def get_api_server(self):
@@ -24,6 +18,7 @@ class Backend():
         base_url = config.get('config_api', 'base_url')
 
         return base_url
+
 
     def get_computer(self):
         config = configparser.ConfigParser()
@@ -55,13 +50,36 @@ class Backend():
         })
 
         response = requests.post(url=url, json=data)
-        if response.status_code < 400:
-            response_json = json.loads(response.content.decode())
-        else:
-            response_json = json.loads(response.content.decode())
+        response_json = json.loads(response.content.decode())
+
+        if response.status_code >= 400:
             raise Exception(response_json['Message']['Error'])
 
         return response_json
+
+
+    def get_date_time(self):
+        url = self.base_url+'/get_date_time'
+        
+        response = requests.get(url)
+        response_json = json.loads(response.content.decode())
+        
+        if response.status_code >= 400:
+            raise Exception(response_json['Message']['Error'])
+
+        return response_json
+
+
+class Backend():
+    def __init__(self):
+        self.get_data = GetInfo()
+        self.alter_date_time(self.get_data.get_date_time())
+        
+        computer_info = self.get_data.get_computer()
+        inventory_number = computer_info['InventoryNumber']
+        
+        computer_data = self.get_data.get_computer_from_server(inventory_number)
+        self.rename_computer(computer_data)
 
 
     def force_four_digits(self, inventory_number):
@@ -89,6 +107,15 @@ class Backend():
                     subprocess.run(['shutdown', '-r', '-t', '1'])
         else:
             print('Name is already the same as the glpi')
+
+    
+    def alter_date_time(self, data):
+        date, string, status, time = self.get_data.get_date_time()
+
+        system(f'date {date}')
+        system(f'time {time}')
+
+        return True
 
 
 if __name__ == "__main__":

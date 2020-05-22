@@ -7,5 +7,5 @@ porém, com possibilidade de fácil atualização para futuras implementações.
 
 - [x] Gerenciador de atualização
   - [x] Configuração atualização GIT
-- [ ] Alterar nome do computador
+- [x] Alterar nome do computador
 - [ ] Alterar data e hora
