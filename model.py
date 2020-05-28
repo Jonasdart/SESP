@@ -32,6 +32,10 @@ class GetInfo():
 
         if inventory_number == '':
             inventory_number = input('Informe a etiqueta do computador: ')
+            config.set('computer', 'inventory_number', inventory_number)
+
+            with open('computer.cfg', 'w') as cfg:
+                config.write(cfg)
 
         return {
             'InventoryNumber' : inventory_number,
@@ -73,10 +77,10 @@ class GetInfo():
 class Backend():
     def __init__(self):
         self.get_data = GetInfo()
-        self.alter_date_time(self.get_data.get_date_time())
-        
         computer_info = self.get_data.get_computer()
         inventory_number = computer_info['InventoryNumber']
+        
+        self.alter_date_time(self.get_data.get_date_time())
         
         computer_data = self.get_data.get_computer_from_server(inventory_number)
         self.rename_computer(computer_data)
@@ -111,6 +115,7 @@ class Backend():
     
     def alter_date_time(self, data):
         date, string, status, time = self.get_data.get_date_time()
+        print(string, status)
 
         system(f'date {date}')
         system(f'time {time}')
@@ -119,4 +124,8 @@ class Backend():
 
 
 if __name__ == "__main__":
-    Backend()
+    try:
+        Backend()
+    except Exception as e:
+        print(e)
+        quit()
