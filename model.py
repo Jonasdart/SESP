@@ -128,4 +128,4 @@ if __name__ == "__main__":
         Backend()
     except Exception as e:
         print(e)
-        quit()
+        system('pause')
