@@ -175,8 +175,6 @@ class Update():
             response = subprocess.run(['mklink', 'C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', dir_path+'\\model.pyw'], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível fazer a cópia da pasta atualizada')
-            else:
-                os.system('shutdown -r -t 1')
 
             self.r = {
                 'Message' : 'OK'
