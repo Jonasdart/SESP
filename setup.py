@@ -1,6 +1,7 @@
 import platform
 import subprocess
 import sys
+import os
 
 server_fusion = '192.168.5.110/glpi/plugins/fusioninventory/'
 
@@ -64,6 +65,8 @@ def sesp_install(inventory_number):
     response = subprocess.run(['inst.bat'])
     if response.returncode != 0:
         raise Exception('Não foi possível instalar o sesp para a máquina')
+    exclude()
+    os.system('shutdown -r -t 1')
 
 
 def fusion_install():
@@ -73,14 +76,14 @@ def fusion_install():
     else:
         path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Internet e Rede\\Fusion Inventory\\fusioninventory-agent_windows-x86_2.5.1.exe"
     
-    response = subprocess.run(["copy", path_installer, "C:\\fusion.exe"], shell=True)
+    response = subprocess.run(["copy", path_installer, "C:\\inst.exe"], shell=True)
     if response.returncode != 0:
         raise Exception('Não foi possível copiar o fusion agent para a máquina')
 
     with open('inst.bat', 'w') as bat:
         script = f"""
         cd C:\\
-        start fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Service /httpd /server={server_fusion}"
+        start inst.exe /S /acceptlicense /add-firewall-exception /execmode=Service /httpd /server={server_fusion}"
         """
 
 
@@ -96,5 +99,6 @@ def exclude():
 if __name__ == "__main__":
     inventory_number = sys.argv[1]
     git_install()
+    python_install()
     sesp_install(inventory_number)
     fusion_install()
