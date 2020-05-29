@@ -114,8 +114,12 @@ class Backend():
 
     
     def alter_date_time(self, data):
-        date, string, status, time = self.get_data.get_date_time()
-        print(string, status)
+        print(data)
+
+        date = data['Date']
+        time = data['Time']
+        
+        print(date, time)
 
         system(f'date {date}')
         system(f'time {time}')
