@@ -1,6 +1,7 @@
 import configparser
 import os
 import subprocess
+import sys
 
 
 class Update():
@@ -152,5 +153,57 @@ class Update():
             }
         return self.r
 
+
+    def install_sesp(self, inventory_number):
+        try:
+            dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizações')[0]
+            dir_path = dir_path.replace('\\', '\\\\')
+            
+            conf = configparser.ConfigParser()
+            conf.read(f'{dir_path}\\computer.cfg')
+
+            conf.set('computer', 'inventory_number', inventory_number)
+
+            with open('computer.cfg', 'w') as cfg:
+                conf.write(cfg)
+
+            try:
+                self.install_dependencies()
+            except Exception as e:
+                raise Exception(e)
+
+            response = subprocess.run(['mklink', 'C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', dir_path+'\\model.pyw'], shell=True)
+            if response.returncode != 0:
+                raise Exception('Não foi possível fazer a cópia da pasta atualizada')
+            else:
+                os.system('shutdown -r -t 1')
+
+            self.r = {
+                'Message' : 'OK'
+            }
+            
+        except Exception as e:
+            self.r = {
+                'Message' : {
+                    'Error' : 'main.py install_sesp ' + str(e) 
+                }
+            }
+        return self.r
+
+
+    def install_dependencies(self):
+        with open('DEPENDENCIES.txt', 'r') as dp:
+            dependencies = dp.readlines()
+            for dependencie in dependencies:
+                response = subprocess.run(['pip', 'install', dependencie], shell=True)
+                if response.returncode != 0:
+                    raise Exception('Não foi possível fazer a cópia da pasta atualizada')
+
 if __name__ == "__main__":
-     Update()
+    args = sys.argv
+    inventory_number = args[1]
+    if len(args) == 3:
+        install = args[2]
+    update = Update()
+    if install == 'True':
+        update.install_sesp(inventory_number)
