@@ -190,7 +190,7 @@ class Update():
 
 
     def install_dependencies(self):
-        with open('DEPENDENCIES.txt', 'r') as dp:
+        with open('requirementes.txt', 'r') as dp:
             dependencies = dp.readlines()
             for dependencie in dependencies:
                 response = subprocess.run(['pip', 'install', dependencie], shell=True)
