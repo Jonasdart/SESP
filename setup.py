@@ -52,14 +52,14 @@ def python_install():
         raise Exception('Não foi possível instalar o python para a máquina')
 
 
-def sesp_install(inventory_number):
+def sesp_install():
     with open('inst.bat', 'w') as bat: 
         script = f"""
         cd C:\\install
         git clone https://github.com/duzzsys/SESP.git
         cd SESP
         git clone -b master_version https://github.com/duzzsys/SESP.git Atualizações       
-        start main.py {inventory_number} True
+        start main.py  True
         """
         bat.write(script)
     response = subprocess.run(['inst.bat'])
@@ -103,5 +103,5 @@ if __name__ == "__main__":
     inventory_number = sys.argv[1]
     git_install()
     python_install()
-    sesp_install(inventory_number)
+    sesp_install()
     fusion_install()
