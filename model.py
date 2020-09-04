@@ -52,6 +52,7 @@ class GetInfo():
             proxy_excessions = config.get('computer', 'proxy_excessions')
 
             if computer_inventorynumber == '':
+                print('\nSearching for a inventory number from GLPI, using the name of this computer...')
                 base_url = self.get_api_server()
                 url_request = base_url+'/computers/byname?name='+node()
                 response = requests.get(url_request)
@@ -73,6 +74,7 @@ class GetInfo():
                     raise('The name of this computer does not appear in the GLPI. Thus, it was not possible to find the inventory number of the same.')
                 
                 config.set('computer', 'inventory_number', computer_inventorynumber)
+                print(f'\nComputer inventory number: {computer_inventorynumber}')
                 with open('computer.cfg', 'w') as cfg:
                     config.write(cfg)
 
@@ -90,6 +92,7 @@ class GetInfo():
 
     def get_glpicomputer(self, computer_inventorynumber):
         try:
+            print(f'\nSearching info of this computer in GLPI...')
             url = self.base_url+'/computers/byinventory?number='+computer_inventorynumber
             response = requests.get(url)
             
@@ -166,12 +169,38 @@ class Backend():
                 raise Exception(response.text)
 
             if old_name != new_name:
+                print(f'\nAplying changes from GLPI in this computer...')
+                print(f'\nOld name = {old_name} | New name = {new_name}')
                 system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
                 subprocess.run(['shutdown', '-r', '-t', '60'])
+                return response.text, True
         except Exception as e:
             raise e
         
-        return response.text
+        return response.text, False
+
+
+    def force_inventory(self, computer_inventorynumber):
+        try:
+            if not self.rename_computer(computer_inventorynumber)[1]:
+                print(f'\nRequesting new inventory from FusionInventory...')
+                url = self.get_data.base_url+'/computers/byinventory'
+                request = {
+                    "inventory_number": computer_inventorynumber,
+                    "change_name": 0,
+                    "force_inventory": 1,
+                    "schedule_reboot":0,
+                    "schedule_shutdown":0
+                }
+                response = requests.put(url, json=request)
+                if response.status_code != 200:
+                    raise Exception(response.text)
+            else:
+                raise('A reboot is necessary to apply changes from GLPI to this computer')
+        except Exception as e:
+            raise e
+
+        return response        
 
 
     def force_four_digits(self, inventory_number):
@@ -194,10 +223,12 @@ class Controller():
             computer_info = self.model.get_data.get_computer()
             computer_inventorynumber = computer_info['InventoryNumber']
             #self.model.alter_date_time(self.model.get_data.get_date_time())
-            response = self.model.rename_computer(computer_inventorynumber)
-            print(response)
+            #response = self.model.rename_computer(computer_inventorynumber)
+            response = self.model.force_inventory(computer_inventorynumber)
         except Exception as e:
             raise e
+        
+        return response
 
 
 if __name__ == "__main__":
