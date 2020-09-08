@@ -9,6 +9,11 @@ from os import system
 class GetInfo():
     def __init__(self):
         self.base_url = self.get_api_server()
+        self.headers = {
+            'inventory_number' : None,
+            'computer_name'    : node(),
+            'sesp_version'     : None
+        }
 
     
     def get_dict_from_json(self, json):
@@ -27,6 +32,20 @@ class GetInfo():
             raise e
 
         return json
+
+    
+    def get_sesp_version(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('conf.cfg')
+
+            sesp_version = config.get('current_version', 'version')
+
+            self.headers['sesp_version'] = sesp_version
+        except Exception as e:
+            raise e
+
+        return sesp_version
 
 
     def get_api_server(self):
@@ -52,35 +71,15 @@ class GetInfo():
             proxy_excessions = config.get('computer', 'proxy_excessions')
 
             if computer_inventorynumber == '':
-                print('\nSearching for a inventory number from GLPI, using the name of this computer...')
-                base_url = self.get_api_server()
-                url_request = base_url+'/computers/byname?name='+node()
-                response = requests.get(url_request)
-
-                if response.status_code == 200:
-                    response = self.get_dict_from_json(response.content.decode())
-                    computer_id = None
-                    count=0
-                    for _computer in response.values():
-                        if computer_id != _computer['computer_id']:
-                            computer_id = _computer['computer_id']
-                            computer_inventorynumber = _computer['computer_inventorynumber']
-                            count += 1
-                    if count < 1:
-                        raise('The name of this computer does not appear in the GLPI. Thus, it was not possible to find the inventory number of the same.')
-                    elif count > 1:
-                        raise('The name of this computer appears on more than one computer in the GLPI. Thus, it was not possible to find the inventory number of the same.')
-                else:
-                    raise('The name of this computer does not appear in the GLPI. Thus, it was not possible to find the inventory number of the same.')
-                
+                computer_inventorynumber = self.get_glpi_inventory_number_by_name()
                 config.set('computer', 'inventory_number', computer_inventorynumber)
-                print(f'\nComputer inventory number: {computer_inventorynumber}')
                 with open('computer.cfg', 'w') as cfg:
                     config.write(cfg)
 
+            self.headers['inventory_number'] = computer_inventorynumber
+
         except Exception as e:
             raise e
-
 
         return {
             'InventoryNumber' : computer_inventorynumber,
@@ -89,12 +88,46 @@ class GetInfo():
             'ProxyExcessions' : proxy_excessions
         }
 
+    
+    def get_glpi_inventory_number_by_name(self):
+        try:
+            print('\nSearching for a inventory number from GLPI, using the name of this computer...')
+            base_url = self.get_api_server()
+            url_request = base_url+'/computers/byname?name='+node()
+            response = requests.get(url_request, headers=self.headers)
+
+            if response.status_code == 200:
+                response = self.get_dict_from_json(response.content.decode())
+                computer_id = None
+                count=0
+                for _computer in response.values():
+                    if computer_id != _computer['computer_id']:
+                        computer_id = _computer['computer_id']
+                        computer_inventorynumber = _computer['computer_inventorynumber']
+                        count += 1
+                if count < 1:
+                    raise('The name of this computer does not appear in the GLPI. Thus, it was not possible to find the inventory number of the same.')
+                elif count > 1:
+                    raise('The name of this computer appears on more than one computer in the GLPI. Thus, it was not possible to find the inventory number of the same.')
+            
+                print(f'\nComputer inventory number: {computer_inventorynumber}')
+                
+            elif response.status_code == 404:
+                raise('The name of this computer does not appear in the GLPI. Thus, it was not possible to find the inventory number of the same.')
+            else:
+                raise('Internal server error as occurred or the api server is not started. Please verificate.')
+        except Exception as e:
+            raise e
+        
+        
+        return computer_inventorynumber
+
 
     def get_glpicomputer(self, computer_inventorynumber):
         try:
             print(f'\nSearching info of this computer in GLPI...')
             url = self.base_url+'/computers/byinventory?number='+computer_inventorynumber
-            response = requests.get(url)
+            response = requests.get(url, headers=self.headers)
             
             if response.status_code >= 400:
                 raise Exception(response.text)
@@ -111,7 +144,7 @@ class GetInfo():
         try:
             url = self.base_url+'/get_date_time'
             
-            response = requests.get(url)
+            response = requests.get(url, headers=self.headers)
             response_json = self.get_dict_from_json(response.content.decode())
             
             if response.status_code >= 400:
@@ -164,7 +197,7 @@ class Backend():
                 new_name = 'HAT'+computer_inventorynumber
                 request['change_name'] = new_name
                 
-            response = requests.put(url, json=request)
+            response = requests.put(url, json=request, headers=self.headers)
             if response.status_code != 200:
                 raise Exception(response.text)
 
@@ -174,6 +207,8 @@ class Backend():
                 system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
                 subprocess.run(['shutdown', '-r', '-t', '60'])
                 return response.text, True
+
+            self.headers['computer_name'] = new_name
         except Exception as e:
             raise e
         
@@ -192,7 +227,7 @@ class Backend():
                     "schedule_reboot":0,
                     "schedule_shutdown":0
                 }
-                response = requests.put(url, json=request)
+                response = requests.put(url, json=request, headers=self.headers)
                 if response.status_code != 200:
                     raise Exception(response.text)
             else:
