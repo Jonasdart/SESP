@@ -4,17 +4,52 @@ import subprocess
 import sys
 
 
-class Update():
+class Installer():
     def __init__(self):
-        binds = self.get_binds()
+        self.binds = self.get_binds()
 
-        version = self.get_version(binds)
+
+    def install(self):
+        try:
+            dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizações')[0]
+            dir_path = dir_path.replace('\\', '\\\\')
+            
+            try:
+                self.install_dependencies()
+            except Exception as e:
+                raise Exception(e)
+
+            response = subprocess.run(['mklink', 'C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', dir_path+'\\model.pyw'], shell=True)
+            if response.returncode != 0:
+                raise Exception('Não foi possível fazer a cópia da pasta atualizada')
+
+            self.r = {
+                'Message' : 'OK'
+            }
+            
+        except Exception as e:
+            self.r = {
+                'Message' : {
+                    'Error' : 'main.py install_sesp ' + str(e) 
+                }
+            }
+        return self.r
+
+    
+    def install_dependencies(self):
+        response = subprocess.run(['pip', 'install', 'requirements.txt'], shell=True)
+        if response.returncode != 0:
+            raise Exception('Não foi possível fazer a instalação das dependências')
+
+
+    def update(self):
+        version = self.get_version(self.binds)
         need_to_update = self.need_to_update(version)
         
         print(need_to_update['Message'])
 
         if need_to_update['Message'] == True:
-            self.get_archives(binds)
+            self.get_archives(self.binds)
             self.save_archives()
 
 
@@ -154,54 +189,16 @@ class Update():
         return self.r
 
 
-    def install_sesp(self, inventory_number):
-        try:
-            dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizações')[0]
-            dir_path = dir_path.replace('\\', '\\\\')
-            
-            conf = configparser.ConfigParser()
-            conf.read(f'{dir_path}\\computer.cfg')
-
-            conf.set('computer', 'inventory_number', inventory_number)
-
-            with open('computer.cfg', 'w') as cfg:
-                conf.write(cfg)
-
-            try:
-                self.install_dependencies()
-            except Exception as e:
-                raise Exception(e)
-
-            response = subprocess.run(['mklink', 'C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', dir_path+'\\model.pyw'], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível fazer a cópia da pasta atualizada')
-
-            self.r = {
-                'Message' : 'OK'
-            }
-            
-        except Exception as e:
-            self.r = {
-                'Message' : {
-                    'Error' : 'main.py install_sesp ' + str(e) 
-                }
-            }
-        return self.r
-
-
-    def install_dependencies(self):
-        with open('requirementes.txt', 'r') as dp:
-            dependencies = dp.readlines()
-            for dependencie in dependencies:
-                response = subprocess.run(['pip', 'install', dependencie], shell=True)
-                if response.returncode != 0:
-                    raise Exception('Não foi possível fazer a cópia da pasta atualizada')
-
 if __name__ == "__main__":
     args = sys.argv
-    inventory_number = args[1]
-    if len(args) == 3:
-        install = args[2]
-    update = Update()
+    install = 'False'
+
+    if len(args) == 2:
+        install = args[1]
+
+    installer = Installer()
+
     if install == 'True':
-        update.install_sesp(inventory_number)
+        installer.install()
+    else:
+        installer.update()
