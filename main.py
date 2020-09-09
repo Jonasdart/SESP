@@ -85,7 +85,7 @@ class Installer():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            response = subprocess.run(["git", "pull", remote, branch_version], shell=True)
+            response = subprocess.run(["git", "pull"], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git pull')
 
@@ -99,6 +99,7 @@ class Installer():
                     'CurrentVersion' : current_version
                 }
             }
+            print(self.r)
         except Exception as e:
             self.r = {
                 'Message' : {
