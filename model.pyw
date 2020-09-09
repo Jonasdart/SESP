@@ -1,3 +1,10 @@
+#encoding utf-8
+
+#__author__ = Jonas Duarte, duarte.jsystem@gmail.com
+#Python3
+__author__ = 'Jonas Duarte'
+
+
 import configparser
 import subprocess
 import requests
@@ -60,6 +67,18 @@ class GetInfo():
         return base_url
 
 
+    def get_check_frequency_of_schedule(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('conf.cfg')
+
+            check_frequency = config.get('schedule', 'check_frequency')
+        except Exception as e:
+            raise e
+
+        return int(check_frequency)
+
+
     def get_computer(self):
         try:
             config = configparser.ConfigParser()
@@ -71,7 +90,8 @@ class GetInfo():
             proxy_excessions = config.get('computer', 'proxy_excessions')
 
             if computer_inventorynumber == '':
-                computer_inventorynumber = self.get_glpi_inventory_number_by_name()
+                #computer_inventorynumber = self.get_glpi_inventory_number_by_name()
+                computer_inventorynumber = self.get_glpi_inventory_number_by_node()
                 config.set('computer', 'inventory_number', computer_inventorynumber)
                 with open('computer.cfg', 'w') as cfg:
                     config.write(cfg)
@@ -122,10 +142,29 @@ class GetInfo():
         
         return computer_inventorynumber
 
+    
+    def get_glpi_inventory_number_by_node(self):
+        try:
+            print('\nSearching for a inventory number from GLPI, using the node of this computer...')
+            name = node()
+            computer_inventorynumber = name.split('HAT')
 
-    def get_glpicomputer(self, computer_inventorynumber):
+            if len(computer_inventorynumber) == 2 and len(computer_inventorynumber[1]) == 4:
+                computer_inventorynumber = computer_inventorynumber[1]
+            else:
+                raise 'The node of this computer is out of defaults'
+
+        except Exception as e:
+            raise e
+        
+        
+        return computer_inventorynumber
+
+
+    def get_sesp_computer(self):
         try:
             print(f'\nSearching info of this computer in GLPI...')
+            computer_inventorynumber = self.headers['inventory_number']
             url = self.base_url+'/computers/byinventory?number='+computer_inventorynumber
             response = requests.get(url, headers=self.headers)
             
@@ -178,15 +217,15 @@ class Backend():
         return True
 
     
-    def rename_computer(self, computer_inventorynumber, rename_in_glpi=False):
+    def rename_computer(self, rename_in_glpi=False):
         try:
+            computer_inventorynumber = self.get_data.headers['inventory_number']
             old_name = node()
-            computer_info = self.get_data.get_glpicomputer(computer_inventorynumber)
-            new_name = computer_info["1"]['computer_name']
+            glpi_info = self.get_data.get_sesp_computer()['glpi']
+            new_name = glpi_info["1"]['computer_name']
 
             url = self.get_data.base_url+'/computers/byinventory'
             request = {
-                "inventory_number": computer_inventorynumber,
                 "change_name": 0,
                 "force_inventory": 0,
                 "schedule_reboot":0,
@@ -197,7 +236,7 @@ class Backend():
                 new_name = 'HAT'+computer_inventorynumber
                 request['change_name'] = new_name
                 
-            response = requests.put(url, json=request, headers=self.headers)
+            response = requests.put(url, json=request, headers=self.get_data.headers)
             if response.status_code != 200:
                 raise Exception(response.text)
 
@@ -205,29 +244,29 @@ class Backend():
                 print(f'\nAplying changes from GLPI in this computer...')
                 print(f'\nOld name = {old_name} | New name = {new_name}')
                 system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
-                subprocess.run(['shutdown', '-r', '-t', '60'])
+                self.reboot()
+
                 return response.text, True
 
-            self.headers['computer_name'] = new_name
+            self.get_data.headers['computer_name'] = new_name
         except Exception as e:
             raise e
         
         return response.text, False
 
 
-    def force_inventory(self, computer_inventorynumber):
+    def force_inventory(self):
         try:
-            if not self.rename_computer(computer_inventorynumber)[1]:
+            if not self.rename_computer()[1]:
                 print(f'\nRequesting new inventory from FusionInventory...')
                 url = self.get_data.base_url+'/computers/byinventory'
                 request = {
-                    "inventory_number": computer_inventorynumber,
                     "change_name": 0,
                     "force_inventory": 1,
                     "schedule_reboot":0,
                     "schedule_shutdown":0
                 }
-                response = requests.put(url, json=request, headers=self.headers)
+                response = requests.put(url, json=request, headers=self.get_data.headers)
                 if response.status_code != 200:
                     raise Exception(response.text)
             else:
@@ -248,26 +287,15 @@ class Backend():
         return inventory_number
 
 
-class Controller():
-    def __init__(self):
-        self.model = Backend()
-    
-
-    def start(self):
+    def reboot(self):
         try:
-            computer_info = self.model.get_data.get_computer()
-            computer_inventorynumber = computer_info['InventoryNumber']
-            #self.model.alter_date_time(self.model.get_data.get_date_time())
-            #response = self.model.rename_computer(computer_inventorynumber)
-            response = self.model.force_inventory(computer_inventorynumber)
+            subprocess.run(['shutdown', '-r', '-t', '60'])
         except Exception as e:
             raise e
-        
-        return response
 
 
-if __name__ == "__main__":
-    try:
-        Controller().start()
-    except Exception as e:
-        raise e
+    def shutdown(self):
+        try:
+            subprocess.run(['shutdown', '-s', '-t', '60'])
+        except Exception as e:
+            raise e
