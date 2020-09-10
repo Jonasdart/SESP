@@ -25,7 +25,7 @@ class Controller():
             #response = self.model.force_inventory()
             #os.system('python schedule.pyw')
             
-            tray = sg.SystemTray()
+            tray = sg.SystemTray(filename='icone_sesp.png', tooltip='SESP')
             title = 'SESP'
             body = 'Atualizando...'
             tray.notify(title, body)
