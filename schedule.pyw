@@ -26,8 +26,8 @@ class Schedule():
             print('\n\nChecking new Inventory solicitation...')
             next_fusion_inventory = datetime.strptime(computer['next_fusion_inventory'], '%Y-%m-%d %H:%M')
             if next_fusion_inventory <= datetime.now():
-                self.title = 'Fusion iniciado'
-                self.body = 'O fusion está realizando um novo inventário de software'
+                self.title = 'SESP'
+                self.body = 'Novo inventário de software enviado!'
                 self.tray.notify(self.title, self.body)
                 self.model.force_inventory()
         except Exception as e:
