@@ -10,6 +10,7 @@ from Atualizacoes.install import Update
 import os
 import subprocess
 from PySimpleGUI import SystemTray
+from time import sleep
 
 
 class Controller():
@@ -29,11 +30,14 @@ class Controller():
             body = 'Atualizando...'
             SystemTray().notify(title, body)
 
-
             Update().start()
             Schedule().start()
         except Exception as e:
-            raise e
+            title = 'Erro'
+            body = str(e)
+            SystemTray().notify(title, body)
+            sleep(5)
+            self.start()
         
         #return response
 
