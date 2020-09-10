@@ -77,7 +77,11 @@ class Schedule():
                 time.sleep(5)
                 self.start()
             else:
-                raise e
+                self.title = 'Erro adverso'
+                self.body = 'O SESP encontrou erros. Entre em contato com o T.I.'
+                self.tray.notify(self.title, self.body, icon=None)
+                time.sleep(5)
+                self.start()
 
 
 if __name__ == "__main__":
