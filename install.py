@@ -170,11 +170,16 @@ class Update():
     def get_binds(self):
         try:
             conf = configparser.ConfigParser()
-            conf.read('Atualizacoes\\conf.cfg')
-
-            remote = conf.get('git_repo', 'remote')
-            server = conf.get('git_repo' ,'server')
-            branch_version = conf.get('git_repo', 'branch_version')
+            try:
+                conf.read('Atualizacoes\\conf.cfg')
+                remote = conf.get('git_repo', 'remote')
+                server = conf.get('git_repo' ,'server')
+                branch_version = conf.get('git_repo', 'branch_version')
+            except Exception as e:
+                conf.read('conf.cfg')
+                remote = conf.get('git_repo', 'remote')
+                server = conf.get('git_repo' ,'server')
+                branch_version = conf.get('git_repo', 'branch_version')            
 
             bind = {
                 'Remote' : remote,
