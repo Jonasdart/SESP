@@ -9,7 +9,6 @@ from schedule import Schedule
 from Atualizacoes.install import Update
 import os
 import subprocess
-import PySimpleGUIQt as sg
 
 
 class Controller():
@@ -23,7 +22,6 @@ class Controller():
             #self.model.alter_date_time(self.model.get_data.get_date_time())
             #response = self.model.rename_computer(computer_inventorynumber)
             #response = self.model.force_inventory()
-            tray = sg.SystemTray(filename=r'ico.ico')
             #os.system('python schedule.pyw')
             Update().start()
             Schedule().start()
