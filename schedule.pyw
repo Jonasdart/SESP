@@ -18,7 +18,7 @@ class Schedule():
         self.model = Backend()
         self.tray = sg.SystemTray()
         self.title = 'O SESP Iniciou'
-        self.body = 'O seu SESP foi iniciado!'
+        self.body = ''
         self.tray.notify(self.title, self.body)
 
     def _fusion_inventory_check(self, computer):
