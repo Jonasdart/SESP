@@ -125,9 +125,7 @@ class Installer():
                 bat.write(script)
             os.system('C:\\.SESP\\Sesp.bat')
             
-            response = subprocess.run(['mklink', 'C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup', 'C:\\SESP\\start.pyw'], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível fazer a cópia da pasta atualizada')
+            self.create_link_to_startup()
             
             shutil.rmtree('C:\\.SESP')
             
@@ -135,6 +133,22 @@ class Installer():
         except Exception as e:
             raise e
         return True
+
+
+    def create_link_to_startup(self):
+        import win32com.client
+
+        desktop = "C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        path = os.path.join(desktop, "SESP.lnk")
+        target = "C:\\SESP\\start.pyw"
+        icon = "C:\\SESP\\icone_sesp.ico" # not needed, but nice
+
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(path)
+        shortcut.Targetpath = target
+        shortcut.IconLocation = icon
+        shortcut.WindowStyle = 7 
+        shortcut.save()
 
 
 class Update():
