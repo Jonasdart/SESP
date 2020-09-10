@@ -6,6 +6,7 @@ import sys
 import shutil
 import time
 import os
+from PySimpleGUI import SystemTray
 
 
 class Computer():
@@ -24,11 +25,9 @@ class Computer():
     def create_path_of_installers(self):
         try:
             response = subprocess.run(["mkdir", "C:\\installers"], shell=True)
-            if response.returncode != 0:
-                print('Não foi preciso criar o diretório\n')
+
             response = subprocess.run(["mkdir", "C:\\.SESP"], shell=True)
-            if response.returncode != 0:
-                print('Não foi preciso criar o diretório\n')
+
 
         except Exception as e:
             raise e
@@ -102,14 +101,15 @@ class Installer():
 
     def sesp_install(self):
         try:
-            os.system('cls')
-            print('Aguardando a instalação do GIT')
             try:
                 self.computer_controller.exclude_path_of_installers()
             except:
                 time.sleep(2)
                 self.sesp_install()
-            print('Instalando o SESP')
+                
+            self.title = 'Instalando o SESP'
+            self.body = ''
+            SystemTray().notify(self.title, self.body)
 
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
@@ -218,7 +218,12 @@ class Update():
                     'CurrentVersion' : current_version
                 }
             }
-            print(self.r)
+            
+
+            self.title = ''
+            self.body = self.r['Message']['CurrentVersion']
+            SystemTray().notify(self.title, self.body)
+
         except Exception as e:
             raise e
         return self.r
@@ -238,8 +243,6 @@ class Update():
                 self.r = {
                     'Message' : True
                 }
-            else:
-                print('Already updated')
             
         except Exception as e:
             raise e
@@ -309,10 +312,20 @@ class Controller():
 
 
     def install(self):
-        try:
+        try:            
             self.installer.python_install()
+
+            self.title = 'Aguardando a instalação do Python3'
+            self.body = ''
+            SystemTray().notify(self.title, self.body)
+
             self.installer.git_install()
             self.installer.install_dependencies()
+
+            self.title = 'Aguardando a instalação do GIT'
+            self.body = ''
+            SystemTray().notify(self.title, self.body)
+
             self.installer.sesp_install()
         except Exception as e:
             raise e
