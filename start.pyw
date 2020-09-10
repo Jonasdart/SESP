@@ -9,6 +9,7 @@ from schedule import Schedule
 from Atualizacoes.install import Update
 import os
 import subprocess
+import pysimplegui as pg
 
 
 class Controller():
@@ -23,6 +24,13 @@ class Controller():
             #response = self.model.rename_computer(computer_inventorynumber)
             #response = self.model.force_inventory()
             #os.system('python schedule.pyw')
+            
+            tray = sg.SystemTray()
+            title = 'SESP'
+            body = 'Atualizando...'
+            tray.notify(title, body)
+
+
             Update().start()
             Schedule().start()
         except Exception as e:
