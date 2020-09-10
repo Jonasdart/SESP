@@ -111,7 +111,6 @@ class GetInfo():
     
     def get_glpi_inventory_number_by_name(self):
         try:
-            print('\nSearching for a inventory number from GLPI, using the name of this computer...')
             base_url = self.get_api_server()
             url_request = base_url+'/computers/byname?name='+node()
             response = requests.get(url_request, headers=self.headers)
@@ -130,7 +129,6 @@ class GetInfo():
                 elif count > 1:
                     raise('The name of this computer appears on more than one computer in the GLPI. Thus, it was not possible to find the inventory number of the same.')
             
-                print(f'\nComputer inventory number: {computer_inventorynumber}')
                 
             elif response.status_code == 404:
                 raise('The name of this computer does not appear in the GLPI. Thus, it was not possible to find the inventory number of the same.')
@@ -145,7 +143,6 @@ class GetInfo():
     
     def get_glpi_inventory_number_by_node(self):
         try:
-            print('\nSearching for a inventory number from GLPI, using the node of this computer...')
             name = node()
             computer_inventorynumber = name.split('HAT')
 
@@ -163,7 +160,6 @@ class GetInfo():
 
     def get_sesp_computer(self):
         try:
-            print(f'\nSearching info of this computer...')
             computer_inventorynumber = self.headers['inventory_number']
             url = self.base_url+'/computers/byinventory?number='+computer_inventorynumber
             response = requests.get(url, headers=self.headers)
@@ -201,12 +197,10 @@ class Backend():
 
     def alter_date_time(self, data):
         try:
-            print(data)
 
             date = data['Date']
             time = data['Time']
             
-            print(date, time)
 
             system(f'date {date}')
             system(f'time {time}')
@@ -241,9 +235,7 @@ class Backend():
                 raise Exception(response.text)
 
             if old_name != new_name:
-                print(f'\nAplying changes from GLPI in this computer...')
-                print(f'\nOld name = {old_name} | New name = {new_name}')
-                system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
+                subprocess.run(['wmic', 'computersystem', 'where', f'name="{old_name}"', f'rename "{new_name}"'])
                 self.reboot()
 
                 return response.text, True
@@ -258,7 +250,6 @@ class Backend():
     def force_inventory(self):
         try:
             if not self.rename_computer()[1]:
-                print(f'\nRequesting new inventory from FusionInventory...')
                 url = self.get_data.base_url+'/computers/byinventory'
                 request = {
                     "change_name": 0,
