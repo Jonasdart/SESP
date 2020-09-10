@@ -163,7 +163,7 @@ class GetInfo():
 
     def get_sesp_computer(self):
         try:
-            print(f'\nSearching info of this computer in GLPI...')
+            print(f'\nSearching info of this computer...')
             computer_inventorynumber = self.headers['inventory_number']
             url = self.base_url+'/computers/byinventory?number='+computer_inventorynumber
             response = requests.get(url, headers=self.headers)
