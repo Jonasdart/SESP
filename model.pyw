@@ -236,7 +236,6 @@ class Backend():
 
             if old_name != new_name:
                 subprocess.run(['wmic', 'computersystem', 'where', f'name="{old_name}"', f'rename "{new_name}"'])
-                self.reboot()
 
                 return response.text, True
 

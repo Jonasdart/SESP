@@ -63,7 +63,12 @@ class Schedule():
                 self.model.get_data.get_computer()
                 computer = self.model.get_data.get_sesp_computer()['sesp']['1']
 
-                self._fusion_inventory_check(computer)
+                if self.model.rename_computer()[1]:
+                    self.title = 'Reinicie o computador'
+                    self.body = 'O SESP alterou o nome do seu computador, com base no GLPI. Reinicie o computador, assim que possível.'
+                    self.tray.notify(self.title, self.body, icon=None)
+                else:
+                    self._fusion_inventory_check(computer)
                 self._reboot_check(computer)
                 self._shutdown_check(computer)
 
