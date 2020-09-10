@@ -5,13 +5,11 @@
 __author__ = 'Jonas Duarte'
 
 from model import Backend
+from schedule import Schedule
+from Atualizacoes.install import Update
 import os
 import subprocess
-
 import PySimpleGUIQt as sg
-
-
-
 
 
 class Controller():
@@ -26,7 +24,9 @@ class Controller():
             #response = self.model.rename_computer(computer_inventorynumber)
             #response = self.model.force_inventory()
             tray = sg.SystemTray(filename=r'ico.ico')
-            os.system('python schedule.pyw')
+            #os.system('python schedule.pyw')
+            Update().start()
+            Schedule().start()
         except Exception as e:
             raise e
         
