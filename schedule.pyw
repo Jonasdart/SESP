@@ -10,7 +10,8 @@ from datetime import datetime
 import time
 import requests
 import os
-import PySimpleGUI as sg
+import PySimpleGUIQt as sg
+from PySimpleGUI import SystemTray
 
 
 class Schedule():
@@ -19,17 +20,16 @@ class Schedule():
         self.tray = sg.SystemTray(filename='icone_sesp.png', tooltip='SESP')
         self.title = 'O SESP Iniciou'
         self.body = ''
-        self.tray.notify(self.title, self.body)
+        SystemTray().notify(self.title, self.body)
 
     def _fusion_inventory_check(self, computer):
         try:
-            print('\n\nChecking new Inventory solicitation...')
             next_fusion_inventory = datetime.strptime(computer['next_fusion_inventory'], '%Y-%m-%d %H:%M')
             if next_fusion_inventory <= datetime.now():
+                self.model.force_inventory()
                 self.title = 'SESP'
                 self.body = 'Novo inventário de software enviado!'
-                self.tray.notify(self.title, self.body)
-                self.model.force_inventory()
+                SystemTray.notify(self.title, self.body)
         except Exception as e:
             print(e)
 
@@ -66,7 +66,7 @@ class Schedule():
                 if self.model.rename_computer()[1]:
                     self.title = 'Reinicie o computador'
                     self.body = 'O SESP alterou o nome do seu computador, com base no GLPI. Reinicie o computador, assim que possível.'
-                    self.tray.notify(self.title, self.body, icon=None)
+                    SystemTray.notify(self.title, self.body, icon=None)
                 else:
                     self._fusion_inventory_check(computer)
                 self._reboot_check(computer)
@@ -77,13 +77,13 @@ class Schedule():
             if 'Failed to establish a new connection' in str(e):
                 self.title = 'Falha ao se conectar à API'
                 self.body = 'O SESP não conseguiu se conectar à API, entre em contato com o T.I.'
-                self.tray.notify(self.title, self.body, icon=None)
+                SystemTray.notify(self.title, self.body, icon=None)
                 time.sleep(5)
                 self.start()
             else:
                 self.title = 'Erro adverso'
                 self.body = 'O SESP encontrou erros. Entre em contato com o T.I.'
-                self.tray.notify(self.title, str(e), icon=None)
+                SystemTray.notify(self.title, str(e), icon=None)
                 time.sleep(5)
                 self.start()
 
