@@ -28,6 +28,7 @@ class Controller():
             
             title = 'SESP'
             body = 'Atualizando...'
+            print('hellooo')
             SystemTray().notify(title, body)
 
             Update().start()
