@@ -32,10 +32,12 @@ class Controller():
 
             Update().start()
             Schedule().start()
-        except Exception as e:
+        except Exception as e:                
             title = 'Erro'
             body = str(e)
             SystemTray().notify(title, body, icon=None)
+            if 'O nome do computador está fora dos padrões, no GLPI. Comunique a T.I.' in str(e):
+                sleep(3595)
             sleep(5)
             self.start()
         

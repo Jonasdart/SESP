@@ -149,7 +149,7 @@ class GetInfo():
             if len(computer_inventorynumber) == 2 and len(computer_inventorynumber[1]) == 4:
                 computer_inventorynumber = computer_inventorynumber[1]
             else:
-                raise 'The node of this computer is out of defaults'
+                raise 'O nome do computador está fora dos padrões, no GLPI. Comunique a T.I.'
 
         except Exception as e:
             raise e
