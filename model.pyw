@@ -235,7 +235,7 @@ class Backend():
                 raise Exception(response.text)
 
             if old_name != new_name:
-                subprocess.run(['wmic', 'computersystem', 'where', f'name="{old_name}"', f'rename {new_name}'])
+                subprocess.run(['wmic', 'computersystem', 'where', f'name="{old_name}"', 'rename', f'"{new_name}"'])
 
                 return response.text, True
 
