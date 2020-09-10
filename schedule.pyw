@@ -17,6 +17,7 @@ from PySimpleGUI import SystemTray
 class Schedule():
     def __init__(self):
         self.model = Backend()
+        tray = sg.SystemTray(filename='icone_sesp.ico', tooltip='SESP')
         self.title = 'O SESP Iniciou'
         self.body = ''
         SystemTray().notify(self.title, self.body)

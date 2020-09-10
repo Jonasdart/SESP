@@ -9,7 +9,6 @@ from schedule import Schedule
 from Atualizacoes.install import Update
 import os
 import subprocess
-import PySimpleGUIQt as sg
 from PySimpleGUI import SystemTray
 
 
@@ -26,7 +25,6 @@ class Controller():
             #response = self.model.force_inventory()
             #os.system('python schedule.pyw')
             
-            tray = sg.SystemTray(filename='icone_sesp.ico', tooltip='SESP')
             title = 'SESP'
             body = 'Atualizando...'
             SystemTray().notify(title, body)
