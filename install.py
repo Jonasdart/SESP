@@ -148,6 +148,7 @@ class Update():
 
 
         if need_to_update['Message'] == True:
+            Installer().install_dependencies()
             self.get_archives(self.binds)
             self.save_archives()
 
