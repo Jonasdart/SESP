@@ -181,6 +181,10 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
+            response = subprocess.run(['git', 'restore', '.'], shell=True)
+            if response.returncode != 0:
+                raise Exception('Não foi possível restaurar a versão')
+
             response = subprocess.run(["git", "pull"], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git pull')
