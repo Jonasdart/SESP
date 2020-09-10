@@ -11,6 +11,7 @@ import requests
 import json as Json
 from platform import node
 from os import system
+from exceptions import ComputerNameOutOfDefaults
 
 
 class GetInfo():
@@ -149,7 +150,7 @@ class GetInfo():
             if len(computer_inventorynumber) == 2 and len(computer_inventorynumber[1]) == 4:
                 computer_inventorynumber = computer_inventorynumber[1]
             else:
-                raise 'O nome do computador está fora dos padrões, no GLPI. Comunique a T.I.'
+                raise ComputerNameOutOfDefaults
 
         except Exception as e:
             raise e
