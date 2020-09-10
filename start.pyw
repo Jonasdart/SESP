@@ -9,7 +9,7 @@ from schedule import Schedule
 from Atualizacoes.install import Update
 import os
 import subprocess
-import PySimpleGUI as pg
+import PySimpleGUI as sg
 
 
 class Controller():
