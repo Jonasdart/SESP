@@ -35,7 +35,7 @@ class Controller():
         except Exception as e:
             title = 'Erro'
             body = str(e)
-            SystemTray().notify(title, body)
+            SystemTray().notify(title, body, icon=None)
             sleep(5)
             self.start()
         
