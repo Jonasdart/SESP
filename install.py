@@ -26,9 +26,6 @@ class Computer():
         try:
             response = subprocess.run(["mkdir", "C:\\installers"], shell=True)
 
-            response = subprocess.run(["mkdir", "C:\\.SESP"], shell=True)
-
-
         except Exception as e:
             raise e
 
@@ -71,7 +68,7 @@ class Installer():
     
     def install_dependencies(self):
         try:
-            os.system('pip install requirements.txt')
+            os.system('pip install -r requirements.txt')
         except Exception as e:
             raise e
 
@@ -111,8 +108,7 @@ class Installer():
             self.body = ''
             SystemTray().notify(self.title, self.body)
 
-            if not self.computer_controller.path_of_installer_is_created:
-                self.computer_controller.create_path_of_installers()
+            response = subprocess.run(["mkdir", "C:\\.SESP"], shell=True)
 
             with open('C:\\.SESP\\Sesp.bat', 'w') as bat: 
                 script = f"""
@@ -125,7 +121,7 @@ class Installer():
                 bat.write(script)
             os.system('C:\\.SESP\\Sesp.bat')
             
-            self.create_link_to_startup()
+            #self.create_link_to_startup()
             
             shutil.rmtree('C:\\.SESP')
             
