@@ -77,6 +77,14 @@ class Installer():
     
     def git_install(self):
         try:
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
+                
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
@@ -98,11 +106,13 @@ class Installer():
 
     def sesp_install(self):
         try:
-            try:
-                self.computer_controller.exclude_path_of_installers()
-            except:
-                time.sleep(2)
-                self.sesp_install()
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
                 
             self.title = 'Instalando o SESP'
             self.body = ''
@@ -121,7 +131,7 @@ class Installer():
                 bat.write(script)
             os.system('C:\\.SESP\\Sesp.bat')
             
-            #self.create_link_to_startup()
+            self.create_link_to_startup()
             
             shutil.rmtree('C:\\.SESP')
             
