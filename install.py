@@ -42,6 +42,20 @@ class Computer():
         self.path_of_installer_is_created = False
         return True
 
+    
+    def get_fusion_server(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('conf.cfg')
+
+            fusion_server = config.get('fusion', 'server')
+
+        except Exception as e:
+            raise e
+        
+        return fusion_server
+
+
 
 class Installer():
     def __init__(self):
@@ -155,6 +169,42 @@ class Installer():
         shortcut.IconLocation = icon
         shortcut.WindowStyle = 7 
         shortcut.save()
+
+    
+    def fusion_install(self):
+        try:
+            self.title = 'Instalando o Fusion Inventory Agent'
+            self.body = ''
+            SystemTray().notify(self.title, self.body)
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
+                
+            if not self.computer_controller.path_of_installer_is_created:
+                self.computer_controller.create_path_of_installers()
+
+            so, arch, name = Computer().get_computer_platform()
+            if '64' in arch:
+                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"
+            else:
+                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
+            
+            response = subprocess.run(["copy", path_installer, "C:\\install\\Fusion.exe"], shell=True)
+            if response.returncode != 0:
+                raise Exception('Não foi possível copiar o fusion agent para a máquina')
+            
+            fusion_server = Computer().get_fusion_server()
+            
+            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Service /httpd /server="{fusion_server}"')
+
+            
+        except Exception as e:
+            raise e
+        return True
 
 
 class Update():
