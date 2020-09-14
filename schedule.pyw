@@ -53,6 +53,14 @@ class Schedule():
         except Exception as e:
             print(e)
 
+    
+    def _fusion_inventory_install(self):
+        try:
+            self.model.fusion_install()
+
+        except Exception as e:
+            print(e)
+
 
     def start(self):
         try:
@@ -68,7 +76,10 @@ class Schedule():
                     self.body = 'O SESP alterou o nome do seu computador, com base no GLPI. Reinicie o computador, assim que possível.'
                     SystemTray.notify(self.title, self.body, icon=None)
                 else:
-                    self._fusion_inventory_check(computer)
+                    if computer['status'] == 2:
+                        self._fusion_inventory_install()
+                    else:
+                        self._fusion_inventory_check(computer)
                 self._reboot_check(computer)
                 self._shutdown_check(computer)
 

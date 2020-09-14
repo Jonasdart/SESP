@@ -12,6 +12,7 @@ import json as Json
 from platform import node
 from os import system
 from exceptions import ComputerNameOutOfDefaults
+from Atualizacoes.install import Installer
 
 
 class GetInfo():
@@ -194,6 +195,17 @@ class GetInfo():
 class Backend():
     def __init__(self):
         self.get_data = GetInfo()
+
+
+    def fusion_install(self):
+        try:
+            Installer().fusion_install()
+
+            url = self.get_data.base_url+'/computers/byinventory?status=6'
+            requests.patch(url, headers=self.get_data.headers)
+
+        except:
+            raise
         
 
     def alter_date_time(self, data):
