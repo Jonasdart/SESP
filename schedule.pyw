@@ -18,18 +18,13 @@ class Schedule():
     def __init__(self):
         self.model = Backend()
         tray = sg.SystemTray(filename='icone_sesp.ico', tooltip='SESP')
-        self.title = 'O SESP Iniciou'
-        self.body = ''
-        SystemTray().notify(self.title, self.body)
+        
 
     def _fusion_inventory_check(self, computer):
         try:
             next_fusion_inventory = datetime.strptime(computer['next_fusion_inventory'], '%Y-%m-%d %H:%M')
             if next_fusion_inventory <= datetime.now():
                 self.model.force_inventory()
-                self.title = 'SESP'
-                self.body = 'Novo inventário de software enviado!'
-                SystemTray.notify(self.title, self.body)
         except Exception as e:
             print(e)
 
@@ -86,15 +81,9 @@ class Schedule():
                 time.sleep(check_frequency)
         except Exception as e:
             if 'Failed to establish a new connection' in str(e):
-                self.title = 'Falha ao se conectar à API'
-                self.body = 'O SESP não conseguiu se conectar à API, entre em contato com o T.I.'
-                SystemTray.notify(self.title, self.body, icon=None)
                 time.sleep(5)
                 self.start()
             else:
-                self.title = 'Erro adverso'
-                self.body = 'O SESP encontrou erros. Entre em contato com o T.I.'
-                SystemTray.notify(self.title, str(e), icon=None)
                 time.sleep(5)
                 self.start()
 
