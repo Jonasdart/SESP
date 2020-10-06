@@ -25,6 +25,8 @@ class Computer():
 
     def create_path_of_installers(self):
         try:
+            os.system('net use W: /delete >nul')
+            os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x /persistent:yes')
             response = subprocess.run(["mkdir", "C:\\installers"], shell=True)
 
         except Exception as e:
@@ -378,9 +380,6 @@ class Controller():
 
     def install(self):
         try:
-            os.system('net use W: /delete >nul')
-            os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x /persistent:yes')
-
             self.installer.python_install()
             self.title = 'Aguardando a instalação do Python3'
             self.body = ''
