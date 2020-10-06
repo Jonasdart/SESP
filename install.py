@@ -184,6 +184,10 @@ class Installer():
             self.title = 'Instalando o Fusion Inventory Agent'
             self.body = ''
             SystemTray().notify(self.title, self.body)
+
+            if not self.computer_controller.path_of_installer_is_created:
+                self.computer_controller.create_path_of_installers()
+
             while True:
                 try:
                     self.computer_controller.exclude_path_of_installers()
@@ -212,6 +216,14 @@ class Installer():
             
         except Exception as e:
             raise e
+        finally:
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
         return True
 
 
