@@ -207,7 +207,7 @@ class Installer():
             else:
                 path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
             
-            response = subprocess.run(["copy", path_installer, "C:\\install\\Fusion.exe"], shell=True)
+            response = subprocess.run(["copy", path_installer, "C:\\installers\\Fusion.exe"], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível copiar o fusion agent para a máquina')
             
