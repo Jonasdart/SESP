@@ -276,11 +276,11 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            response = subprocess.run(['cd', 'C:\\SESP\Atualizacoes;', 'git', 'restore', '.'], shell=True)
+            response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;', 'git', 'restore', '.'], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível restaurar a versão')
 
-            response = subprocess.run(['cd', 'C:\\SESP\Atualizacoes;','git', 'pull'], shell=True)
+            response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;','git', 'pull'], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git pull')
 
