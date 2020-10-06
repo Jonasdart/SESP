@@ -216,14 +216,7 @@ class Installer():
             
         except Exception as e:
             raise e
-        finally:
-            while True:
-                try:
-                    self.computer_controller.exclude_path_of_installers()
-                except:
-                    time.sleep(2)
-                else:
-                    break
+
         return True
 
 
