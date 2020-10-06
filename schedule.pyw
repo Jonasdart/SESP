@@ -59,7 +59,6 @@ class Schedule():
 
     def start(self):
         try:
-            
             while True:
                 check_frequency = GetInfo().get_check_frequency_of_schedule()
                 
@@ -80,6 +79,9 @@ class Schedule():
 
                 time.sleep(check_frequency)
         except Exception as e:
+            self.title = 'Erro'
+            self.body = str(e)
+            SystemTray.notify(self.title, self.body, icon=None)
             if 'Failed to establish a new connection' in str(e):
                 time.sleep(5)
                 self.start()
