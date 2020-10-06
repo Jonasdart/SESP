@@ -1,3 +1,5 @@
 requests
 pysimplegui
 pywin32
+PySimpleGUIQt
+PySimpleGUI

@@ -7,6 +7,7 @@ import shutil
 import time
 import os
 from PySimpleGUI import SystemTray
+import win32com.client
 
 
 class Computer():
@@ -56,7 +57,6 @@ class Computer():
         return fusion_server
 
 
-
 class Installer():
     def __init__(self):
         self.computer_controller = Computer()
@@ -64,13 +64,21 @@ class Installer():
 
     def python_install(self):
         try:
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
+
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
+                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
             else:
-                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
+                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
             response = subprocess.run(["copy", path_installer, "C:\\installers\\Python.exe"], shell=True)
 
             os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
@@ -82,7 +90,16 @@ class Installer():
     
     def install_dependencies(self):
         try:
-            os.system('pip install -r requirements.txt')
+            os.system('git config --global http.proxy http://sesp:Ne2715hat@192.168.0.1:8080')
+            os.system('git config --global https.proxy https://sesp:Ne2715hat@192.168.0.1:8080')
+            with open('requirements.bat', 'w') as bat:
+                script = """
+                    set HTTP_PROXY=http://sesp:Ne2715hat@192.168.0.1:8080
+                    set HTTP_PROXY=https://sesp:Ne2715hat@192.168.0.1:8080
+                    pip install -r requirements.txt
+                """
+                bat.write(script)
+            os.system('requirements.bat')
         except Exception as e:
             raise e
 
@@ -90,22 +107,14 @@ class Installer():
 
     
     def git_install(self):
-        try:
-            while True:
-                try:
-                    self.computer_controller.exclude_path_of_installers()
-                except:
-                    time.sleep(2)
-                else:
-                    break
-                
+        try:               
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Programação, Imagem e Video\\Git\\Git64.exe"
+                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git64.exe"
             else:
-                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Programação, Imagem e Video\\Git\\Git32.exe"
+                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git32.exe"
 
             response = subprocess.run(["copy", path_installer, "C:\\installers\\Git.exe"], shell=True)
             if response.returncode != 0:
@@ -134,21 +143,23 @@ class Installer():
 
             response = subprocess.run(["mkdir", "C:\\.SESP"], shell=True)
 
+            git_path = Path('C:\Program Files (x86)\Git\cmd')
+            if not git_path.is_dir():
+                git_path = Path('C:\Program Files\Git\cmd')
+
             with open('C:\\.SESP\\Sesp.bat', 'w') as bat: 
                 script = f"""
-                cd C:\\
-                git clone https://github.com/duzzsys/SESP.git
-                cd C:\\SESP
-                git clone -b master_version https://github.com/duzzsys/SESP.git Atualizacoes
-                start start.pyw
+                cd {git_path}
+                git config --global http.proxy http://sesp:Ne2715hat@192.168.0.1:8080
+                git config --global https.proxy https://sesp:Ne2715hat@192.168.0.1:8080
+                git clone https://github.com/jonasdart/SESP.git C:\\SESP
+                git clone -b master_version https://github.com/jonasdart/SESP.git C:\\SESP\\Atualizacoes
+                python C:\\SESP\\start.pyw
                 """
                 bat.write(script)
             os.system('C:\\.SESP\\Sesp.bat')
             
             self.create_link_to_startup()
-            
-            shutil.rmtree('C:\\.SESP')
-            
             
         except Exception as e:
             raise e
@@ -156,8 +167,6 @@ class Installer():
 
 
     def create_link_to_startup(self):
-        import win32com.client
-
         desktop = "C:\\Users\\Administrador\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
         path = os.path.join(desktop, "SESP.lnk")
         target = "C:\\SESP\\start.pyw"
@@ -170,7 +179,7 @@ class Installer():
         shortcut.WindowStyle = 7 
         shortcut.save()
 
-    
+
     def fusion_install(self):
         try:
             self.title = 'Instalando o Fusion Inventory Agent'
@@ -189,9 +198,9 @@ class Installer():
 
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"
+                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"
             else:
-                path_installer = "\\\\192.168.0.2\\d\\TI\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
+                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
             
             response = subprocess.run(["copy", path_installer, "C:\\install\\Fusion.exe"], shell=True)
             if response.returncode != 0:
@@ -368,23 +377,28 @@ class Controller():
 
 
     def install(self):
-        try:            
-            self.installer.python_install()
-
-            self.title = 'Aguardando a instalação do Python3'
-            self.body = ''
-            SystemTray().notify(self.title, self.body)
-
+        try:
+            os.system('net use W: /delete >nul')
+            os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x /persistent:yes')
+            
             self.installer.git_install()
-            self.installer.install_dependencies()
-
             self.title = 'Aguardando a instalação do GIT'
             self.body = ''
             SystemTray().notify(self.title, self.body)
 
             self.installer.sesp_install()
+
+            self.installer.python_install()
+            self.title = 'Aguardando a instalação do Python3'
+            self.body = ''
+            SystemTray().notify(self.title, self.body)
+
+            self.installer.install_dependencies()
+
         except Exception as e:
             raise e
+        finally:
+            os.system('net use W: /delete >nul')
         return True
 
     
@@ -395,4 +409,8 @@ class Controller():
             raise
 
 if __name__ == "__main__":
-    Controller()
+    try:
+        Controller()
+    except Exception as e:
+        print(e)
+        os.system('pause')
