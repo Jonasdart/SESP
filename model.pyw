@@ -84,7 +84,7 @@ class GetInfo():
     def get_computer(self):
         try:
             config = configparser.ConfigParser()
-            config.read('computer.cfg')
+            config.read('C:\\SESP\\computer.cfg')
 
             computer_inventorynumber = config.get('computer', 'inventory_number')
             proxy_active = config.get('computer', 'proxy_active')
