@@ -64,14 +64,6 @@ class Installer():
 
     def python_install(self):
         try:
-            while True:
-                try:
-                    self.computer_controller.exclude_path_of_installers()
-                except:
-                    time.sleep(2)
-                else:
-                    break
-
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
@@ -90,8 +82,6 @@ class Installer():
     
     def install_dependencies(self):
         try:
-            os.system('git config --global http.proxy http://sesp:Ne2715hat@192.168.0.1:8080')
-            os.system('git config --global https.proxy https://sesp:Ne2715hat@192.168.0.1:8080')
             with open('requirements.bat', 'w') as bat:
                 script = """
                     set HTTP_PROXY=http://sesp:Ne2715hat@192.168.0.1:8080
@@ -107,7 +97,15 @@ class Installer():
 
     
     def git_install(self):
-        try:               
+        try:
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
+                    
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
@@ -236,7 +234,7 @@ class Update():
         try:
             conf = configparser.ConfigParser()
             try:
-                conf.read('Atualizacoes\\conf.cfg')
+                conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
                 remote = conf.get('git_repo', 'remote')
                 server = conf.get('git_repo' ,'server')
                 branch_version = conf.get('git_repo', 'branch_version')
@@ -380,13 +378,6 @@ class Controller():
         try:
             os.system('net use W: /delete >nul')
             os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x /persistent:yes')
-            
-            self.installer.git_install()
-            self.title = 'Aguardando a instalação do GIT'
-            self.body = ''
-            SystemTray().notify(self.title, self.body)
-
-            self.installer.sesp_install()
 
             self.installer.python_install()
             self.title = 'Aguardando a instalação do Python3'
@@ -394,6 +385,13 @@ class Controller():
             SystemTray().notify(self.title, self.body)
 
             self.installer.install_dependencies()
+
+            self.installer.git_install()
+            self.title = 'Aguardando a instalação do GIT'
+            self.body = ''
+            SystemTray().notify(self.title, self.body)
+
+            self.installer.sesp_install()
 
         except Exception as e:
             raise e

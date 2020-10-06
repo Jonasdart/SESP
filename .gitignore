@@ -34,6 +34,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Installers
+output/*
+
 # Relat�rios
 Servidor/Relatorios/*
 
