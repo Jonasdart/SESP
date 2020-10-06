@@ -84,14 +84,14 @@ class Installer():
     
     def install_dependencies(self):
         try:
-            with open('requirements.bat', 'w') as bat:
+            with open('C:\\SESP\\Atualizacoes\\requirements.bat', 'w') as bat:
                 script = """
                     set HTTP_PROXY=http://sesp:Ne2715hat@192.168.0.1:8080
                     set HTTP_PROXY=https://sesp:Ne2715hat@192.168.0.1:8080
-                    pip install -r requirements.txt
+                    pip install -r C:\\SESP\\Atualizacoes\\requirements.txt
                 """
                 bat.write(script)
-            os.system('requirements.bat')
+            os.system('C:\\SESP\\Atualizacoes\\requirements.bat')
         except Exception as e:
             raise e
 
