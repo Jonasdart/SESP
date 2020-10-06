@@ -11,6 +11,7 @@ import os
 import subprocess
 from PySimpleGUI import SystemTray
 from time import sleep
+import shutil
 
 
 class Controller():
@@ -25,7 +26,10 @@ class Controller():
             #response = self.model.rename_computer(computer_inventorynumber)
             #response = self.model.force_inventory()
             #os.system('python schedule.pyw')
-            
+            try:
+                shutil.rmtree('C:\\.SESP')
+            except:
+                pass
             title = 'SESP'
             body = 'Atualizando...'
             SystemTray().notify(title, body)

@@ -46,7 +46,7 @@ class GetInfo():
     def get_sesp_version(self):
         try:
             config = configparser.ConfigParser()
-            config.read('conf.cfg')
+            config.read('C:\\SESP\\conf.cfg')
 
             sesp_version = config.get('current_version', 'version')
 
@@ -60,7 +60,7 @@ class GetInfo():
     def get_api_server(self):
         try:
             config = configparser.ConfigParser()
-            config.read('conf.cfg')
+            config.read('C:\\SESP\\conf.cfg')
 
             base_url = config.get('config_api', 'base_url')
         except Exception as e:
@@ -72,7 +72,7 @@ class GetInfo():
     def get_check_frequency_of_schedule(self):
         try:
             config = configparser.ConfigParser()
-            config.read('conf.cfg')
+            config.read('C:\\SESP\\conf.cfg')
 
             check_frequency = config.get('schedule', 'check_frequency')
         except Exception as e:
