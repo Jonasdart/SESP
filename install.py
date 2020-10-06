@@ -155,7 +155,8 @@ class Installer():
                 python C:\\SESP\\start.pyw
                 """
                 bat.write(script)
-            os.system('C:\\.SESP\\Sesp.bat')
+            
+            subprocess.run(['C:\\.SESP\\Sesp.bat'], shell=True)
             
             self.create_link_to_startup()
             
@@ -263,11 +264,11 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            response = subprocess.run(['git', 'restore', '.'], shell=True)
+            response = subprocess.run(['cd', 'C:\\SESP\Atualizacoes;', 'git', 'restore', '.'], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível restaurar a versão')
 
-            response = subprocess.run(["git", "pull"], shell=True)
+            response = subprocess.run(['cd', 'C:\\SESP\Atualizacoes;','git', 'pull'], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git pull')
 
@@ -321,7 +322,7 @@ class Update():
         try:
             server = binds['Server']
 
-            response = subprocess.run(['git', 'clone', server], shell=True)
+            response = subprocess.run(['cd', 'C:\\SESP\Atualizacoes;', 'git', 'clone', server], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git clone')
 
@@ -336,12 +337,12 @@ class Update():
 
     def save_archives(self):
         try:
-            dir_path = os.path.dirname(os.path.realpath(__file__))
-            app_path = dir_path.split('\Atualizacoes')[0]
-            
-            dir_path = dir_path.replace('\\', '\\\\')
-            app_path = app_path.replace('\\', '\\\\')
-            
+            #dir_path = os.path.dirname(os.path.realpath(__file__))
+            #app_path = dir_path.split('\Atualizacoes')[0]
+
+            dir_path = 'C:\\SESP\\Atualizacoes'
+            app_path = 'C:\\SESP'
+                        
             response = subprocess.run(['copy', f'{dir_path}\\SESP\\*', app_path], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível fazer a cópia da pasta atualizada')
