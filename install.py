@@ -70,9 +70,9 @@ class Installer():
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = '"W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"'
+                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
             else:
-                path_installer = '"W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"'
+                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
             response = subprocess.run(["copy", path_installer, "C:\\installers\\Python.exe"], shell=True)
 
             os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
@@ -203,9 +203,9 @@ class Installer():
 
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = '"W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"'
+                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"
             else:
-                path_installer = '"W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"'
+                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
             
             response = subprocess.run(["copy", path_installer, "C:\\install\\Fusion.exe"], shell=True)
             if response.returncode != 0:
