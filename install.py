@@ -49,7 +49,7 @@ class Computer():
     def get_fusion_server(self):
         try:
             config = configparser.ConfigParser()
-            config.read('conf.cfg')
+            config.read('C:\\SESP\\conf.cfg')
 
             fusion_server = config.get('fusion', 'server')
 
@@ -70,9 +70,9 @@ class Installer():
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
+                path_installer = '"W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"'
             else:
-                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
+                path_installer = '"W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"'
             response = subprocess.run(["copy", path_installer, "C:\\installers\\Python.exe"], shell=True)
 
             os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
@@ -203,9 +203,9 @@ class Installer():
 
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"
+                path_installer = '"W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"'
             else:
-                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
+                path_installer = '"W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"'
             
             response = subprocess.run(["copy", path_installer, "C:\\install\\Fusion.exe"], shell=True)
             if response.returncode != 0:
@@ -218,6 +218,8 @@ class Installer():
             
         except Exception as e:
             raise e
+        finally:
+            os.system('net use W: /delete >nul')
 
         return True
 
@@ -299,9 +301,9 @@ class Update():
     def need_to_update(self, version):
         version = version['Message']
         try:
-            dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizacoes')[0]
-            dir_path = dir_path.replace('\\', '\\\\')
-            
+            #dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizacoes')[0]
+            #dir_path = dir_path.replace('\\', '\\\\')
+            dir_path = 'C:\\SESP'
             conf = configparser.ConfigParser()
             conf.read(f'{dir_path}\\conf.cfg')
 
@@ -325,7 +327,7 @@ class Update():
         try:
             server = binds['Server']
 
-            response = subprocess.run(['cd', 'C:\\SESP\Atualizacoes;', 'git', 'clone', server], shell=True)
+            response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;', 'git', 'clone', server], shell=True)
             if response.returncode != 0:
                 raise Exception('Não foi possível utilizar o git clone')
 
