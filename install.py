@@ -283,7 +283,7 @@ class Update():
             response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;','git', 'pull'], shell=True)
 
             conf = configparser.ConfigParser()
-            conf.read('conf.cfg')
+            conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
 
             current_version = conf.get('current_version', 'version')
 
@@ -308,9 +308,8 @@ class Update():
         try:
             #dir_path = os.path.dirname(os.path.realpath(__file__)).split('\Atualizacoes')[0]
             #dir_path = dir_path.replace('\\', '\\\\')
-            dir_path = 'C:\\SESP'
             conf = configparser.ConfigParser()
-            conf.read(f'{dir_path}\\conf.cfg')
+            conf.read('C:\\SESP\\conf.cfg')
 
             current_version = conf.get('current_version', 'version')
             if current_version != version['CurrentVersion']:
