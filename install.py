@@ -213,13 +213,18 @@ class Installer():
             
             fusion_server = Computer().get_fusion_server()
             
-            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Service /httpd /server="{fusion_server}"')
-
+            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Service /httpd /httpd-trust="\'192.168.0.0/23\'" /server="{fusion_server}"')
             
         except Exception as e:
             raise e
         finally:
-            os.system('net use W: /delete >nul')
+            while True:
+                try:
+                    self.computer_controller.exclude_path_of_installers()
+                except:
+                    time.sleep(2)
+                else:
+                    break
 
         return True
 
