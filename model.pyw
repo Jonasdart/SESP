@@ -279,7 +279,7 @@ class Backend():
                     if not path.is_dir():
                         path = Path('C:\Program Files\FusionInventory-Agent')
                     try:
-                        system(f'cd {path}; fusioninventory-inventory.bat')
+                        system(f'{path}\\fusioninventory-inventory.bat')
                     except:
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
                         response = requests.patch(url, headers=self.get_data.headers)
@@ -287,7 +287,7 @@ class Backend():
                             raise Exception(response.text)
                     else:
                         url = self.get_data.base_url+'/computers/byinventory?status=7&fusion_executed=True'
-                        requests.patch(url, headers=self.get_data.headers)
+                        response = requests.patch(url, headers=self.get_data.headers)
                         
             else:
                 raise('A reboot is necessary to apply changes from GLPI to this computer')
