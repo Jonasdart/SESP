@@ -5,6 +5,7 @@
 __author__ = 'Jonas Duarte'
 
 
+from pathlib import Path
 import configparser
 import subprocess
 import requests
@@ -259,19 +260,31 @@ class Backend():
         return response.text, False
 
 
-    def force_inventory(self):
+    def force_inventory(self, api=False):
         try:
             if not self.rename_computer()[1]:
-                url = self.get_data.base_url+'/computers/byinventory'
-                request = {
-                    "change_name": 0,
-                    "force_inventory": 1,
-                    "schedule_reboot":0,
-                    "schedule_shutdown":0
-                }
-                response = requests.put(url, json=request, headers=self.get_data.headers)
-                if response.status_code != 200:
-                    raise Exception(response.text)
+                if api:
+                    url = self.get_data.base_url+'/computers/byinventory'
+                    request = {
+                        "change_name": 0,
+                        "force_inventory": 1,
+                        "schedule_reboot":0,
+                        "schedule_shutdown":0
+                    }
+                    response = requests.put(url, json=request, headers=self.get_data.headers)
+                    if response.status_code != 200:
+                        raise Exception(response.text)
+                else:
+                    path = Path('C:\Program Files (x86)\FusionInventory-Agent')
+                    if not path.is_dir():
+                        path = Path('C:\Program Files\FusionInventory-Agent')
+                    try:
+                        system(f'cd {path}; fusioninventory-inventory.bat')
+                    except:
+                        url = self.get_data.base_url+'/computers/byinventory?status=2'
+                        response = requests.patch(url, headers=self.get_data.headers)
+                        if response.status_code != 200:
+                            raise Exception(response.text)
             else:
                 raise('A reboot is necessary to apply changes from GLPI to this computer')
         except Exception as e:

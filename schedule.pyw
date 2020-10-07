@@ -24,7 +24,7 @@ class Schedule():
         try:
             next_fusion_inventory = datetime.strptime(computer['next_fusion_inventory'], '%Y-%m-%d %H:%M')
             if next_fusion_inventory <= datetime.now():
-                self.model.force_inventory()
+                self.model.force_inventory(api=False)
         except Exception as e:
             print(e)
 
