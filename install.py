@@ -39,6 +39,7 @@ class Computer():
     def exclude_path_of_installers(self):
         try:
             shutil.rmtree('C:\\installers')
+            os.system('net use W: /delete >nul')
         except Exception as e:
             raise e
         
@@ -73,7 +74,7 @@ class Installer():
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
             else:
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
-            response = subprocess.run(["copy", path_installer, "C:\\installers\\Python.exe"], shell=True)
+            subprocess.run(["copy", path_installer, "C:\\installers\\Python.exe"], shell=True)
 
             os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
         
@@ -207,12 +208,9 @@ class Installer():
             else:
                 path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
             
-            response = subprocess.run(["copy", path_installer, "C:\\installers\\Fusion.exe"], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível copiar o fusion agent para a máquina')
+            subprocess.run(["copy", path_installer, "C:\\installers\\Fusion.exe"], shell=True)
             
             fusion_server = Computer().get_fusion_server()
-            
             os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Service /httpd /httpd-trust="192.168.0.0/23" /server="{fusion_server}"')
             
         except Exception as e:
@@ -331,9 +329,7 @@ class Update():
         try:
             server = binds['Server']
 
-            response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;', 'git', 'clone', server], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível utilizar o git clone')
+            subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;', 'git', 'clone', server], shell=True)
 
             self.r = {
                 'Message' : 'OK'
@@ -352,13 +348,9 @@ class Update():
             dir_path = 'C:\\SESP\\Atualizacoes'
             app_path = 'C:\\SESP'
                         
-            response = subprocess.run(['copy', f'{dir_path}\\SESP\\*', app_path], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível fazer a cópia da pasta atualizada')
+            subprocess.run(['copy', f'{dir_path}\\SESP\\*', app_path], shell=True)
             
-            response = subprocess.run(['rmdir', '/Q', '/S', f'{dir_path}\\SESP'], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível deletar a pasta de atualização')
+            subprocess.run(['rmdir', '/Q', '/S', f'{dir_path}\\SESP'], shell=True)
 
             self.r = {
                 'Message' : 'OK'
