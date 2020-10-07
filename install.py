@@ -269,8 +269,9 @@ class Update():
         try:
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
-
+            print('cd C:\\SESP\\Atualizacoes; git restore .')
             os.system('cd C:\\SESP\\Atualizacoes; git restore .')
+            print('cd C:\\SESP\\Atualizacoes; git pull')
             os.system('cd C:\\SESP\\Atualizacoes; git pull')
 
             conf = configparser.ConfigParser()
@@ -321,7 +322,7 @@ class Update():
         binds = binds['Message']
         try:
             server = binds['Server']
-
+            print(f'cd C:\\SESP\\Atualizacoes; git clone {server}')
             os.system(f'cd C:\\SESP\\Atualizacoes; git clone {server}')
 
             self.r = {
