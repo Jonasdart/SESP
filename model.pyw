@@ -281,7 +281,7 @@ class Backend():
                         path = Path('C:\\Program Files\\FusionInventory-Agent')
                     try:
                         print(f'{path}\\fusioninventory-inventory.bat')
-                        subprocess.run([f'"{path}\\fusioninventory-inventory.bat"'])
+                        subprocess.Popen([f'"{path}\\fusioninventory-inventory.bat"'])
                     except Exception as e:
                         print(e)
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
