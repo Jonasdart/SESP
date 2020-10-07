@@ -276,10 +276,12 @@ class Backend():
                         raise Exception(response.text)
                 else:
                     path = Path('C:\Program Files (x86)\FusionInventory-Agent')
+                    
                     if not path.is_dir():
                         path = Path('C:\Program Files\FusionInventory-Agent')
                     try:
-                        system(f'start "{path}\\fusioninventory-inventory.bat"')
+                        print(f'{path}\\fusioninventory-inventory.bat')
+                        subprocess.run(['start', f'{path}\\fusioninventory-inventory.bat'])
                     except:
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
                         response = requests.patch(url, headers=self.get_data.headers)
