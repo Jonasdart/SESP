@@ -279,7 +279,7 @@ class Backend():
                     if not path.is_dir():
                         path = Path('C:\Program Files\FusionInventory-Agent')
                     try:
-                        system(f'{path}\\fusioninventory-inventory.bat')
+                        system(f'start {path}\\fusioninventory-inventory.bat')
                     except:
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
                         response = requests.patch(url, headers=self.get_data.headers)
