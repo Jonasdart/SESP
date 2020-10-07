@@ -285,6 +285,10 @@ class Backend():
                         response = requests.patch(url, headers=self.get_data.headers)
                         if response.status_code != 200:
                             raise Exception(response.text)
+                    else:
+                        url = self.get_data.base_url+'/computers/byinventory?status=7&fusion_executed=True'
+                        requests.patch(url, headers=self.get_data.headers)
+                        
             else:
                 raise('A reboot is necessary to apply changes from GLPI to this computer')
         except Exception as e:

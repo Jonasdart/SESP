@@ -23,6 +23,7 @@ class Schedule():
     def _fusion_inventory_check(self, computer):
         try:
             next_fusion_inventory = datetime.strptime(computer['next_fusion_inventory'], '%Y-%m-%d %H:%M')
+            print(next_fusion_inventory, 'AAAAA')
             if next_fusion_inventory <= datetime.now():
                 self.model.force_inventory(api=False)
         except Exception as e:
