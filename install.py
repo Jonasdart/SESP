@@ -155,7 +155,6 @@ class Installer():
                 git config --global https.proxy https://sesp:Ne2715hat@192.168.0.1:8080
                 git clone https://github.com/jonasdart/SESP.git C:\\SESP
                 git clone -b master_version https://github.com/jonasdart/SESP.git C:\\SESP\\Atualizacoes
-                python C:\\SESP\\start.pyw
                 """
                 bat.write(script)
             
@@ -374,6 +373,8 @@ class Controller():
                 self.install()
         except Exception as e:
             raise e
+        finally:
+            os.system('python C:\\SESP\\start.pyw')
 
 
     def install(self):
@@ -383,14 +384,14 @@ class Controller():
             self.body = ''
             SystemTray().notify(self.title, self.body)
 
-            self.installer.install_dependencies()
-
             self.installer.git_install()
             self.title = 'Aguardando a instalação do GIT'
             self.body = ''
             SystemTray().notify(self.title, self.body)
 
             self.installer.sesp_install()
+
+            self.installer.install_dependencies()
 
         except Exception as e:
             raise e
