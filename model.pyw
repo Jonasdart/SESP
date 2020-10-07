@@ -282,7 +282,8 @@ class Backend():
                     try:
                         print(f'{path}\\fusioninventory-inventory.bat')
                         subprocess.run([f'"{path}\\fusioninventory-inventory.bat"'])
-                    except:
+                    except Exception as e:
+                        print(e)
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
                         response = requests.patch(url, headers=self.get_data.headers)
                         if response.status_code != 200:
