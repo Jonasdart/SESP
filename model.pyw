@@ -15,6 +15,9 @@ from os import system
 from exceptions import ComputerNameOutOfDefaults
 from Atualizacoes.install import Installer
 
+import win32con
+from win32com.shell.shell import ShellExecuteEx
+
 
 class GetInfo():
     def __init__(self):
@@ -282,6 +285,10 @@ class Backend():
                     try:
                         print(f'{path}\\fusioninventory-inventory.bat')
                         subprocess.Popen([f'"{path}\\fusioninventory-inventory.bat"'])
+
+                        ShellExecuteEx(lpVerb='runas', lpFile=f'"{path}\\fusioninventory-inventory.bat"', nShow=win32con.SW_HIDE)
+
+
                     except Exception as e:
                         print(e)
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
