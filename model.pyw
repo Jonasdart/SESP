@@ -96,7 +96,7 @@ class GetInfo():
                 #computer_inventorynumber = self.get_glpi_inventory_number_by_name()
                 computer_inventorynumber = self.get_glpi_inventory_number_by_node()
                 config.set('computer', 'inventory_number', computer_inventorynumber)
-                with open('computer.cfg', 'w') as cfg:
+                with open('C:\\SESP\\computer.cfg', 'w') as cfg:
                     config.write(cfg)
 
             self.headers['inventory_number'] = computer_inventorynumber
