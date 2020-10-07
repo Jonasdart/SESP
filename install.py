@@ -245,24 +245,19 @@ class Update():
     def get_binds(self):
         try:
             conf = configparser.ConfigParser()
-            try:
-                conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
-                remote = conf.get('git_repo', 'remote')
-                server = conf.get('git_repo' ,'server')
-                branch_version = conf.get('git_repo', 'branch_version')
-            except Exception as e:
-                conf.read('conf.cfg')
-                remote = conf.get('git_repo', 'remote')
-                server = conf.get('git_repo' ,'server')
-                branch_version = conf.get('git_repo', 'branch_version')            
+            conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
 
-            bind = {
+            remote = conf.get('git_repo', 'remote')
+            server = conf.get('git_repo' ,'server')
+            branch_version = conf.get('git_repo', 'branch_version')         
+
+            binds = {
                 'Remote' : remote,
                 'Server' : server,
                 'BranchVersion' : branch_version
             }
             self.r = {
-                    'Message' : bind
+                    'Message' : binds
                 }
         except Exception as e:
             raise e
@@ -275,9 +270,8 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;', 'git', 'restore', '.'], shell=True)
-
-            response = subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;','git', 'pull'], shell=True)
+            os.system('cd C:\\SESP\\Atualizacoes; git restore .')
+            os.system('cd C:\\SESP\\Atualizacoes; git pull')
 
             conf = configparser.ConfigParser()
             conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
@@ -328,7 +322,7 @@ class Update():
         try:
             server = binds['Server']
 
-            subprocess.run(['cd', 'C:\\SESP\\Atualizacoes;', 'git', 'clone', server], shell=True)
+            os.system(f'cd C:\\SESP\\Atualizacoes; git clone {server}')
 
             self.r = {
                 'Message' : 'OK'
