@@ -74,8 +74,8 @@ class Installer():
             else:
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
 
-            ShellExecuteEx(lpFile=f'copy "{path_installer}" "C:\\installers\\Python.exe"', nShow=win32con.SW_HIDE)
-            ShellExecuteEx(lpFile='start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0', nShow=win32con.SW_HIDE)
+            os.system(f'copy "{path_installer}" "C:\\installers\\Python.exe"')
+            os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
         
         except Exception as e:
             raise e
@@ -117,8 +117,8 @@ class Installer():
             else:
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git32.exe"
             
-            ShellExecuteEx(lpFile=f'copy "{path_installer}" C:\\installers\\Git.exe', nShow=win32con.SW_HIDE)
-            ShellExecuteEx(lpFile='start C:\\installers\\Git.exe /VERYSILENT /SUPPRESSMSGBOXES', nShow=win32con.SW_HIDE)
+            os.system(f'copy "{path_installer}" C:\\installers\\Git.exe')
+            os.system('start C:\\installers\\Git.exe /VERYSILENT /SUPPRESSMSGBOXES')
 
         except Exception as e:
             raise e
@@ -139,7 +139,7 @@ class Installer():
             self.body = ''
             SystemTray().notify(self.title, self.body)
 
-            ShellExecuteEx(lpFile='mkdir C:\\.SESP', nShow=win32con.SW_HIDE)
+            os.system('mkdir C:\\.SESP')
 
             git_path = Path('C:\Program Files (x86)\Git\cmd')
             if not git_path.is_dir():
@@ -155,7 +155,7 @@ class Installer():
                 """
                 bat.write(script)
             
-            ShellExecuteEx(lpFile='start C:\\.SESP\\Sesp.bat', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile='C:\\.SESP\\Sesp.bat', nShow=win32con.SW_HIDE)
             
             self.create_link_to_startup()
             
@@ -204,10 +204,10 @@ class Installer():
             else:
                 path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
             
-            ShellExecuteEx(lpFile=f'copy "{path_installer}" C:\\installers\\Fusion.exe ', nShow=win32con.SW_HIDE)
+            os.system(f'copy "{path_installer}" C:\\installers\\Fusion.exe ')
 
             fusion_server = Computer().get_fusion_server()
-            ShellExecuteEx(lpFile=f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Manual /httpd /httpd-trust="192.168.0.0/23" /installdir=C:\\FusionInventory-Agent /server="{fusion_server}"', nShow=win32con.SW_HIDE)
+            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Manual /httpd /httpd-trust="192.168.0.0/23" /installdir=C:\\FusionInventory-Agent /server="{fusion_server}"')
                         
         except Exception as e:
             raise e
@@ -363,7 +363,7 @@ class Controller():
         except Exception as e:
             raise e
         finally:
-            ShellExecuteEx(lpFile='python C:\\SESP\\start.pyw', nShow=win32con.SW_HIDE)
+            os.system('python C:\\SESP\\start.pyw')
 
 
     def install(self):
@@ -385,7 +385,7 @@ class Controller():
         except Exception as e:
             raise e
         finally:
-            ShellExecuteEx(lpFile='net use W: /delete >nul', nShow=win32con.SW_HIDE)
+            os.system('net use W: /delete >nul')
         return True
 
     
