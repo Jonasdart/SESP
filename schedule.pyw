@@ -63,6 +63,7 @@ class Schedule():
     def start(self):
         try:
             while True:
+                os.system('cls')
                 check_frequency = GetInfo().get_check_frequency_of_schedule()
                 
                 self.model.get_data.get_computer()
