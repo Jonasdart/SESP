@@ -337,7 +337,7 @@ class Update():
             dir_path = 'C:\\SESP\\Atualizacoes'
             app_path = 'C:\\SESP'
             
-            ShellExecuteEx(lpFile=f'copy {dir_path}\\SESP\\* {app_path}', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile=f'copy "{dir_path}\\SESP\\*" "{app_path}"', nShow=win32con.SW_HIDE)
             ShellExecuteEx(lpFile=f'rmdir /Q /S {dir_path}\\SESP', nShow=win32con.SW_HIDE)
             
             self.r = {
