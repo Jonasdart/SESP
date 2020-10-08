@@ -288,11 +288,9 @@ class Backend():
 
                         path = Path('C:\\Program Files (x86)\\FusionInventory-Agent')       
                         if not path.is_dir():
-                            path = Path('C:\\Program Files\\FusionInventory-Agent')
-                        system(f'icacls "{path}" /grant Todos:(F)')
-                        chmod(path, stat.S_IRWXO)
-                        ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-agent.bat"', nShow=win32con.SW_SHOW)
+                            path = Path('C:\\\FusionInventory-Agent')
 
+                        ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-agent.bat"', nShow=win32con.SW_SHOW)
 
                     except Exception as e:
                         print(e)
