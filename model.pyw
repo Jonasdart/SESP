@@ -274,15 +274,7 @@ class Backend():
                     if response.status_code != 200:
                         raise Exception(response.text)
                 else:
-                    path = Path('C:\\Program Files (x86)\\FusionInventory-Agent')
-                    
-                    if not path.is_dir():
-                        path = Path('C:\\Program Files\\FusionInventory-Agent')
                     try:
-
-                        path = Path('C:\\Program Files (x86)\\FusionInventory-Agent')       
-                        if not path.is_dir():
-                            path = Path(')
 
                         ShellExecuteEx(lpFile='C:\\FusionInventory-Agent\\fusioninventory-agent.bat', nShow=win32con.SW_HIDE)
 
