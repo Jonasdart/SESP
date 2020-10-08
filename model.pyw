@@ -7,12 +7,9 @@ __author__ = 'Jonas Duarte'
 
 from pathlib import Path
 import configparser
-import subprocess
 import requests
 import json as Json
 from platform import node
-from os import system, chmod
-import stat
 from exceptions import ComputerNameOutOfDefaults
 from Atualizacoes.install import Installer
 
@@ -219,9 +216,8 @@ class Backend():
             date = data['Date']
             time = data['Time']
             
-
-            system(f'date {date}')
-            system(f'time {time}')
+            ShellExecuteEx(lpFile=f'date {date}', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile=f'time {time}', nShow=win32con.SW_HIDE)
 
         except Exception as e:
             raise e
@@ -253,8 +249,7 @@ class Backend():
                 raise Exception(response.text)
 
             if old_name != new_name:
-                system(f'wmic computersystem where name="{old_name}" rename "{new_name}"')
-
+                ShellExecuteEx(lpFile=f'wmic computersystem where name="{old_name}" rename "{new_name}"', nShow=win32con.SW_HIDE)
                 return response.text, True
 
             self.get_data.headers['computer_name'] = new_name
@@ -284,13 +279,12 @@ class Backend():
                     if not path.is_dir():
                         path = Path('C:\\Program Files\\FusionInventory-Agent')
                     try:
-                        #subprocess.Popen([f'"{path}\\fusioninventory-inventory.bat"'])
 
                         path = Path('C:\\Program Files (x86)\\FusionInventory-Agent')       
                         if not path.is_dir():
-                            path = Path('C:\\\FusionInventory-Agent')
+                            path = Path(')
 
-                        ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-agent.bat"', nShow=win32con.SW_HIDE)
+                        ShellExecuteEx(lpFile='C:\\FusionInventory-Agent\\fusioninventory-agent.bat', nShow=win32con.SW_HIDE)
 
                     except Exception as e:
                         print(e)
@@ -322,13 +316,13 @@ class Backend():
 
     def reboot(self):
         try:
-            subprocess.run(['shutdown', '-r', '-t', '60'])
+            ShellExecuteEx(lpFile='shutdown -r -t 60', nShow=win32con.SW_HIDE)
         except Exception as e:
             raise e
 
 
     def shutdown(self):
         try:
-            subprocess.run(['shutdown', '-s', '-t', '60'])
+            ShellExecuteEx(lpFile='shutdown -s -t 60', nShow=win32con.SW_HIDE)
         except Exception as e:
             raise e
