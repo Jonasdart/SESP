@@ -11,7 +11,8 @@ import subprocess
 import requests
 import json as Json
 from platform import node
-from os import system
+from os import system, chmod
+import stat
 from exceptions import ComputerNameOutOfDefaults
 from Atualizacoes.install import Installer
 
@@ -289,6 +290,7 @@ class Backend():
                         if not path.is_dir():
                             path = Path('C:\\Program Files\\FusionInventory-Agent')
                         system(f'icacls "{path}" /grant Todos:(F)')
+                        chmod(path, stat.S_IRWXO)
                         ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-agent.bat"', nShow=win32con.SW_SHOW)
 
 
