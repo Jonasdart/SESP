@@ -269,7 +269,7 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            subprocess.run(['cd C:\\SESP\\Atualizacoes', '&&', 'git restore .'])
+            subprocess.call(['cd C:\\SESP\\Atualizacoes', '&&', 'git restore .'], shell=True)
             #ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes', 'git restore .'], nShow=win32con.SW_HIDE)
             ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes ; git pull', nShow=win32con.SW_HIDE)
 
