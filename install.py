@@ -1,13 +1,12 @@
 from pathlib import Path
 import configparser
 import platform
-import subprocess
-import sys
 import shutil
 import time
 import os
 from PySimpleGUI import SystemTray
-import win32com.client
+import win32com.client, win32con
+from win32com.shell.shell import ShellExecuteEx
 
 
 class Computer():
@@ -25,9 +24,9 @@ class Computer():
 
     def create_path_of_installers(self):
         try:
-            #os.system('net use W: /delete >nul')
-            #os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x')
-            response = subprocess.run(["mkdir", "C:\\installers"], shell=True)
+            ShellExecuteEx(lpFile='net use W: /delete >nul', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile='net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile='mkdir c:\\installers', nShow=win32con.SW_HIDE)
 
         except Exception as e:
             raise e
@@ -39,7 +38,7 @@ class Computer():
     def exclude_path_of_installers(self):
         try:
             shutil.rmtree('C:\\installers')
-            #os.system('net use W: /delete >nul')
+            ShellExecuteEx(lpFile='net use W: /delete >nul', nShow=win32con.SW_HIDE)
         except Exception as e:
             raise e
         
@@ -74,9 +73,9 @@ class Installer():
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
             else:
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
-            subprocess.run(["copy", path_installer, "C:\\installers\\Python.exe"], shell=True)
 
-            os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
+            ShellExecuteEx(lpFile=f'copy "{path_installer}" "C:\\installers\\Python.exe"', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile='start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0', nShow=win32con.SW_HIDE)
         
         except Exception as e:
             raise e
@@ -92,7 +91,8 @@ class Installer():
                     pip install -r C:\\SESP\\Atualizacoes\\requirements.txt
                 """
                 bat.write(script)
-            os.system('C:\\SESP\\Atualizacoes\\requirements.bat')
+            ShellExecuteEx(lpFile='C:\\SESP\\Atualizacoes\\requirements.bat', nShow=win32con.SW_HIDE)
+
         except Exception as e:
             raise e
 
@@ -116,12 +116,9 @@ class Installer():
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git64.exe"
             else:
                 path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git32.exe"
-
-            response = subprocess.run(["copy", path_installer, "C:\\installers\\Git.exe"], shell=True)
-            if response.returncode != 0:
-                raise Exception('Não foi possível copiar o git para a máquina')
-
-            os.system('start C:\\installers\\Git.exe /VERYSILENT /SUPPRESSMSGBOXES')
+            
+            ShellExecuteEx(lpFile=f'copy "{path_installer}" C:\\installers\\Git.exe', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile='start C:\\installers\\Git.exe /VERYSILENT /SUPPRESSMSGBOXES', nShow=win32con.SW_HIDE)
 
         except Exception as e:
             raise e
@@ -142,7 +139,7 @@ class Installer():
             self.body = ''
             SystemTray().notify(self.title, self.body)
 
-            response = subprocess.run(["mkdir", "C:\\.SESP"], shell=True)
+            ShellExecuteEx(lpFile='mkdir C:\\.SESP', nShow=win32con.SW_HIDE)
 
             git_path = Path('C:\Program Files (x86)\Git\cmd')
             if not git_path.is_dir():
@@ -158,7 +155,7 @@ class Installer():
                 """
                 bat.write(script)
             
-            subprocess.run(['C:\\.SESP\\Sesp.bat'], shell=True)
+            ShellExecuteEx(lpFile='start C:\\.SESP\\Sesp.bat', nShow=win32con.SW_HIDE)
             
             self.create_link_to_startup()
             
@@ -207,11 +204,11 @@ class Installer():
             else:
                 path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
             
-            subprocess.run(["copy", path_installer, "C:\\installers\\Fusion.exe"], shell=True)
-            
+            ShellExecuteEx(lpFile=f'copy "{path_installer}" C:\\installers\\Fusion.exe ', nShow=win32con.SW_HIDE)
+
             fusion_server = Computer().get_fusion_server()
-            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Manual /httpd /httpd-trust="192.168.0.0/23" /installdir=C:\\FusionInventory-Agent /server="{fusion_server}"')
-            
+            ShellExecuteEx(lpFile=f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Manual /httpd /httpd-trust="192.168.0.0/23" /installdir=C:\\FusionInventory-Agent /server="{fusion_server}"', nShow=win32con.SW_HIDE)
+                        
         except Exception as e:
             raise e
         finally:
@@ -269,8 +266,9 @@ class Update():
         try:
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
-            os.system('cd && git restore .')
-            os.system('cd C:\\SESP\\Atualizacoes && git pull')
+
+            ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes && git restore .', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes && git pull', nShow=win32con.SW_HIDE)
 
             conf = configparser.ConfigParser()
             conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
@@ -320,7 +318,8 @@ class Update():
         binds = binds['Message']
         try:
             server = binds['Server']
-            os.system(f'cd C:\\SESP\\Atualizacoes && git clone {server}')
+            
+            ShellExecuteEx(lpFile=f'cd C:\\SESP\\Atualizacoes && git clone {server}', nShow=win32con.SW_HIDE)
 
             self.r = {
                 'Message' : 'OK'
@@ -338,11 +337,10 @@ class Update():
 
             dir_path = 'C:\\SESP\\Atualizacoes'
             app_path = 'C:\\SESP'
-                        
-            subprocess.run(['copy', f'{dir_path}\\SESP\\*', app_path], shell=True)
             
-            subprocess.run(['rmdir', '/Q', '/S', f'{dir_path}\\SESP'], shell=True)
-
+            ShellExecuteEx(lpFile=f'copy {dir_path}\\SESP\\* {app_path}', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile=f'rmdir /Q /S {dir_path}\\SESP', nShow=win32con.SW_HIDE)
+            
             self.r = {
                 'Message' : 'OK'
             }
@@ -366,7 +364,7 @@ class Controller():
         except Exception as e:
             raise e
         finally:
-            os.system('python C:\\SESP\\start.pyw')
+            ShellExecuteEx(lpFile='python C:\\SESP\\start.pyw', nShow=win32con.SW_HIDE)
 
 
     def install(self):
@@ -388,7 +386,7 @@ class Controller():
         except Exception as e:
             raise e
         finally:
-            os.system('net use W: /delete >nul')
+            ShellExecuteEx(lpFile='net use W: /delete >nul', nShow=win32con.SW_HIDE)
         return True
 
     
@@ -402,5 +400,4 @@ if __name__ == "__main__":
     try:
         Controller()
     except Exception as e:
-        print(e)
-        os.system('pause')
+        raise
