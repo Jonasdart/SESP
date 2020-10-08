@@ -289,7 +289,7 @@ class Backend():
                         if not path.is_dir():
                             path = Path('C:\\Program Files\\FusionInventory-Agent')
                         system(f'cacls {path}\\fusioninventory-inventory.bat /E /P Todos:F')
-                        ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-inventory.bat"', nShow=win32con.SW_SHOW)
+                        ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-agent.bat"', nShow=win32con.SW_SHOW)
 
 
                     except Exception as e:
