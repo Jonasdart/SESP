@@ -24,9 +24,9 @@ class Computer():
 
     def create_path_of_installers(self):
         try:
-            ShellExecuteEx(lpFile='net use W: /delete >nul', nShow=win32con.SW_HIDE)
-            ShellExecuteEx(lpFile='net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x', nShow=win32con.SW_HIDE)
-            ShellExecuteEx(lpFile='mkdir c:\\installers', nShow=win32con.SW_HIDE)
+            os.system('net use W: /delete >nul')
+            os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x')
+            os.system('mkdir c:\\installers')
 
         except Exception as e:
             raise e
@@ -38,7 +38,7 @@ class Computer():
     def exclude_path_of_installers(self):
         try:
             shutil.rmtree('C:\\installers')
-            ShellExecuteEx(lpFile='net use W: /delete >nul', nShow=win32con.SW_HIDE)
+            os.system('net use W: /delete >nul')
         except Exception as e:
             raise e
         
