@@ -210,7 +210,7 @@ class Installer():
             subprocess.run(["copy", path_installer, "C:\\installers\\Fusion.exe"], shell=True)
             
             fusion_server = Computer().get_fusion_server()
-            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Manual /httpd /httpd-trust="192.168.0.0/23" /server="{fusion_server}"')
+            os.system(f'start C:\\installers\\Fusion.exe /S /acceptlicense /add-firewall-exception /execmode=Manual /httpd /httpd-trust="192.168.0.0/23" installdir="C:\\FusionInventory-Agent" /server="{fusion_server}"')
             
         except Exception as e:
             raise e
