@@ -286,7 +286,10 @@ class Backend():
                         print(f'{path}\\fusioninventory-inventory.bat')
                         #subprocess.Popen([f'"{path}\\fusioninventory-inventory.bat"'])
 
-                        ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-inventory.bat"', nShow=win32con.SW_SHOW)
+                        system('C:\\FusionInventory-Agent\\fusioninventory-agent.bat')
+                        system('pause')
+
+                        #ShellExecuteEx(lpFile=f'"{path}\\fusioninventory-inventory.bat"', nShow=win32con.SW_SHOW)
 
 
                     except Exception as e:
