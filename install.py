@@ -26,7 +26,7 @@ class Computer():
     def create_path_of_installers(self):
         try:
             #os.system('net use W: /delete >nul')
-            os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x')
+            #os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x')
             response = subprocess.run(["mkdir", "C:\\installers"], shell=True)
 
         except Exception as e:
