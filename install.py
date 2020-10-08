@@ -8,8 +8,6 @@ from PySimpleGUI import SystemTray
 import win32com.client, win32con
 from win32com.shell.shell import ShellExecuteEx
 
-import subprocess
-
 
 class Computer():
     def __init__(self):
@@ -269,9 +267,7 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            subprocess.call(['cd C:\\SESP\\Atualizacoes', '&&', 'git restore .', '&&', 'git pull'], shell=True)
-            #ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes', 'git restore .'], nShow=win32con.SW_HIDE)
-            #ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes ; git pull', nShow=win32con.SW_HIDE)
+            os.system('cd C:\\SESP\\Atualizacoes && git restore . && git pull')
 
             conf = configparser.ConfigParser()
             conf.read('C:\\SESP\\Atualizacoes\\conf.cfg')
@@ -322,7 +318,7 @@ class Update():
         try:
             server = binds['Server']
             
-            ShellExecuteEx(lpFile=f'cd C:\\SESP\\Atualizacoes ; git clone {server}', nShow=win32con.SW_HIDE)
+            os.system('cd C:\\SESP\\Atualizacoes && git clone')
 
             self.r = {
                 'Message' : 'OK'
