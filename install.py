@@ -39,7 +39,7 @@ class Computer():
     def exclude_path_of_installers(self):
         try:
             shutil.rmtree('C:\\installers')
-            os.system('net use W: /delete >nul')
+            #os.system('net use W: /delete >nul')
         except Exception as e:
             raise e
         
