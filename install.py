@@ -338,7 +338,7 @@ class Update():
             app_path = 'C:\\SESP'
             
             os.system(f'copy "{dir_path}\\SESP\\*" "{app_path}"')
-            ShellExecuteEx(lpFile=f'rmdir /Q /S {dir_path}\\SESP', nShow=win32con.SW_HIDE)
+            os.system(f'rmdir /Q /S {dir_path}\\SESP')
             
             self.r = {
                 'Message' : 'OK'
