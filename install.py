@@ -318,7 +318,7 @@ class Update():
         try:
             server = binds['Server']
             
-            os.system('cd C:\\SESP\\Atualizacoes && git clone')
+            os.system(f'cd C:\\SESP\\Atualizacoes && git clone {server}')
 
             self.r = {
                 'Message' : 'OK'
