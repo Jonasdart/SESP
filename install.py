@@ -267,7 +267,7 @@ class Update():
             remote = binds['Remote']
             branch_version = binds['BranchVersion']
 
-            ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes ; git restore .', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpFile=['cd C:\\SESP\\Atualizacoes', 'git restore .'], nShow=win32con.SW_HIDE)
             ShellExecuteEx(lpFile='cd C:\\SESP\\Atualizacoes ; git pull', nShow=win32con.SW_HIDE)
 
             conf = configparser.ConfigParser()
