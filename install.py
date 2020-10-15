@@ -4,9 +4,7 @@ import platform
 import shutil
 import time
 import os
-from PySimpleGUI import SystemTray
-import win32com.client, win32con
-from win32com.shell.shell import ShellExecuteEx
+import subprocess
 
 
 class Computer():
@@ -24,8 +22,6 @@ class Computer():
 
     def create_path_of_installers(self):
         try:
-            os.system('net use W: /delete >nul')
-            os.system('net use W: \\\\192.168.0.2\\d\\TI /user:192.168.0.2\\Administrador h13a14T10x')
             os.system('mkdir c:\\installers')
 
         except Exception as e:
@@ -38,7 +34,6 @@ class Computer():
     def exclude_path_of_installers(self):
         try:
             shutil.rmtree('C:\\installers')
-            os.system('net use W: /delete >nul')
         except Exception as e:
             raise e
         
@@ -70,12 +65,12 @@ class Installer():
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python64.exe"
+                path_installer = "\\\\192.168.1.221\\sesp\\Python64.exe"
             else:
-                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Python\\Python32.exe"
+                path_installer = "\\\\192.168.1.221\\sesp\\Python32.exe"
 
             os.system(f'copy "{path_installer}" "C:\\installers\\Python.exe"')
-            os.system('start C:\\installers\\Python.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0')
+            subprocess.run(['start', 'C:\\installers\\Python.exe', '/quiet', 'InstallAllUsers=1', 'PrependPath=1', 'Include_test=0'], shell=True)
         
         except Exception as e:
             raise e
@@ -91,7 +86,7 @@ class Installer():
                     pip install -r C:\\SESP\\Atualizacoes\\requirements.txt
                 """
                 bat.write(script)
-            ShellExecuteEx(lpFile='C:\\SESP\\Atualizacoes\\requirements.bat', nShow=win32con.SW_HIDE)
+            subprocess.call(['C:\\SESP\\Atualizacoes\\requirements.bat'], shell=True)
 
         except Exception as e:
             raise e
@@ -113,9 +108,9 @@ class Installer():
                 self.computer_controller.create_path_of_installers()
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git64.exe"
+                path_installer = "\\\\192.168.1.221\\sesp\\Git64.exe"
             else:
-                path_installer = "W:\\Programas\\Programação, Imagem e Video\\Git\\Git32.exe"
+                path_installer = "\\\\192.168.1.221\\sesp\\Git32.exe"
             
             os.system(f'copy "{path_installer}" C:\\installers\\Git.exe')
             os.system('start C:\\installers\\Git.exe /VERYSILENT /SUPPRESSMSGBOXES')
@@ -135,10 +130,6 @@ class Installer():
                 else:
                     break
                 
-            self.title = 'Instalando o SESP'
-            self.body = ''
-            SystemTray().notify(self.title, self.body)
-
             os.system('mkdir C:\\.SESP')
 
             git_path = Path('C:\Program Files (x86)\Git\cmd')
@@ -155,9 +146,9 @@ class Installer():
                 """
                 bat.write(script)
             
-            ShellExecuteEx(lpFile='C:\\.SESP\\Sesp.bat', nShow=win32con.SW_HIDE)
+            subprocess.call(['C:\\.SESP\\Sesp.bat'], shell=True)
             
-            self.create_link_to_startup()
+            #self.create_link_to_startup()
             
         except Exception as e:
             raise e
@@ -180,9 +171,6 @@ class Installer():
 
     def fusion_install(self):
         try:
-            self.title = 'Instalando o Fusion Inventory Agent'
-            self.body = ''
-            SystemTray().notify(self.title, self.body)
 
             if not self.computer_controller.path_of_installer_is_created:
                 self.computer_controller.create_path_of_installers()
@@ -200,9 +188,9 @@ class Installer():
 
             so, arch, name = Computer().get_computer_platform()
             if '64' in arch:
-                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion64.exe"
+                path_installer = "\\\\192.168.1.221\\sesp\\Fusion64.exe"
             else:
-                path_installer = "W:\\Programas\\Internet e Rede\\Fusion Inventory\\Fusion32.exe"
+                path_installer = "\\\\192.168.1.221\\sesp\\Fusion32.exe"
             
             os.system(f'copy "{path_installer}" C:\\installers\\Fusion.exe ')
 
@@ -280,10 +268,6 @@ class Update():
                 }
             }
             
-
-            self.title = ''
-            self.body = self.r['Message']['CurrentVersion']
-            SystemTray().notify(self.title, self.body)
 
         except Exception as e:
             raise e
@@ -369,14 +353,8 @@ class Controller():
     def install(self):
         try:
             self.installer.python_install()
-            self.title = 'Aguardando a instalação do Python3'
-            self.body = ''
-            SystemTray().notify(self.title, self.body)
 
             self.installer.git_install()
-            self.title = 'Aguardando a instalação do GIT'
-            self.body = ''
-            SystemTray().notify(self.title, self.body)
 
             self.installer.sesp_install()
 
@@ -384,8 +362,6 @@ class Controller():
 
         except Exception as e:
             raise e
-        finally:
-            os.system('net use W: /delete >nul')
         return True
 
     
