@@ -73,6 +73,7 @@ class Schedule():
                     self.body = 'O SESP alterou o nome do seu computador, com base no GLPI. Reinicie o computador, assim que possível.'
                     SystemTray.notify(self.title, self.body, icon=None)
                 else:
+                    print(computer['status_id'])
                     if computer['status_id'] == '2' or computer['status_id'] == 2:
                         self._fusion_inventory_install()
                     else:
