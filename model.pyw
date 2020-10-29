@@ -4,15 +4,15 @@
 #Python3
 __author__ = 'Jonas Duarte'
 
+from exceptions import ComputerNameOutOfDefaults, VersionError
 
+import subprocess
 from pathlib import Path
 import configparser
 import requests
 import json as Json
 from platform import node
-from exceptions import ComputerNameOutOfDefaults
-from Atualizacoes.install import Installer
-
+from install import Installer
 import win32con
 from win32com.shell.shell import ShellExecuteEx
 
@@ -99,6 +99,14 @@ class GetInfo():
                 config.set('computer', 'inventory_number', computer_inventorynumber)
                 with open('C:\\SESP\\computer.cfg', 'w') as cfg:
                     config.write(cfg)
+            
+            username = subprocess.check_output(['whoami']).split(b'\\')[1].strip().decode()
+            resolution = subprocess.check_output(['wmic', 'desktopmonitor', 'get', 'screenheight,', 'screenwidth']).strip().decode()
+            resolution = resolution.split('\n')[1].split(' ')
+            resolution = {
+                'Width' : resolution[-1],
+                'Height': resolution[0]
+            }
 
             self.headers['inventory_number'] = computer_inventorynumber
 
@@ -106,7 +114,9 @@ class GetInfo():
             raise e
 
         return {
+            'UserName' : username,
             'InventoryNumber' : computer_inventorynumber,
+            'Resolution' : resolution,
             'ProxyActive' : proxy_active,
             'ProxyServer' : proxy_server,
             'ProxyExcessions' : proxy_excessions
@@ -172,7 +182,9 @@ class GetInfo():
                 raise Exception(response.text)
             
             response = self.get_dict_from_json(response.content.decode())
-            
+            if self.get_sesp_version() != response['current_version']:
+                raise VersionError
+
         except Exception as e:
             raise e
 
@@ -198,16 +210,20 @@ class Backend():
     def __init__(self):
         self.get_data = GetInfo()
 
+    
+    def sesp_updater(self):
+        ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c xcopy "\\\\192.168.1.221\\sesp_update\\*" "C:\\SESP" /d /Y && start c:\SESP\sesp.exe', nShow=win32con.SW_HIDE)
+        exit()
+
 
     def fusion_install(self):
         try:
             Installer().fusion_install()
-
-            url = self.get_data.base_url+'/computers/byinventory?status=6'
-            requests.patch(url, headers=self.get_data.headers)
-
         except:
-            raise
+            url = self.get_data.base_url+'/computers/byinventory?status=2'
+        else:
+            url = self.get_data.base_url+'/computers/byinventory?status=6'
+        requests.patch(url, headers=self.get_data.headers)
         
 
     def alter_date_time(self, data):
@@ -279,7 +295,6 @@ class Backend():
                         ShellExecuteEx(lpFile='C:\\FusionInventory-Agent\\fusioninventory-agent.bat', nShow=win32con.SW_HIDE)
 
                     except Exception as e:
-                        print(e)
                         url = self.get_data.base_url+'/computers/byinventory?status=2'
                         response = requests.patch(url, headers=self.get_data.headers)
                         if response.status_code != 200:
@@ -293,7 +308,28 @@ class Backend():
         except Exception as e:
             raise e
 
-        return response        
+        return response 
+
+
+    def update_wallpaper(self, path):
+        try:
+            width, height = self.get_data.get_computer()['Resolution'].values()
+            path += f'\\{width}x{height}.jpg'
+            try:
+                ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c mkdir c:\\SESP\\_files\imgs\\wallpaper\\_current', nShow=win32con.SW_HIDE)
+            except: pass
+
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c copy "{path}" "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.jpg"', nShow=win32con.SW_HIDE)
+            
+            command = f'reg add "HKEY_CURRENT_USER\\Control Panel\\Desktop" /v Wallpaper /t REG_SZ /d "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.jpg" /f'
+            command += ' && '
+            command += 'RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters'
+
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c {command}', nShow=win32con.SW_HIDE)
+        except:
+            raise
+
+        return True
 
 
     def force_four_digits(self, inventory_number):
@@ -318,3 +354,14 @@ class Backend():
             ShellExecuteEx(lpFile='shutdown -s -t 60', nShow=win32con.SW_HIDE)
         except Exception as e:
             raise e
+
+    
+    def create_a_startup_link(self):
+        try:
+            username = self.get_data.get_computer()['UserName']
+
+            with open(f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\sesp.bat', 'w') as script:
+                script.write('cd C:\\SESP && start sesp.exe')
+        except:
+            raise
+        return True
