@@ -100,8 +100,8 @@ class GetInfo():
                 with open('C:\\SESP\\computer.cfg', 'w') as cfg:
                     config.write(cfg)
             
-            username = subprocess.check_output(['whoami']).split(b'\\')[1].strip().decode()
-            resolution = subprocess.check_output(['wmic', 'desktopmonitor', 'get', 'screenheight,', 'screenwidth']).strip().decode()
+            username = subprocess.check_output(['whoami'], shell=True).split(b'\\')[1].strip().decode()
+            resolution = subprocess.check_output(['wmic', 'desktopmonitor', 'get', 'screenheight,', 'screenwidth'], shell=True).strip().decode()
             resolution = resolution.split('\n')[1].split(' ')
             resolution = {
                 'Width' : resolution[-1],
@@ -212,7 +212,7 @@ class Backend():
 
     
     def sesp_updater(self):
-        ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c xcopy "\\\\192.168.1.221\\sesp_update\\*" "C:\\SESP" /d /Y && start c:\SESP\sesp.exe', nShow=win32con.SW_HIDE)
+        ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c xcopy "\\\\192.168.1.221\\sesp_update\\*" "C:\\SESP" /d /Y /e && start c:\SESP\sesp.exe', nShow=win32con.SW_HIDE)
         exit()
 
 

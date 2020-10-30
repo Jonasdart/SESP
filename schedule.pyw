@@ -17,7 +17,7 @@ from PySimpleGUI import SystemTray
 class Schedule():
     def __init__(self):
         self.model = Backend()
-        tray = sg.SystemTray(filename='c:\\SESP\\icone_sesp.ico', tooltip='SESP')
+        tray = sg.SystemTray(filename='C:\\SESP\\icone_sesp.ico', tooltip='SESP')
         
 
     def _fusion_inventory_check(self, computer):
