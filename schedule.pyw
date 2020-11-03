@@ -4,7 +4,7 @@
 #Python3
 __author__ = 'Jonas Duarte'
 
-from exceptions import VersionError
+from exceptions import VersionError, ComputerNameOutOfDefaults
 
 from model import GetInfo, Backend
 from datetime import datetime
@@ -17,7 +17,9 @@ from PySimpleGUI import SystemTray
 class Schedule():
     def __init__(self):
         self.model = Backend()
-        tray = sg.SystemTray(filename='C:\\SESP\\icone_sesp.ico', tooltip='SESP')
+        try:
+            tray = sg.SystemTray(filename='C:\\SESP\\icone_sesp.ico', tooltip='SESP')
+        except: pass
         
 
     def _fusion_inventory_check(self, computer):
@@ -73,20 +75,26 @@ class Schedule():
         try:
             while True:
                 check_frequency = GetInfo().get_check_frequency_of_schedule()
-                
+
+                self._wallpaper_refresh({
+                    'wallpaper' : 'default'
+                })
+
                 try:
                     self.model.get_data.get_computer()
                     computer = self.model.get_data.get_sesp_computer()['sesp']['1']
                 except VersionError:
                     self.model.sesp_updater()
-                    exit()
-                
-                self._wallpaper_refresh(computer)
+                    break
+                else:
+                    self._wallpaper_refresh(computer)
 
                 if self.model.rename_computer()[1]:
-                    self.title = 'Reinicie o computador'
-                    self.body = 'O SESP alterou o nome do seu computador, com base no GLPI. Reinicie o computador, assim que possível.'
-                    SystemTray.notify(self.title, self.body, icon=None)
+                    title = 'Reinicie o computador'
+                    body = 'O SESP alterou o nome do seu computador, com base no GLPI. Reinicie o computador, assim que possível.'
+                    try:
+                        SystemTray().notify(title, body)
+                    except: pass
                 else:
                     if computer['status_id'] == 2:
                         self._fusion_inventory_install(computer)
@@ -97,12 +105,25 @@ class Schedule():
 
                 time.sleep(check_frequency)
         except Exception as e:
-            if 'Failed to establish a new connection' in str(e):
-                time.sleep(5)
-                self.start()
+            if e is ComputerNameOutOfDefaults:
+                title = 'Erro'
+                body = str(e)
+                try:
+                    SystemTray().notify(title, body)
+                except: pass
+
+                check_frequency = 3600
+
+            elif 'Failed to establish a new connection' in str(e):
+                check_frequency = 5
+                
             else:
-                time.sleep(5)
-                self.start()
+                check_frequency = 5
+
+            time.sleep(check_frequency)
+            self.start()
+        else:
+            return 'Finish'
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ __author__ = 'Jonas Duarte'
 
 from exceptions import ComputerNameOutOfDefaults, VersionError
 
+import time
 import subprocess
 from pathlib import Path
 import configparser
@@ -99,14 +100,9 @@ class GetInfo():
                 config.set('computer', 'inventory_number', computer_inventorynumber)
                 with open('C:\\SESP\\computer.cfg', 'w') as cfg:
                     config.write(cfg)
-            
+
             username = subprocess.check_output(['whoami'], shell=True).split(b'\\')[1].strip().decode()
-            resolution = subprocess.check_output(['wmic', 'desktopmonitor', 'get', 'screenheight,', 'screenwidth'], shell=True).strip().decode()
-            resolution = resolution.split('\n')[1].split(' ')
-            resolution = {
-                'Width' : resolution[-1],
-                'Height': resolution[0]
-            }
+            resolution = self._get_resolution_of_view()
 
             self.headers['inventory_number'] = computer_inventorynumber
 
@@ -191,7 +187,7 @@ class GetInfo():
         return response
 
 
-    def get_date_time(self):
+    def _get_date_time(self):
         try:
             url = self.base_url+'/get_date_time'
             
@@ -205,6 +201,17 @@ class GetInfo():
 
         return response_json
 
+    
+    def _get_resolution_of_view(self):
+        resolution = subprocess.check_output(['wmic', 'desktopmonitor', 'get', 'screenheight,', 'screenwidth'], shell=True).strip().decode()
+        resolution = resolution.split('\n')[1].split(' ')
+        resolution = {
+            'Width' : resolution[-1],
+            'Height': resolution[0]
+        }
+
+        return resolution
+
 
 class Backend():
     def __init__(self):
@@ -213,8 +220,7 @@ class Backend():
     
     def sesp_updater(self):
         ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c xcopy "\\\\192.168.1.221\\sesp_update\\*" "C:\\SESP" /d /Y /e && start c:\SESP\sesp.exe', nShow=win32con.SW_HIDE)
-        exit()
-
+        
 
     def fusion_install(self):
         try:
@@ -228,12 +234,9 @@ class Backend():
 
     def alter_date_time(self, data):
         try:
-
             date = data['Date']
             time = data['Time']
-            
-            ShellExecuteEx(lpFile=f'date {date}', nShow=win32con.SW_HIDE)
-            ShellExecuteEx(lpFile=f'time {time}', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c date {date} && time {time}', nShow=win32con.SW_HIDE)
 
         except Exception as e:
             raise e
@@ -265,7 +268,7 @@ class Backend():
                 raise Exception(response.text)
 
             if old_name != new_name:
-                ShellExecuteEx(lpFile=f'wmic computersystem where name="{old_name}" rename "{new_name}"', nShow=win32con.SW_HIDE)
+                ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c wmic computersystem where name="{old_name}" rename "{new_name}"', nShow=win32con.SW_HIDE)
                 return response.text, True
 
             self.get_data.headers['computer_name'] = new_name
@@ -313,15 +316,21 @@ class Backend():
 
     def update_wallpaper(self, path):
         try:
-            width, height = self.get_data.get_computer()['Resolution'].values()
+            try:
+                width, height = self.get_data.get_computer()['Resolution'].values()
+            except:
+                width, heigth = self.get_data._get_resolution_of_view().values()
+
             path += f'\\{width}x{height}.jpg'
             try:
                 ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c mkdir c:\\SESP\\_files\imgs\\wallpaper\\_current', nShow=win32con.SW_HIDE)
             except: pass
 
-            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c copy "{path}" "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.jpg"', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c copy "{path}" "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.bmp"', nShow=win32con.SW_HIDE)
             
-            command = f'reg add "HKEY_CURRENT_USER\\Control Panel\\Desktop" /v Wallpaper /t REG_SZ /d "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.jpg" /f'
+            time.sleep(5)
+
+            command = f'reg add "HKEY_CURRENT_USER\\Control Panel\\Desktop" /v Wallpaper /t REG_SZ /d "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.bmp" /f'
             command += ' && '
             command += 'RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters'
 
@@ -344,14 +353,14 @@ class Backend():
 
     def reboot(self):
         try:
-            ShellExecuteEx(lpFile='shutdown -r -t 60', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c shutdown -r -t 60', nShow=win32con.SW_HIDE)
         except Exception as e:
             raise e
 
 
     def shutdown(self):
         try:
-            ShellExecuteEx(lpFile='shutdown -s -t 60', nShow=win32con.SW_HIDE)
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c shutdown -s -t 60', nShow=win32con.SW_HIDE)
         except Exception as e:
             raise e
 
@@ -359,9 +368,12 @@ class Backend():
     def create_a_startup_link(self):
         try:
             username = self.get_data.get_computer()['UserName']
-
-            with open(f'C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\sesp.bat', 'w') as script:
-                script.write('cd C:\\SESP && start sesp.exe')
+            try:
+                with open(fr'C:\Users\{username}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\sesp.bat', 'w') as script:
+                    script.write('cd C:\\SESP && start sesp.exe')
+            except:
+                with open(fr'C:\Users\Administrador\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\sesp.bat', 'w') as script:
+                    script.write('cd C:\\SESP && start sesp.exe')
         except:
             raise
         return True
