@@ -27,6 +27,7 @@ class GetInfo():
             'sesp_version'     : None
         }
 
+        self.get_sesp_version()
     
     def get_dict_from_json(self, json):
         try:
@@ -78,10 +79,14 @@ class GetInfo():
             config.read('C:\\SESP\\conf.cfg')
 
             check_frequency = config.get('schedule', 'check_frequency')
+            wallpaper_frequency = config.get('schedule', 'wallpaper_frequency')
         except Exception as e:
             raise e
 
-        return int(check_frequency)
+        return {
+            'check_frequency' : int(check_frequency),
+            'wallpaper_frequency' : int(wallpaper_frequency)
+        }
 
 
     def get_computer(self):
@@ -175,7 +180,7 @@ class GetInfo():
             response = requests.get(url, headers=self.headers)
             
             if response.status_code >= 400:
-                raise Exception(response.text)
+                raise Exception(response.text)               
             
             response = self.get_dict_from_json(response.content.decode())
             if self.get_sesp_version() != response['current_version']:
@@ -219,7 +224,8 @@ class Backend():
 
     
     def sesp_updater(self):
-        ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c xcopy "\\\\192.168.1.221\\sesp_update\\*" "C:\\SESP" /d /Y /e && start c:\SESP\sesp.exe', nShow=win32con.SW_HIDE)
+        command = '/c xcopy "\\\\192.168.1.221\\sesp_update\\*" "C:\\SESP" /d /Y /e && copy "\\\\192.168.1.221\\sesp_update\\conf.cfg" "C:\\SESP\\conf.cfg" /Y && start C:\\SESP\\sesp.exe'
+        ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=command, nShow=win32con.SW_HIDE)
         
 
     def fusion_install(self):
@@ -230,6 +236,14 @@ class Backend():
         else:
             url = self.get_data.base_url+'/computers/byinventory?status=6'
         requests.patch(url, headers=self.get_data.headers)
+
+    
+    def visual_c_pp_install(self):
+        try:
+            if b'Visual C++' not in subprocess.check_output('wmic product get name', shell=True):
+                Installer().visual_c_pp_install()
+        except:
+            pass
         
 
     def alter_date_time(self, data):
@@ -294,7 +308,6 @@ class Backend():
                         raise Exception(response.text)
                 else:
                     try:
-
                         ShellExecuteEx(lpFile='C:\\FusionInventory-Agent\\fusioninventory-agent.bat', nShow=win32con.SW_HIDE)
 
                     except Exception as e:
@@ -314,27 +327,30 @@ class Backend():
         return response 
 
 
-    def update_wallpaper(self, path):
+    def update_wallpaper(self, path, real_path=False):
         try:
             try:
                 width, height = self.get_data.get_computer()['Resolution'].values()
             except:
-                width, heigth = self.get_data._get_resolution_of_view().values()
+                try:
+                    width, height = self.get_data._get_resolution_of_view().values()
+                except:
+                    width, height = '1366', '768'
 
-            path += f'\\{width}x{height}.jpg'
+            if not real_path:
+                path += f'\\{width}x{height}.bmp'
+
             try:
-                ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c mkdir c:\\SESP\\_files\imgs\\wallpaper\\_current', nShow=win32con.SW_HIDE)
+                ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters='/c mkdir C:\\SESP\\_files\\imgs\\wallpaper\\_current', nShow=win32con.SW_HIDE)
             except: pass
 
-            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c copy "{path}" "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.bmp"', nShow=win32con.SW_HIDE)
-            
-            time.sleep(5)
-
-            command = f'reg add "HKEY_CURRENT_USER\\Control Panel\\Desktop" /v Wallpaper /t REG_SZ /d "c:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.bmp" /f'
+            command = f'/c copy {path} C:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.bmp /Y'
+            command += ' && '
+            command += f'reg add "HKEY_CURRENT_USER\\Control Panel\\Desktop" /v Wallpaper /t REG_SZ /d "C:\\SESP\\_files\\imgs\\wallpaper\\_current\\{width}x{height}.bmp" /f'
             command += ' && '
             command += 'RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters'
-
-            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=f'/c {command}', nShow=win32con.SW_HIDE)
+            print(command)
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=command, nShow=win32con.SW_HIDE)
         except:
             raise
 
@@ -365,15 +381,44 @@ class Backend():
             raise e
 
     
+    def proxy_update(self):
+        """
+        Define as excessões de proxy, que podem ser configuradas
+        no sesp.cfg entre aspas '' e separadas por ';'
+        """        
+        try:
+            _computer_info = self.get_data.get_computer()
+            active = _computer_info['ProxyActive']
+
+            if active == 'False': active = False
+            elif active == 'True' : active = True
+
+            if active:
+                server = _computer_info['ProxyServer'].replace('"', '')
+                out_of_proxy = _computer_info['ProxyExcessions'].replace('"', '')
+
+                command = '/c REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f'
+                command += ' && '
+                command += f'REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d {server} /f'
+                command += ' && '
+                command += f'REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "{out_of_proxy}" /f'
+            else:
+                command = '/c REG ADD "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f'
+
+            ShellExecuteEx(lpVerb='open', lpFile='cmd.exe', lpParameters=command, nShow=win32con.SW_HIDE)
+        except:
+            pass
+
+    
     def create_a_startup_link(self):
         try:
-            username = self.get_data.get_computer()['UserName']
             try:
+                username = self.get_data.get_computer()['UserName']
                 with open(fr'C:\Users\{username}\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\sesp.bat', 'w') as script:
                     script.write('cd C:\\SESP && start sesp.exe')
             except:
                 with open(fr'C:\Users\Administrador\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\sesp.bat', 'w') as script:
                     script.write('cd C:\\SESP && start sesp.exe')
         except:
-            raise
+            pass
         return True

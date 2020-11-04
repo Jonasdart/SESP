@@ -17,6 +17,7 @@ from PySimpleGUI import SystemTray
 class Schedule():
     def __init__(self):
         self.model = Backend()
+        self.cont_time_waited = 0
         try:
             tray = sg.SystemTray(filename='C:\\SESP\\icone_sesp.ico', tooltip='SESP')
         except: pass
@@ -65,29 +66,39 @@ class Schedule():
             wallpaper_path = computer['wallpaper']
             if wallpaper_path is None or wallpaper_path == 'default':
                 wallpaper_path = '\\\\192.168.1.221\\sesp_files\\wallpapers\\default'
-            
-            self.model.update_wallpaper(wallpaper_path)
+
+            if wallpaper_path[-4:] == '.bmp':
+                real_path = True
+            else: real_path = False
+
+            self.model.update_wallpaper(wallpaper_path, real_path=real_path)
         except Exception as e:
-            pass
+            raise e
 
 
     def start(self):
         try:
             while True:
-                check_frequency = GetInfo().get_check_frequency_of_schedule()
-
-                self._wallpaper_refresh({
-                    'wallpaper' : 'default'
-                })
+                check_frequency, wallpaper_frequency = GetInfo().get_check_frequency_of_schedule().values()
+                self.model.proxy_update()
 
                 try:
                     self.model.get_data.get_computer()
                     computer = self.model.get_data.get_sesp_computer()['sesp']['1']
-                except VersionError:
-                    self.model.sesp_updater()
-                    break
+                except Exception as e:
+                    if str(e) == str(VersionError()):
+                        self.model.sesp_updater()
+                        break
+                    elif self.cont_time_waited == 0 or self.cont_time_waited >= wallpaper_frequency:
+                        self._wallpaper_refresh({
+                            'wallpaper' : 'default'
+                        })
+                        self.cont_time_waited = 0
+                    raise
                 else:
-                    self._wallpaper_refresh(computer)
+                    if self.cont_time_waited == 0 or self.cont_time_waited >= wallpaper_frequency:
+                        self._wallpaper_refresh(computer)
+                        self.cont_time_waited = 0
 
                 if self.model.rename_computer()[1]:
                     title = 'Reinicie o computador'
@@ -103,14 +114,13 @@ class Schedule():
                 self._reboot_check(computer)
                 self._shutdown_check(computer)
 
+                self.cont_time_waited += check_frequency
                 time.sleep(check_frequency)
         except Exception as e:
-            if e is ComputerNameOutOfDefaults:
+            if str(e) == str(ComputerNameOutOfDefaults()):
                 title = 'Erro'
                 body = str(e)
-                try:
-                    SystemTray().notify(title, body)
-                except: pass
+                SystemTray().notify(title, body)
 
                 check_frequency = 3600
 
@@ -120,7 +130,7 @@ class Schedule():
             else:
                 check_frequency = 5
 
-            time.sleep(check_frequency)
+            self.cont_time_waited += check_frequency
             self.start()
         else:
             return 'Finish'
@@ -130,4 +140,4 @@ if __name__ == "__main__":
     try:
         Schedule().start()
     except Exception as e:
-        raise e
+        pass
